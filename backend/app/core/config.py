@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000"
     environment: str = "dev"
     app_version: str = "0.1.0"
+    access_token_expire_minutes: int = 60
+    refresh_token_expire_days: int = 7
+    super_admin_email: str = "admin@gestion-immo.local"
+    super_admin_password: str = "Admin123!"
+    jwt_algorithm: str = "HS256"
 
     @property
     def cors_origins_list(self) -> list[str]:

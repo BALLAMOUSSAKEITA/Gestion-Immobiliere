@@ -38,6 +38,10 @@ uvicorn app.main:app --reload
 API disponible sur : http://localhost:8000  
 Documentation Swagger : http://localhost:8000/docs
 
+**Compte super admin (après migration) :**
+- Email : `admin@gestion-immo.local`
+- Mot de passe : `Admin123!` (modifiable via `SUPER_ADMIN_PASSWORD`)
+
 ### 3. Frontend (Next.js)
 
 ```bash
@@ -89,8 +93,8 @@ Gestion-Immobiliere/
 
 Consultez le dossier [`sprints/`](./sprints/README.md) pour le plan détaillé sprint par sprint.
 
-- **Sprint 0** ✅ Fondations (en cours / terminé)
-- **Sprint 1** — Authentification & rôles
+- **Sprint 0** ✅ Fondations
+- **Sprint 1** ✅ Authentification & rôles
 - **Sprint 2** — Gestion des utilisateurs
 - …
 

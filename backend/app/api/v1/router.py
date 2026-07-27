@@ -1,12 +1,33 @@
-from fastapi import APIRouter
+from typing import Annotated
 
+from fastapi import APIRouter, Depends
+
+from app.api.deps import get_current_user, require_roles
+from app.api.v1 import auth
 from app.core.config import get_settings
+from app.models.user import User
 from app.schemas.common import MessageResponse
 
 router = APIRouter()
 settings = get_settings()
 
+router.include_router(auth.router)
+
 
 @router.get("/", response_model=MessageResponse)
 def root() -> MessageResponse:
     return MessageResponse(message="Gestion Immobilière API")
+
+
+@router.get("/admin/ping", response_model=MessageResponse)
+def admin_ping(
+    _: Annotated[User, Depends(require_roles("super_admin", "admin_familial"))],
+) -> MessageResponse:
+    return MessageResponse(message="Accès administrateur autorisé")
+
+
+@router.get("/profile-check", response_model=MessageResponse)
+def profile_check(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> MessageResponse:
+    return MessageResponse(message=f"Connecté en tant que {current_user.email}")
