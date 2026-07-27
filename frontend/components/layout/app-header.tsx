@@ -11,6 +11,16 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Tableau de bord", roles: ["all"] },
   {
+    href: "/dashboard/immeubles",
+    label: "Immeubles",
+    roles: ["super_admin", "admin_familial", "proprietaire", "gestionnaire"],
+  },
+  {
+    href: "/dashboard/logements",
+    label: "Logements",
+    roles: ["super_admin", "admin_familial", "proprietaire", "gestionnaire"],
+  },
+  {
     href: "/dashboard/utilisateurs",
     label: "Utilisateurs",
     roles: ["super_admin"],

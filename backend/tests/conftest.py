@@ -13,9 +13,13 @@ from app.core.security import hash_password
 from app.main import app
 from app.models.base import Base
 from app.models import (  # noqa: F401
+    Building,
     OwnerProfile,
     RefreshToken,
     Role,
+    Unit,
+    UnitPhoto,
+    UnitTenantHistory,
     User,
     UserBuildingAssignment,
     UserOwnerAssignment,

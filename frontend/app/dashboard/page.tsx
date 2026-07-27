@@ -23,22 +23,41 @@ export default function DashboardPage() {
           <RoleBadge code={user.role.code} label={user.role.label} />
         </div>
         <p className="mt-4 text-sm text-zinc-600">
-          Les modules métier seront ajoutés dans les prochains sprints.
+          Gérez immeubles, logements et utilisateurs depuis ce tableau de bord.
         </p>
-        {user.role.code === "super_admin" && (
+        {(user.role.code === "super_admin" ||
+          user.role.code === "admin_familial" ||
+          user.role.code === "gestionnaire" ||
+          user.role.code === "proprietaire") && (
           <div className="mt-6 flex flex-wrap gap-3">
             <a
-              href="/dashboard/utilisateurs"
+              href="/dashboard/immeubles"
               className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
             >
-              Gérer les utilisateurs
+              Voir les immeubles
             </a>
             <a
-              href="/dashboard/proprietaires"
+              href="/dashboard/logements"
               className="rounded-md border border-zinc-200 px-4 py-2 text-sm font-medium"
             >
-              Voir les propriétaires
+              Voir les logements
             </a>
+            {user.role.code === "super_admin" && (
+              <>
+                <a
+                  href="/dashboard/utilisateurs"
+                  className="rounded-md border border-zinc-200 px-4 py-2 text-sm font-medium"
+                >
+                  Gérer les utilisateurs
+                </a>
+                <a
+                  href="/dashboard/proprietaires"
+                  className="rounded-md border border-zinc-200 px-4 py-2 text-sm font-medium"
+                >
+                  Voir les propriétaires
+                </a>
+              </>
+            )}
           </div>
         )}
       </div>

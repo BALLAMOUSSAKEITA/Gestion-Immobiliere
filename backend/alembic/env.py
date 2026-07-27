@@ -8,9 +8,13 @@ from sqlalchemy import engine_from_config, pool
 from app.core.config import get_settings
 from app.models.base import Base
 from app.models import (  # noqa: F401
+    Building,
     OwnerProfile,
     RefreshToken,
     Role,
+    Unit,
+    UnitPhoto,
+    UnitTenantHistory,
     User,
     UserBuildingAssignment,
     UserOwnerAssignment,

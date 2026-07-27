@@ -1,3 +1,5 @@
+from app.models.building import Building, Unit, UnitPhoto, UnitTenantHistory
+from app.models.enums import UnitStatus, UnitType
 from app.models.owner_profile import (
     OwnerProfile,
     UserBuildingAssignment,
@@ -16,4 +18,10 @@ __all__ = [
     "OwnerProfile",
     "UserBuildingAssignment",
     "UserOwnerAssignment",
+    "Building",
+    "Unit",
+    "UnitPhoto",
+    "UnitTenantHistory",
+    "UnitType",
+    "UnitStatus",
 ]

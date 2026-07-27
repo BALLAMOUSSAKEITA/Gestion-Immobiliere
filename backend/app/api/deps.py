@@ -52,7 +52,13 @@ def get_current_user(
 
     user = (
         db.query(User)
-        .options(joinedload(User.role))
+        .options(
+            joinedload(User.role),
+            joinedload(User.permissions),
+            joinedload(User.owner_profile),
+            joinedload(User.owner_assignment),
+            joinedload(User.building_assignments),
+        )
         .filter(User.id == UUID(user_id))
         .first()
     )

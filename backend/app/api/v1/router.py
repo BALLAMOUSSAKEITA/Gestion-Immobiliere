@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from app.api.deps import get_current_user, require_roles
-from app.api.v1 import auth, owner_profiles, users
+from app.api.v1 import auth, buildings, owner_profiles, public, units, users
 from app.core.config import get_settings
 from app.models.user import User
 from app.schemas.common import MessageResponse
@@ -14,6 +14,9 @@ settings = get_settings()
 router.include_router(auth.router)
 router.include_router(users.router)
 router.include_router(owner_profiles.router)
+router.include_router(buildings.router)
+router.include_router(units.router)
+router.include_router(public.router)
 
 
 @router.get("/", response_model=MessageResponse)

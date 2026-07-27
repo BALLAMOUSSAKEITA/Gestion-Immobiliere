@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     super_admin_email: str = "admin@gestion-immo.local"
     super_admin_password: str = "Admin123!"
     jwt_algorithm: str = "HS256"
+    upload_dir: str = "uploads"
+    building_code_prefix: str = "KM"
 
     @property
     def cors_origins_list(self) -> list[str]:

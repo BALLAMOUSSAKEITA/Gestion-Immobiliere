@@ -347,3 +347,256 @@ export const PERMISSION_LABELS: Record<string, string> = {
   "reports.read": "Consulter rapports",
   "documents.manage": "Gérer documents",
 };
+
+export type UnitType = "apartment" | "shop" | "office";
+export type UnitStatus = "free" | "occupied" | "reserved" | "under_repair";
+
+export const UNIT_TYPE_LABELS: Record<UnitType, string> = {
+  apartment: "Appartement",
+  shop: "Magasin",
+  office: "Bureau",
+};
+
+export function formatCurrency(value: string | number): string {
+  const amount = typeof value === "string" ? Number(value) : value;
+  return `${new Intl.NumberFormat("fr-FR").format(amount)} FCFA`;
+}
+
+export type BuildingSummary = {
+  id: string;
+  code: string;
+  name: string;
+  address: string;
+  commune: string;
+  quartier: string | null;
+  photo_url: string | null;
+  floor_count: number;
+  apartment_count: number;
+  shop_count: number;
+  owner_profile_id: string | null;
+  manager_user_id: string | null;
+  is_active: boolean;
+  created_at: string;
+};
+
+export type BuildingDetail = BuildingSummary & {
+  observations: string | null;
+  total_units: number;
+  occupied_units: number;
+  free_units: number;
+  under_repair_units: number;
+  occupancy_rate: number;
+  monthly_expected_rent: string;
+  updated_at: string;
+};
+
+export type BuildingListResponse = {
+  items: BuildingSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+};
+
+export type BuildingCreatePayload = {
+  name: string;
+  address: string;
+  commune: string;
+  quartier?: string;
+  floor_count?: number;
+  owner_profile_id?: string;
+  manager_user_id?: string;
+  observations?: string;
+};
+
+export type UnitSummary = {
+  id: string;
+  building_id: string;
+  code: string;
+  type: UnitType;
+  number: string;
+  floor: number | null;
+  rent_amount: string;
+  deposit_amount: string;
+  status: UnitStatus;
+  is_public_listing: boolean;
+  is_active: boolean;
+  building_code?: string | null;
+  building_name?: string | null;
+  commune?: string | null;
+  quartier?: string | null;
+};
+
+export type UnitDetail = UnitSummary & {
+  description: string | null;
+  photos: { id: string; url: string; is_primary: boolean }[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type UnitListResponse = {
+  items: UnitSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+};
+
+export type UnitCreatePayload = {
+  type: UnitType;
+  number: string;
+  floor?: number;
+  rent_amount: string;
+  deposit_amount?: string;
+  description?: string;
+  is_public_listing?: boolean;
+};
+
+export type PublicUnitSummary = {
+  id: string;
+  code: string;
+  type: UnitType;
+  rent_amount: string;
+  deposit_amount: string;
+  description: string | null;
+  commune: string;
+  quartier: string | null;
+  primary_photo_url: string | null;
+};
+
+export type PublicUnitDetail = PublicUnitSummary & {
+  photos: { id: string; url: string; is_primary: boolean }[];
+};
+
+export type PublicUnitListResponse = {
+  items: PublicUnitSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+};
+
+export async function fetchBuildings(
+  accessToken: string,
+  params: Record<string, string | number | boolean | undefined> = {},
+): Promise<BuildingListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") {
+      query.set(key, String(value));
+    }
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<BuildingListResponse>(
+    `/api/v1/buildings${suffix}`,
+    {},
+    accessToken,
+  );
+}
+
+export async function fetchBuilding(
+  accessToken: string,
+  buildingId: string,
+): Promise<BuildingDetail> {
+  return apiFetch<BuildingDetail>(
+    `/api/v1/buildings/${buildingId}`,
+    {},
+    accessToken,
+  );
+}
+
+export async function createBuilding(
+  accessToken: string,
+  payload: BuildingCreatePayload,
+): Promise<BuildingDetail> {
+  return apiFetch<BuildingDetail>(
+    "/api/v1/buildings",
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function updateBuilding(
+  accessToken: string,
+  buildingId: string,
+  payload: Partial<BuildingCreatePayload> & { is_active?: boolean },
+): Promise<BuildingDetail> {
+  return apiFetch<BuildingDetail>(
+    `/api/v1/buildings/${buildingId}`,
+    { method: "PATCH", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function fetchBuildingUnits(
+  accessToken: string,
+  buildingId: string,
+): Promise<UnitListResponse> {
+  return apiFetch<UnitListResponse>(
+    `/api/v1/buildings/${buildingId}/units?page_size=100`,
+    {},
+    accessToken,
+  );
+}
+
+export async function createBuildingUnit(
+  accessToken: string,
+  buildingId: string,
+  payload: UnitCreatePayload,
+): Promise<UnitDetail> {
+  return apiFetch<UnitDetail>(
+    `/api/v1/buildings/${buildingId}/units`,
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function fetchUnits(
+  accessToken: string,
+  params: Record<string, string | number | boolean | undefined> = {},
+): Promise<UnitListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") {
+      query.set(key, String(value));
+    }
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<UnitListResponse>(`/api/v1/units${suffix}`, {}, accessToken);
+}
+
+export async function fetchUnit(
+  accessToken: string,
+  unitId: string,
+): Promise<UnitDetail> {
+  return apiFetch<UnitDetail>(`/api/v1/units/${unitId}`, {}, accessToken);
+}
+
+export async function updateUnit(
+  accessToken: string,
+  unitId: string,
+  payload: Partial<UnitCreatePayload & { status: UnitStatus; is_active: boolean }>,
+): Promise<UnitDetail> {
+  return apiFetch<UnitDetail>(
+    `/api/v1/units/${unitId}`,
+    { method: "PATCH", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function fetchPublicUnits(
+  params: Record<string, string | number | undefined> = {},
+): Promise<PublicUnitListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") {
+      query.set(key, String(value));
+    }
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<PublicUnitListResponse>(`/api/v1/public/units${suffix}`);
+}
+
+export async function fetchPublicUnit(unitId: string): Promise<PublicUnitDetail> {
+  return apiFetch<PublicUnitDetail>(`/api/v1/public/units/${unitId}`);
+}

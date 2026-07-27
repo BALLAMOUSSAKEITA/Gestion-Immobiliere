@@ -59,7 +59,9 @@ class UserBuildingAssignment(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    building_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    building_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("buildings.id", ondelete="CASCADE"), nullable=False
+    )
     assigned_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -69,4 +71,7 @@ class UserBuildingAssignment(Base):
 
     user: Mapped["User"] = relationship(
         "User", back_populates="building_assignments", foreign_keys=[user_id]
+    )
+    building: Mapped["Building"] = relationship(
+        "Building", back_populates="building_assignments"
     )
