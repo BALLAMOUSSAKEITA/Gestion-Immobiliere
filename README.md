@@ -50,7 +50,19 @@ npm run dev
 
 Application : http://localhost:3000
 
-## Déploiement production (Docker)
+## Déploiement Railway
+
+Guide détaillé : **[docs/railway.md](./docs/railway.md)**
+
+Résumé :
+
+1. Créer un projet Railway + **PostgreSQL**
+2. Service **backend** (`Root Directory: backend`) — lier `DATABASE_URL`
+3. Service **frontend** (`Root Directory: frontend`) — `NEXT_PUBLIC_API_URL` = URL backend
+4. Variables backend : `SECRET_KEY`, `CORS_ORIGINS`, `PUBLIC_API_URL`, `SUPER_ADMIN_*`
+5. Monter un **volume** sur `/app/uploads` pour conserver PDF/documents
+
+## Déploiement production (Docker local)
 
 ```bash
 # Configurer les variables dans .env à la racine ou exporter :
