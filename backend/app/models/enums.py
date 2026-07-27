@@ -33,3 +33,21 @@ class LeaseStatus(str, enum.Enum):
     active = "active"
     expired = "expired"
     terminated = "terminated"
+
+
+class RentPeriodStatus(str, enum.Enum):
+    pending = "pending"
+    partial = "partial"
+    paid = "paid"
+    overdue = "overdue"
+
+
+class PaymentRecordStatus(str, enum.Enum):
+    recorded = "recorded"
+    validated = "validated"
+    cancelled = "cancelled"
+
+
+class ReceiptStatus(str, enum.Enum):
+    issued = "issued"
+    cancelled = "cancelled"

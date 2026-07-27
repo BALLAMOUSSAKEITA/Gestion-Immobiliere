@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     upload_dir: str = "uploads"
     building_code_prefix: str = "KM"
+    agency_name: str = "Gestion Immobilière"
+    agency_address: str = "Abidjan, Côte d'Ivoire"
 
     @property
     def cors_origins_list(self) -> list[str]:

@@ -820,3 +820,150 @@ export async function createTenantAccount(
     accessToken,
   );
 }
+
+export type PaymentStatus = "recorded" | "validated" | "cancelled";
+
+export type RentPeriod = {
+  id: string;
+  period_year: number;
+  period_month: number;
+  expected_amount: string;
+  paid_amount: string;
+  remaining_amount: string;
+  status: "pending" | "partial" | "paid" | "overdue";
+  due_date: string;
+};
+
+export type PaymentSummary = {
+  id: string;
+  lease_id: string;
+  tenant_id: string;
+  tenant_name: string;
+  unit_code: string;
+  amount: string;
+  payment_method: PaymentMethod;
+  payment_date: string;
+  reference: string | null;
+  status: PaymentStatus;
+  recorded_by_name: string;
+  created_at: string;
+  receipt_id: string | null;
+  receipt_number: string | null;
+};
+
+export type PaymentDetail = PaymentSummary & {
+  proof_url: string | null;
+  notes: string | null;
+  allocations: { period_year: number; period_month: number; allocated_amount: string }[];
+  validated_by_name: string | null;
+  validated_at: string | null;
+  updated_at: string;
+};
+
+export type PaymentListResponse = {
+  items: PaymentSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+};
+
+export type PaymentCreatePayload = {
+  lease_id: string;
+  amount: string;
+  payment_method: PaymentMethod;
+  payment_date: string;
+  reference?: string;
+  notes?: string;
+  allocations?: { period_year: number; period_month: number; amount: string }[];
+};
+
+export type ReceiptSummary = {
+  id: string;
+  payment_id: string;
+  receipt_number: string;
+  pdf_url: string;
+  issued_at: string;
+  issued_by_name: string;
+  tenant_name: string;
+  unit_code: string;
+  amount: string;
+  status: "issued" | "cancelled";
+  sent_email_at: string | null;
+};
+
+export type ReceiptDetail = ReceiptSummary & {
+  payment_date: string;
+  payment_method: string;
+};
+
+export type ReceiptListResponse = {
+  items: ReceiptSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+};
+
+export async function fetchLeasePeriods(
+  accessToken: string,
+  leaseId: string,
+): Promise<RentPeriod[]> {
+  return apiFetch<RentPeriod[]>(`/api/v1/leases/${leaseId}/periods`, {}, accessToken);
+}
+
+export async function fetchPayments(
+  accessToken: string,
+  params: Record<string, string | number | boolean | undefined> = {},
+): Promise<PaymentListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<PaymentListResponse>(`/api/v1/payments${suffix}`, {}, accessToken);
+}
+
+export async function fetchPayment(
+  accessToken: string,
+  paymentId: string,
+): Promise<PaymentDetail> {
+  return apiFetch<PaymentDetail>(`/api/v1/payments/${paymentId}`, {}, accessToken);
+}
+
+export async function createPayment(
+  accessToken: string,
+  payload: PaymentCreatePayload,
+): Promise<PaymentDetail> {
+  return apiFetch<PaymentDetail>(
+    "/api/v1/payments",
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function fetchReceipts(
+  accessToken: string,
+  params: Record<string, string | number | undefined> = {},
+): Promise<ReceiptListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<ReceiptListResponse>(`/api/v1/receipts${suffix}`, {}, accessToken);
+}
+
+export async function fetchReceipt(
+  accessToken: string,
+  receiptId: string,
+): Promise<ReceiptDetail> {
+  return apiFetch<ReceiptDetail>(`/api/v1/receipts/${receiptId}`, {}, accessToken);
+}
+
+export async function sendReceiptEmail(
+  accessToken: string,
+  receiptId: string,
+): Promise<{ message: string; sent_at: string }> {
+  return apiFetch(`/api/v1/receipts/${receiptId}/send-email`, { method: "POST" }, accessToken);
+}

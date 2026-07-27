@@ -58,6 +58,7 @@ class Tenant(Base, TimestampMixin):
     leases: Mapped[list["Lease"]] = relationship(
         "Lease", back_populates="tenant", cascade="all, delete-orphan"
     )
+    payments: Mapped[list["Payment"]] = relationship("Payment", back_populates="tenant")
 
 
 class Lease(Base, TimestampMixin):
@@ -96,6 +97,10 @@ class Lease(Base, TimestampMixin):
     rent_history: Mapped[list["LeaseRentHistory"]] = relationship(
         "LeaseRentHistory", back_populates="lease", cascade="all, delete-orphan"
     )
+    rent_periods: Mapped[list["RentPeriod"]] = relationship(
+        "RentPeriod", back_populates="lease", cascade="all, delete-orphan"
+    )
+    payments: Mapped[list["Payment"]] = relationship("Payment", back_populates="lease")
 
 
 class LeaseRentHistory(Base):

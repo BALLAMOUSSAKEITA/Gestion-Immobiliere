@@ -161,6 +161,10 @@ class LeaseService:
 
         self.db.add(lease)
         self.db.add(history)
+        self.db.flush()
+        from app.services.rent_period_service import RentPeriodService
+
+        RentPeriodService(self.db).generate_for_lease(lease)
         self.db.commit()
         self.db.refresh(lease)
         return self._to_detail(self._get_or_404(lease.id))

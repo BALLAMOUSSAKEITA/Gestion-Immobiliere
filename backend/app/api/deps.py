@@ -58,6 +58,7 @@ def get_current_user(
             joinedload(User.owner_profile),
             joinedload(User.owner_assignment),
             joinedload(User.building_assignments),
+            joinedload(User.tenant_profile),
         )
         .filter(User.id == UUID(user_id))
         .first()

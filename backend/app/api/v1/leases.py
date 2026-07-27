@@ -16,7 +16,9 @@ from app.schemas.lease import (
     LeaseTerminate,
     LeaseUpdate,
 )
+from app.schemas.payment import RentPeriodResponse
 from app.services.lease_service import LeaseService
+from app.services.payment_service import PaymentService
 
 router = APIRouter(prefix="/leases", tags=["leases"])
 
@@ -106,3 +108,21 @@ def upload_lease_contract(
     file: UploadFile = File(...),
 ) -> LeaseDetail:
     return LeaseService(db).upload_contract(current_user, lease_id, file)
+
+
+@router.get("/{lease_id}/periods", response_model=list[RentPeriodResponse])
+def list_lease_periods(
+    lease_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> list[RentPeriodResponse]:
+    return PaymentService(db).list_periods(current_user, lease_id)
+
+
+@router.post("/{lease_id}/periods/generate", response_model=list[RentPeriodResponse])
+def generate_lease_periods(
+    lease_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> list[RentPeriodResponse]:
+    return PaymentService(db).generate_periods(current_user, lease_id)
