@@ -117,3 +117,11 @@ class EntityType(str, enum.Enum):
     repair = "repair"
     owner_profile = "owner_profile"
     receipt = "receipt"
+    document = "document"
+
+
+class ApprovalRequestStatus(str, enum.Enum):
+    pending = "pending"
+    approved = "approved"
+    rejected = "rejected"
+    cancelled = "cancelled"

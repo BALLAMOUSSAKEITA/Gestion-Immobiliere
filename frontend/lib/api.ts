@@ -1588,3 +1588,225 @@ export function formatFileSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
 }
+
+export type ApprovalRequestStatus = "pending" | "approved" | "rejected" | "cancelled";
+
+export type ApprovalUserBrief = {
+  id: string;
+  full_name: string;
+  email: string;
+};
+
+export type ApprovalRequestSummary = {
+  id: string;
+  action_code: string;
+  entity_type: string;
+  entity_id: string;
+  status: ApprovalRequestStatus;
+  reason: string;
+  requested_by: ApprovalUserBrief;
+  requested_at: string;
+  reviewed_by: ApprovalUserBrief | null;
+  reviewed_at: string | null;
+  review_comment: string | null;
+  executed_at: string | null;
+};
+
+export type ApprovalRequestDetail = ApprovalRequestSummary & {
+  payload_before: Record<string, unknown> | null;
+  payload_after: Record<string, unknown> | null;
+};
+
+export type ApprovalRequestListResponse = {
+  items: ApprovalRequestSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+};
+
+export const APPROVAL_ACTION_LABELS: Record<string, string> = {
+  "payment.delete": "Suppression paiement",
+  "payment.update_amount": "Modification montant paiement",
+  "tenant.delete": "Suppression locataire",
+  "building.change_owner": "Changement propriétaire",
+  "lease.update": "Modification contrat",
+  "expense.validate": "Validation dépense",
+  "receipt.cancel": "Annulation reçu",
+  "document.delete": "Suppression document",
+};
+
+export const APPROVAL_STATUS_LABELS: Record<ApprovalRequestStatus, string> = {
+  pending: "En attente",
+  approved: "Approuvée",
+  rejected: "Rejetée",
+  cancelled: "Annulée",
+};
+
+export async function fetchApprovalRequests(
+  accessToken: string,
+  params: Record<string, string | number | undefined> = {},
+): Promise<ApprovalRequestListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<ApprovalRequestListResponse>(
+    `/api/v1/approval-requests${suffix}`,
+    {},
+    accessToken,
+  );
+}
+
+export async function fetchMyApprovalRequests(
+  accessToken: string,
+  params: Record<string, string | number | undefined> = {},
+): Promise<ApprovalRequestListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<ApprovalRequestListResponse>(
+    `/api/v1/approval-requests/mine${suffix}`,
+    {},
+    accessToken,
+  );
+}
+
+export async function fetchApprovalRequest(
+  accessToken: string,
+  requestId: string,
+): Promise<ApprovalRequestDetail> {
+  return apiFetch<ApprovalRequestDetail>(
+    `/api/v1/approval-requests/${requestId}`,
+    {},
+    accessToken,
+  );
+}
+
+export async function createApprovalRequest(
+  accessToken: string,
+  payload: {
+    action_code: string;
+    entity_type: string;
+    entity_id: string;
+    reason: string;
+    payload_after?: Record<string, unknown> | null;
+  },
+): Promise<ApprovalRequestDetail> {
+  return apiFetch<ApprovalRequestDetail>(
+    "/api/v1/approval-requests",
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function approveApprovalRequest(
+  accessToken: string,
+  requestId: string,
+  reviewComment?: string,
+): Promise<ApprovalRequestDetail> {
+  return apiFetch<ApprovalRequestDetail>(
+    `/api/v1/approval-requests/${requestId}/approve`,
+    { method: "POST", body: JSON.stringify({ review_comment: reviewComment ?? null }) },
+    accessToken,
+  );
+}
+
+export async function rejectApprovalRequest(
+  accessToken: string,
+  requestId: string,
+  reviewComment: string,
+): Promise<ApprovalRequestDetail> {
+  return apiFetch<ApprovalRequestDetail>(
+    `/api/v1/approval-requests/${requestId}/reject`,
+    { method: "POST", body: JSON.stringify({ review_comment: reviewComment }) },
+    accessToken,
+  );
+}
+
+export async function cancelApprovalRequest(
+  accessToken: string,
+  requestId: string,
+): Promise<ApprovalRequestDetail> {
+  return apiFetch<ApprovalRequestDetail>(
+    `/api/v1/approval-requests/${requestId}/cancel`,
+    { method: "POST" },
+    accessToken,
+  );
+}
+
+export async function deleteDocumentWithApproval(
+  accessToken: string,
+  documentId: string,
+  reason?: string,
+): Promise<ApprovalRequestDetail | void> {
+  const query = reason ? `?reason=${encodeURIComponent(reason)}` : "";
+  const headers = new Headers();
+  headers.set("Authorization", `Bearer ${accessToken}`);
+  const res = await fetch(`${API_BASE}/api/v1/documents/${documentId}${query}`, {
+    method: "DELETE",
+    headers,
+  });
+  if (res.status === 202) {
+    return parseResponse<ApprovalRequestDetail>(res);
+  }
+  return parseResponse<void>(res);
+}
+
+export type AuditLogSummary = {
+  id: string;
+  user: ApprovalUserBrief;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  created_at: string;
+};
+
+export type AuditLogDetail = AuditLogSummary & {
+  old_values: Record<string, unknown> | null;
+  new_values: Record<string, unknown> | null;
+  ip_address: string | null;
+  user_agent: string | null;
+};
+
+export type AuditLogListResponse = {
+  items: AuditLogSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+};
+
+export async function fetchAuditLogs(
+  accessToken: string,
+  params: Record<string, string | number | undefined> = {},
+): Promise<AuditLogListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<AuditLogListResponse>(`/api/v1/audit-logs${suffix}`, {}, accessToken);
+}
+
+export async function fetchAuditLog(
+  accessToken: string,
+  logId: string,
+): Promise<AuditLogDetail> {
+  return apiFetch<AuditLogDetail>(`/api/v1/audit-logs/${logId}`, {}, accessToken);
+}
+
+export async function fetchEntityAuditLogs(
+  accessToken: string,
+  entityType: string,
+  entityId: string,
+): Promise<AuditLogSummary[]> {
+  return apiFetch<AuditLogSummary[]>(
+    `/api/v1/audit-logs/entity/${entityType}/${entityId}`,
+    {},
+    accessToken,
+  );
+}

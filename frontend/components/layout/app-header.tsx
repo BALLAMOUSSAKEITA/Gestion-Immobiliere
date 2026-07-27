@@ -61,6 +61,21 @@ const NAV_ITEMS = [
     roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire", "locataire"],
   },
   {
+    href: "/dashboard/validations",
+    label: "Validations",
+    roles: ["super_admin"],
+  },
+  {
+    href: "/dashboard/mes-demandes",
+    label: "Mes demandes",
+    roles: ["super_admin", "admin_familial", "gestionnaire"],
+  },
+  {
+    href: "/dashboard/historique",
+    label: "Historique",
+    roles: ["super_admin", "admin_familial"],
+  },
+  {
     href: "/dashboard/recus",
     label: "Reçus",
     roles: ["super_admin", "admin_familial", "gestionnaire", "locataire"],

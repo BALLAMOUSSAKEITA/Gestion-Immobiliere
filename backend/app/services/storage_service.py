@@ -62,3 +62,10 @@ class StorageService:
         if not path.exists():
             raise HTTPException(status_code=404, detail="Fichier introuvable")
         return path
+
+    def delete_file(self, file_url: str) -> None:
+        try:
+            path = self.resolve_path(file_url)
+            path.unlink(missing_ok=True)
+        except HTTPException:
+            pass

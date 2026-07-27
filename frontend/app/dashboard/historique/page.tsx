@@ -1,0 +1,93 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+
+import { ProtectedRoute } from "@/components/auth/protected-route";
+import { AppHeader } from "@/components/layout/app-header";
+import {
+  ApiError,
+  fetchAuditLogs,
+  type AuditLogSummary,
+} from "@/lib/api";
+import { getAccessToken } from "@/lib/auth-storage";
+import { useAuth } from "@/contexts/auth-context";
+
+export default function HistoriquePage() {
+  const { user } = useAuth();
+  const [items, setItems] = useState<AuditLogSummary[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const canAccess =
+    user?.role.code === "super_admin" || user?.role.code === "admin_familial";
+
+  const load = useCallback(async () => {
+    const token = getAccessToken();
+    if (!token) return;
+    const data = await fetchAuditLogs(token, { page_size: 50 });
+    setItems(data.items);
+  }, []);
+
+  useEffect(() => {
+    if (!canAccess) return;
+    load().catch((err) =>
+      setError(err instanceof ApiError ? err.message : "Chargement impossible"),
+    );
+  }, [load, canAccess]);
+
+  if (user && !canAccess) {
+    return (
+      <ProtectedRoute>
+        <AppHeader />
+        <main className="mx-auto max-w-4xl px-6 py-10">
+          <p className="text-red-600">Accès réservé aux administrateurs.</p>
+        </main>
+      </ProtectedRoute>
+    );
+  }
+
+  return (
+    <ProtectedRoute>
+      <AppHeader />
+      <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10">
+        <div>
+          <h1 className="text-3xl font-bold">Historique des modifications</h1>
+          <p className="mt-2 text-zinc-600">
+            Journal d&apos;audit immuable — qui a fait quoi, quand.
+          </p>
+        </div>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
+
+        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+          <table className="min-w-full text-left text-sm">
+            <thead className="border-b border-zinc-200 bg-zinc-50">
+              <tr>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Utilisateur</th>
+                <th className="px-4 py-3">Action</th>
+                <th className="px-4 py-3">Entité</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => (
+                <tr key={item.id} className="border-b border-zinc-100">
+                  <td className="px-4 py-3">
+                    {new Date(item.created_at).toLocaleString("fr-FR")}
+                  </td>
+                  <td className="px-4 py-3">{item.user.full_name}</td>
+                  <td className="px-4 py-3 font-medium">{item.action}</td>
+                  <td className="px-4 py-3">
+                    {item.entity_type} / {item.entity_id.slice(0, 8)}…
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {items.length === 0 && (
+            <p className="p-6 text-center text-zinc-500">Aucune entrée d&apos;audit.</p>
+          )}
+        </div>
+      </main>
+    </ProtectedRoute>
+  );
+}

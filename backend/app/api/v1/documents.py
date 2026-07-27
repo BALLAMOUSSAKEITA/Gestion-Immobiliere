@@ -1,11 +1,14 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, Depends, File, Form, Query, Request, Response, UploadFile
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import FileResponse, JSONResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.api.sensitive_actions import handle_sensitive_action
+from app.core import approval_actions
 from app.core.database import get_db
 from app.models.enums import EntityType
 from app.models.user import User
@@ -117,13 +120,27 @@ def update_document(
     return DocumentService(db).update_document(current_user, document_id, payload)
 
 
-@router.delete("/{document_id}", status_code=204)
+@router.delete("/{document_id}")
 def delete_document(
     document_id: UUID,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
-) -> None:
-    DocumentService(db).delete_document(current_user, document_id)
+    http_request: Request,
+    reason: str | None = Query(default=None),
+):
+    result = handle_sensitive_action(
+        db,
+        current_user,
+        action_code=approval_actions.DOCUMENT_DELETE,
+        entity_type="document",
+        entity_id=str(document_id),
+        reason=reason,
+        http_request=http_request,
+        execute_direct=lambda: DocumentService(db).delete_document(current_user, document_id),
+    )
+    if result:
+        return JSONResponse(status_code=202, content=jsonable_encoder(result))
+    return Response(status_code=204)
 
 
 @router.get("/{document_id}/download")

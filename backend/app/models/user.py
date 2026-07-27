@@ -48,3 +48,11 @@ class User(Base, TimestampMixin):
     tenant_profile: Mapped["Tenant | None"] = relationship(
         "Tenant", back_populates="user", uselist=False, foreign_keys="Tenant.user_id"
     )
+    approval_requests: Mapped[list["ApprovalRequest"]] = relationship(
+        "ApprovalRequest",
+        back_populates="requester",
+        foreign_keys="ApprovalRequest.requested_by",
+    )
+    audit_logs: Mapped[list["AuditLog"]] = relationship(
+        "AuditLog", back_populates="user"
+    )

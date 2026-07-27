@@ -1,5 +1,7 @@
 from app.models.building import Building, Unit, UnitPhoto, UnitTenantHistory
+from app.models.audit import ApprovalRequest, AuditLog
 from app.models.enums import (
+    ApprovalRequestStatus,
     EntityType,
     ExpenseStatus,
     IdDocumentType,
@@ -80,4 +82,7 @@ __all__ = [
     "DocumentType",
     "Document",
     "DocumentShare",
+    "ApprovalRequest",
+    "AuditLog",
+    "ApprovalRequestStatus",
 ]

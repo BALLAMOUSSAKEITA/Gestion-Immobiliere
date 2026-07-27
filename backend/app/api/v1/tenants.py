@@ -1,7 +1,9 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Query, Request, Response, UploadFile
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -15,6 +17,8 @@ from app.schemas.tenant import (
     TenantListResponse,
     TenantUpdate,
 )
+from app.api.sensitive_actions import handle_sensitive_action
+from app.core import approval_actions
 from app.schemas.overdue import OverdueListResponse, ReminderListResponse
 from app.services.tenant_service import TenantService
 from app.services.overdue_service import OverdueService, ReminderService
@@ -72,13 +76,27 @@ def update_tenant(
     return TenantService(db).update_tenant(current_user, tenant_id, payload)
 
 
-@router.delete("/{tenant_id}", status_code=204)
+@router.delete("/{tenant_id}")
 def delete_tenant(
     tenant_id: UUID,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
-) -> None:
-    TenantService(db).deactivate_tenant(current_user, tenant_id)
+    http_request: Request,
+    reason: str | None = Query(default=None),
+):
+    result = handle_sensitive_action(
+        db,
+        current_user,
+        action_code=approval_actions.TENANT_DELETE,
+        entity_type="tenant",
+        entity_id=str(tenant_id),
+        reason=reason,
+        http_request=http_request,
+        execute_direct=lambda: TenantService(db).deactivate_tenant(current_user, tenant_id),
+    )
+    if result:
+        return JSONResponse(status_code=202, content=jsonable_encoder(result))
+    return Response(status_code=204)
 
 
 @router.post("/{tenant_id}/photo", response_model=TenantDetail)

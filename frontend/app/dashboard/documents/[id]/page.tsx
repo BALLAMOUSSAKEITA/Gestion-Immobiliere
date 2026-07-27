@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { RequestApprovalModal } from "@/components/approvals/request-approval-modal";
 import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import {
   ApiError,
+  deleteDocumentWithApproval,
   fetchDocument,
   formatFileSize,
   shareDocument,
@@ -21,12 +23,16 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function DocumentDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const { user } = useAuth();
   const [document, setDocument] = useState<DocumentDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
 
+  const isSuperAdmin = user?.role.code === "super_admin";
   const canManage =
     user?.role.code === "super_admin" ||
     user?.role.code === "admin_familial" ||
@@ -83,6 +89,24 @@ export default function DocumentDetailPage() {
     setShareUrl(`${window.location.origin}${share.share_url}`);
   }
 
+  async function handleDirectDelete() {
+    const token = getAccessToken();
+    if (!token || !params.id) return;
+    if (!window.confirm("Supprimer définitivement ce document ?")) return;
+    setError(null);
+    try {
+      await deleteDocumentWithApproval(token, params.id);
+      router.push("/dashboard/documents");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Suppression impossible");
+    }
+  }
+
+  function handleDeleteRequested() {
+    setDeleteSuccess("Demande de suppression envoyée au super administrateur.");
+    setShowDeleteModal(false);
+  }
+
   const token = getAccessToken();
 
   return (
@@ -134,12 +158,28 @@ export default function DocumentDetailPage() {
                   Partager
                 </Button>
               )}
+              {canManage && isSuperAdmin && (
+                <Button variant="outline" onClick={handleDirectDelete}>
+                  Supprimer
+                </Button>
+              )}
+              {canManage && !isSuperAdmin && (
+                <Button variant="outline" onClick={() => setShowDeleteModal(true)}>
+                  Demander suppression
+                </Button>
+              )}
               {document.mime_type.startsWith("image/") || document.mime_type === "application/pdf" ? (
                 <Button variant="outline" onClick={() => window.print()}>
                   Imprimer
                 </Button>
               ) : null}
             </div>
+
+            {deleteSuccess && (
+              <p className="rounded-md bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                {deleteSuccess}
+              </p>
+            )}
 
             {shareUrl && (
               <p className="rounded-md bg-green-50 px-4 py-3 text-sm text-green-800">
@@ -168,6 +208,18 @@ export default function DocumentDetailPage() {
               <p className="text-sm text-zinc-600">{document.description}</p>
             )}
           </>
+        )}
+
+        {document && (
+          <RequestApprovalModal
+            open={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onSuccess={handleDeleteRequested}
+            actionCode="document.delete"
+            entityType="document"
+            entityId={document.id}
+            title="Demander la suppression du document"
+          />
         )}
       </main>
     </ProtectedRoute>
