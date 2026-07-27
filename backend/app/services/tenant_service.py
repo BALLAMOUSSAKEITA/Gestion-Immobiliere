@@ -12,8 +12,12 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.core.config import get_settings
 from app.core.security import hash_password
+from decimal import Decimal
+
 from app.models.building import Unit
-from app.models.enums import LeaseStatus
+from app.models.enums import LeaseStatus, OverdueStatus
+from app.models.overdue import OverdueRecord
+from app.models.payment import Payment
 from app.models.role import Role
 from app.models.tenant import Lease, Tenant
 from app.models.user import User
@@ -333,9 +337,23 @@ class TenantService:
             observations=tenant.observations,
             user_id=str(tenant.user_id) if tenant.user_id else None,
             current_lease=current_lease,
-            payment_summary=PaymentSummary(),
+            payment_summary=self._payment_summary(tenant.id),
             updated_at=tenant.updated_at,
         )
+
+    def _payment_summary(self, tenant_id: UUID) -> PaymentSummary:
+        total_paid = (
+            self.db.query(func.sum(Payment.amount)).filter(Payment.tenant_id == tenant_id).scalar()
+        ) or Decimal("0")
+        total_unpaid = (
+            self.db.query(func.sum(OverdueRecord.amount_remaining))
+            .filter(
+                OverdueRecord.tenant_id == tenant_id,
+                OverdueRecord.status != OverdueStatus.resolved,
+            )
+            .scalar()
+        ) or Decimal("0")
+        return PaymentSummary(total_paid=total_paid, total_unpaid=total_unpaid)
 
     def _save_file(self, file: UploadFile, subdir: str) -> str:
         extension = Path(file.filename or "file.bin").suffix.lower() or ".bin"

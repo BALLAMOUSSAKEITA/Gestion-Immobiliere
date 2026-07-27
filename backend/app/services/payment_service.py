@@ -220,6 +220,15 @@ class PaymentService:
 
         ReceiptService(self.db).generate_for_payment(payment, actor.id)
         self.db.commit()
+
+        from app.services.overdue_detection_service import OverdueDetectionService
+
+        detector = OverdueDetectionService(self.db)
+        for item in allocations:
+            period = period_service.get_period(lease_id, item.period_year, item.period_month)
+            if period:
+                detector.sync_period(period.id, payload.payment_date)
+
         return self._to_detail(self._get_or_404(payment.id))
 
     def upload_proof(

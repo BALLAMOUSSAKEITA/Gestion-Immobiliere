@@ -51,3 +51,29 @@ class PaymentRecordStatus(str, enum.Enum):
 class ReceiptStatus(str, enum.Enum):
     issued = "issued"
     cancelled = "cancelled"
+
+
+class OverdueStatus(str, enum.Enum):
+    open = "open"
+    partially_paid = "partially_paid"
+    resolved = "resolved"
+
+
+class ReminderType(str, enum.Enum):
+    before_due = "before_due"
+    after_due = "after_due"
+    manual = "manual"
+    final_notice = "final_notice"
+
+
+class ReminderChannel(str, enum.Enum):
+    in_app = "in_app"
+    email = "email"
+    sms = "sms"
+    whatsapp = "whatsapp"
+
+
+class ReminderStatus(str, enum.Enum):
+    sent = "sent"
+    failed = "failed"
+    pending = "pending"

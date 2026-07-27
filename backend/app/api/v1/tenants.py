@@ -15,7 +15,9 @@ from app.schemas.tenant import (
     TenantListResponse,
     TenantUpdate,
 )
+from app.schemas.overdue import OverdueListResponse, ReminderListResponse
 from app.services.tenant_service import TenantService
+from app.services.overdue_service import OverdueService, ReminderService
 
 router = APIRouter(prefix="/tenants", tags=["tenants"])
 
@@ -97,6 +99,32 @@ def upload_tenant_id_document(
     file: UploadFile = File(...),
 ) -> TenantDetail:
     return TenantService(db).upload_id_document(current_user, tenant_id, file)
+
+
+@router.get("/{tenant_id}/overdues", response_model=OverdueListResponse)
+def list_tenant_overdues(
+    tenant_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+) -> OverdueListResponse:
+    return OverdueService(db).list_overdues(
+        current_user, page=page, page_size=page_size, tenant_id=tenant_id
+    )
+
+
+@router.get("/{tenant_id}/reminders", response_model=ReminderListResponse)
+def list_tenant_reminders(
+    tenant_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+) -> ReminderListResponse:
+    return ReminderService(db).list_reminders(
+        current_user, page=page, page_size=page_size, tenant_id=tenant_id
+    )
 
 
 @router.post("/{tenant_id}/create-account", response_model=CreateTenantAccountResponse)

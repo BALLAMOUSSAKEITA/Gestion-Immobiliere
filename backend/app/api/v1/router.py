@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from app.api.deps import get_current_user, require_roles
-from app.api.v1 import auth, buildings, leases, owner_profiles, payments, public, receipts, tenants, units, users
+from app.api.v1 import auth, buildings, leases, overdues, owner_profiles, payments, public, receipts, reminders, tenants, units, users
 from app.core.config import get_settings
 from app.models.user import User
 from app.schemas.common import MessageResponse
@@ -20,6 +20,8 @@ router.include_router(tenants.router)
 router.include_router(leases.router)
 router.include_router(payments.router)
 router.include_router(receipts.router)
+router.include_router(overdues.router)
+router.include_router(reminders.router)
 router.include_router(public.router)
 
 

@@ -59,6 +59,9 @@ class Tenant(Base, TimestampMixin):
         "Lease", back_populates="tenant", cascade="all, delete-orphan"
     )
     payments: Mapped[list["Payment"]] = relationship("Payment", back_populates="tenant")
+    reminders: Mapped[list["Reminder"]] = relationship(
+        "Reminder", back_populates="tenant"
+    )
 
 
 class Lease(Base, TimestampMixin):
