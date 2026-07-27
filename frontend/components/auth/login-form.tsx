@@ -14,11 +14,7 @@ const loginSchema = z.object({
   email: z.string().min(3).refine((value) => /^[^@]+@[^@]+\.[^@]+$/.test(value), {
     message: "Email invalide",
   }),
-  password: z
-    .string()
-    .min(8, "Minimum 8 caractères")
-    .regex(/[A-Z]/, "Au moins une majuscule")
-    .regex(/\d/, "Au moins un chiffre"),
+  password: z.string().min(1, "Mot de passe requis"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
