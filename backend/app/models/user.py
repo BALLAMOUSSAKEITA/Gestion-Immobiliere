@@ -45,3 +45,6 @@ class User(Base, TimestampMixin):
         foreign_keys="UserBuildingAssignment.user_id",
         cascade="all, delete-orphan",
     )
+    tenant_profile: Mapped["Tenant | None"] = relationship(
+        "Tenant", back_populates="user", uselist=False, foreign_keys="Tenant.user_id"
+    )

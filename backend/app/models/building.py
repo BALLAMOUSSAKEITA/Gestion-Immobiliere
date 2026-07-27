@@ -94,6 +94,7 @@ class Unit(Base, TimestampMixin):
     tenant_history: Mapped[list["UnitTenantHistory"]] = relationship(
         "UnitTenantHistory", back_populates="unit", cascade="all, delete-orphan"
     )
+    leases: Mapped[list["Lease"]] = relationship("Lease", back_populates="unit")
 
 
 class UnitPhoto(Base):
@@ -124,10 +125,13 @@ class UnitTenantHistory(Base):
     unit_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("units.id", ondelete="CASCADE"), nullable=False
     )
-    tenant_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True)
+    tenant_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, ForeignKey("tenants.id"), nullable=True
+    )
     entry_date: Mapped[date] = mapped_column(Date, nullable=False)
     exit_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     rent_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     unit: Mapped["Unit"] = relationship("Unit", back_populates="tenant_history")
+    tenant: Mapped["Tenant | None"] = relationship("Tenant")

@@ -600,3 +600,223 @@ export async function fetchPublicUnits(
 export async function fetchPublicUnit(unitId: string): Promise<PublicUnitDetail> {
   return apiFetch<PublicUnitDetail>(`/api/v1/public/units/${unitId}`);
 }
+
+export type IdDocumentType = "cni" | "passport" | "attestation" | "other";
+export type PaymentMethod = "cash" | "orange_money" | "wave" | "bank_transfer";
+export type LeaseStatus = "pending" | "active" | "expired" | "terminated";
+
+export const ID_DOCUMENT_LABELS: Record<IdDocumentType, string> = {
+  cni: "CNI",
+  passport: "Passeport",
+  attestation: "Attestation",
+  other: "Autre",
+};
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  cash: "Espèces",
+  orange_money: "Orange Money",
+  wave: "Wave",
+  bank_transfer: "Virement bancaire",
+};
+
+export const LEASE_STATUS_LABELS: Record<LeaseStatus, string> = {
+  pending: "En attente",
+  active: "Actif",
+  expired: "Expiré",
+  terminated: "Résilié",
+};
+
+export type TenantSummary = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  phone_primary: string;
+  profession: string | null;
+  is_active: boolean;
+  has_active_lease: boolean;
+  current_unit_code: string | null;
+  created_at: string;
+};
+
+export type TenantDetail = TenantSummary & {
+  phone_secondary: string | null;
+  previous_address: string | null;
+  id_document_type: IdDocumentType;
+  id_document_number: string;
+  id_document_url: string | null;
+  photo_url: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  payment_method: PaymentMethod | null;
+  observations: string | null;
+  user_id: string | null;
+  current_lease: {
+    id: string;
+    unit_code: string;
+    building_name: string;
+    rent_amount: string;
+    start_date: string;
+    status: string;
+  } | null;
+  payment_summary: { total_paid: string; total_unpaid: string };
+  updated_at: string;
+};
+
+export type TenantListResponse = {
+  items: TenantSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+};
+
+export type TenantCreatePayload = {
+  first_name: string;
+  last_name: string;
+  phone_primary: string;
+  phone_secondary?: string;
+  profession?: string;
+  previous_address?: string;
+  id_document_type: IdDocumentType;
+  id_document_number: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  payment_method?: PaymentMethod;
+  observations?: string;
+};
+
+export type LeaseSummary = {
+  id: string;
+  tenant_id: string;
+  tenant_name: string;
+  unit_id: string;
+  unit_code: string;
+  building_name: string;
+  start_date: string;
+  end_date: string | null;
+  rent_amount: string;
+  deposit_amount: string;
+  deposit_paid: boolean;
+  status: LeaseStatus;
+  created_at: string;
+};
+
+export type LeaseDetail = LeaseSummary & {
+  contract_document_url: string | null;
+  termination_date: string | null;
+  termination_reason: string | null;
+  updated_at: string;
+};
+
+export type LeaseListResponse = {
+  items: LeaseSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+};
+
+export type LeaseCreatePayload = {
+  tenant_id: string;
+  unit_id: string;
+  start_date: string;
+  end_date?: string;
+  rent_amount: string;
+  deposit_amount?: string;
+  deposit_paid?: boolean;
+};
+
+export async function fetchTenants(
+  accessToken: string,
+  params: Record<string, string | number | boolean | undefined> = {},
+): Promise<TenantListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<TenantListResponse>(`/api/v1/tenants${suffix}`, {}, accessToken);
+}
+
+export async function fetchTenant(
+  accessToken: string,
+  tenantId: string,
+): Promise<TenantDetail> {
+  return apiFetch<TenantDetail>(`/api/v1/tenants/${tenantId}`, {}, accessToken);
+}
+
+export async function createTenant(
+  accessToken: string,
+  payload: TenantCreatePayload,
+): Promise<TenantDetail> {
+  return apiFetch<TenantDetail>(
+    "/api/v1/tenants",
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function fetchLeases(
+  accessToken: string,
+  params: Record<string, string | number | boolean | undefined> = {},
+): Promise<LeaseListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<LeaseListResponse>(`/api/v1/leases${suffix}`, {}, accessToken);
+}
+
+export async function fetchLease(
+  accessToken: string,
+  leaseId: string,
+): Promise<LeaseDetail> {
+  return apiFetch<LeaseDetail>(`/api/v1/leases/${leaseId}`, {}, accessToken);
+}
+
+export async function createLease(
+  accessToken: string,
+  payload: LeaseCreatePayload,
+): Promise<LeaseDetail> {
+  return apiFetch<LeaseDetail>(
+    "/api/v1/leases",
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function terminateLease(
+  accessToken: string,
+  leaseId: string,
+  payload: { termination_date: string; termination_reason: string },
+): Promise<LeaseDetail> {
+  return apiFetch<LeaseDetail>(
+    `/api/v1/leases/${leaseId}/terminate`,
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function fetchExpiringLeases(
+  accessToken: string,
+  days = 30,
+): Promise<LeaseListResponse> {
+  return apiFetch<LeaseListResponse>(
+    `/api/v1/leases/expiring?days=${days}`,
+    {},
+    accessToken,
+  );
+}
+
+export async function createTenantAccount(
+  accessToken: string,
+  tenantId: string,
+  email: string,
+): Promise<{ user_id: string; email: string; temporary_password: string | null }> {
+  return apiFetch(
+    `/api/v1/tenants/${tenantId}/create-account`,
+    { method: "POST", body: JSON.stringify({ email }) },
+    accessToken,
+  );
+}
