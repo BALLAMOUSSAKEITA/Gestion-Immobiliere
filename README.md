@@ -95,7 +95,8 @@ Consultez le dossier [`sprints/`](./sprints/README.md) pour le plan détaillé s
 
 - **Sprint 0** ✅ Fondations
 - **Sprint 1** ✅ Authentification & rôles
-- **Sprint 2** — Gestion des utilisateurs
+- **Sprint 2** ✅ Gestion des utilisateurs
+- **Sprint 3** — Immeubles & logements
 - …
 
 ## Conventions

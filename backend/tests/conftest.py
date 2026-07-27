@@ -12,12 +12,23 @@ from app.core.database import get_db
 from app.core.security import hash_password
 from app.main import app
 from app.models.base import Base
-from app.models import RefreshToken, Role, User  # noqa: F401
+from app.models import (  # noqa: F401
+    OwnerProfile,
+    RefreshToken,
+    Role,
+    User,
+    UserBuildingAssignment,
+    UserOwnerAssignment,
+    UserPermission,
+)
 
 ROLE_IDS = {
     "super_admin": uuid.UUID("00000000-0000-4000-8000-000000000001"),
     "admin_familial": uuid.UUID("00000000-0000-4000-8000-000000000002"),
+    "proprietaire": uuid.UUID("00000000-0000-4000-8000-000000000003"),
     "gestionnaire": uuid.UUID("00000000-0000-4000-8000-000000000004"),
+    "visiteur": uuid.UUID("00000000-0000-4000-8000-000000000005"),
+    "locataire": uuid.UUID("00000000-0000-4000-8000-000000000006"),
 }
 
 
@@ -48,9 +59,27 @@ def db_session() -> Generator[Session, None, None]:
             created_at=now,
         ),
         Role(
+            id=ROLE_IDS["proprietaire"],
+            code="proprietaire",
+            label="Propriétaire",
+            created_at=now,
+        ),
+        Role(
             id=ROLE_IDS["gestionnaire"],
             code="gestionnaire",
             label="Gestionnaire",
+            created_at=now,
+        ),
+        Role(
+            id=ROLE_IDS["visiteur"],
+            code="visiteur",
+            label="Visiteur",
+            created_at=now,
+        ),
+        Role(
+            id=ROLE_IDS["locataire"],
+            code="locataire",
+            label="Locataire",
             created_at=now,
         ),
     ]:

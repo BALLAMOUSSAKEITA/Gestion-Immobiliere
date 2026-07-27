@@ -25,6 +25,22 @@ export default function DashboardPage() {
         <p className="mt-4 text-sm text-zinc-600">
           Les modules métier seront ajoutés dans les prochains sprints.
         </p>
+        {user.role.code === "super_admin" && (
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a
+              href="/dashboard/utilisateurs"
+              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
+            >
+              Gérer les utilisateurs
+            </a>
+            <a
+              href="/dashboard/proprietaires"
+              className="rounded-md border border-zinc-200 px-4 py-2 text-sm font-medium"
+            >
+              Voir les propriétaires
+            </a>
+          </div>
+        )}
       </div>
     </main>
   );

@@ -30,3 +30,18 @@ class User(Base, TimestampMixin):
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
         "RefreshToken", back_populates="user"
     )
+    permissions: Mapped[list["UserPermission"]] = relationship(
+        "UserPermission", back_populates="user", cascade="all, delete-orphan"
+    )
+    owner_profile: Mapped["OwnerProfile | None"] = relationship(
+        "OwnerProfile", back_populates="user", uselist=False
+    )
+    owner_assignment: Mapped["UserOwnerAssignment | None"] = relationship(
+        "UserOwnerAssignment", back_populates="user", uselist=False
+    )
+    building_assignments: Mapped[list["UserBuildingAssignment"]] = relationship(
+        "UserBuildingAssignment",
+        back_populates="user",
+        foreign_keys="UserBuildingAssignment.user_id",
+        cascade="all, delete-orphan",
+    )
