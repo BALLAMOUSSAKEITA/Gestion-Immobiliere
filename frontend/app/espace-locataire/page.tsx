@@ -16,6 +16,9 @@ export default function TenantSpacePage() {
             <Link href="/espace-locataire/impayes">Mes impayés</Link>
           </Button>
           <Button asChild variant="outline">
+            <Link href="/espace-locataire/reparations">Mes réparations</Link>
+          </Button>
+          <Button asChild variant="outline">
             <Link href="/dashboard/paiements">Mes paiements</Link>
           </Button>
           <Button asChild variant="outline">

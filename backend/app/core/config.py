@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     upload_dir: str = "uploads"
     building_code_prefix: str = "KM"
     expense_validation_threshold: float = 500_000.0
+    repair_set_unit_under_repair: bool = True
     agency_name: str = "Gestion Immobilière"
     agency_address: str = "Abidjan, Côte d'Ivoire"
 

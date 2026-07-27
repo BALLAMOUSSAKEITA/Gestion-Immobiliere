@@ -2,6 +2,8 @@ from app.models.building import Building, Unit, UnitPhoto, UnitTenantHistory
 from app.models.enums import (
     ExpenseStatus,
     IdDocumentType,
+    RepairAttachmentType,
+    RepairStatus,
     LeaseStatus,
     OverdueStatus,
     PaymentMethod,
@@ -11,6 +13,7 @@ from app.models.enums import (
     ReminderStatus,
     ReminderType,
     RentPeriodStatus,
+    UrgencyLevel,
     UnitStatus,
     UnitType,
 )
@@ -19,6 +22,7 @@ from app.models.owner_profile import (
     UserBuildingAssignment,
     UserOwnerAssignment,
 )
+from app.models.repair import Repair, RepairAttachment, RepairStatusHistory
 from app.models.refresh_token import RefreshToken
 from app.models.role import Role
 from app.models.expense import Expense, ExpenseCategory
@@ -64,4 +68,10 @@ __all__ = [
     "Reminder",
     "ExpenseCategory",
     "Expense",
+    "RepairStatus",
+    "UrgencyLevel",
+    "RepairAttachmentType",
+    "Repair",
+    "RepairAttachment",
+    "RepairStatusHistory",
 ]

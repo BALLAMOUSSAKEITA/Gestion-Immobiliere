@@ -1257,3 +1257,188 @@ export async function uploadExpenseReceipt(
   });
   return parseResponse<ExpenseDetail>(res);
 }
+
+export type RepairStatus =
+  | "new"
+  | "under_review"
+  | "technician_assigned"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
+
+export type UrgencyLevel = "low" | "medium" | "high";
+
+export type RepairSummary = {
+  id: string;
+  title: string;
+  unit_code: string;
+  building_name: string;
+  urgency: UrgencyLevel;
+  status: RepairStatus;
+  reported_by_name: string;
+  assigned_to_name: string | null;
+  reported_at: string;
+  final_cost: string | null;
+};
+
+export type RepairDetail = RepairSummary & {
+  unit_id: string;
+  building_id: string;
+  description: string;
+  estimated_cost: string | null;
+  expense_id: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  cancelled_at: string | null;
+  cancellation_reason: string | null;
+  notes: string | null;
+  attachments: {
+    id: string;
+    file_url: string;
+    file_type: string;
+    uploaded_by_name: string;
+    uploaded_at: string;
+  }[];
+  updated_at: string;
+};
+
+export type RepairListResponse = {
+  items: RepairSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+};
+
+export type RepairSummaryStats = {
+  in_progress_count: number;
+  urgent_count: number;
+  completed_this_month: number;
+};
+
+export type RepairHistoryItem = {
+  id: string;
+  old_status: string | null;
+  new_status: string;
+  changed_by_name: string;
+  changed_at: string;
+  comment: string | null;
+};
+
+export const REPAIR_STATUS_LABELS: Record<RepairStatus, string> = {
+  new: "Nouvelle",
+  under_review: "En analyse",
+  technician_assigned: "Technicien affecté",
+  in_progress: "En cours",
+  completed: "Terminée",
+  cancelled: "Annulée",
+};
+
+export const URGENCY_LABELS: Record<UrgencyLevel, string> = {
+  low: "Faible",
+  medium: "Moyen",
+  high: "Élevé",
+};
+
+export type RepairCreatePayload = {
+  unit_id?: string;
+  title: string;
+  description: string;
+  urgency?: UrgencyLevel;
+};
+
+export async function fetchRepairs(
+  accessToken: string,
+  params: Record<string, string | number | undefined> = {},
+): Promise<RepairListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<RepairListResponse>(`/api/v1/repairs${suffix}`, {}, accessToken);
+}
+
+export async function fetchRepairsSummary(accessToken: string): Promise<RepairSummaryStats> {
+  return apiFetch<RepairSummaryStats>("/api/v1/repairs/summary", {}, accessToken);
+}
+
+export async function fetchRepair(accessToken: string, repairId: string): Promise<RepairDetail> {
+  return apiFetch<RepairDetail>(`/api/v1/repairs/${repairId}`, {}, accessToken);
+}
+
+export async function createRepair(
+  accessToken: string,
+  payload: RepairCreatePayload,
+): Promise<RepairDetail> {
+  return apiFetch<RepairDetail>(
+    "/api/v1/repairs",
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function updateRepairStatus(
+  accessToken: string,
+  repairId: string,
+  payload: { status: RepairStatus; comment?: string },
+): Promise<RepairDetail> {
+  return apiFetch<RepairDetail>(
+    `/api/v1/repairs/${repairId}/status`,
+    { method: "PATCH", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function completeRepair(
+  accessToken: string,
+  repairId: string,
+  payload: {
+    final_cost: string;
+    create_expense?: boolean;
+    expense_category_id?: string;
+    notes?: string;
+  },
+): Promise<RepairDetail> {
+  return apiFetch<RepairDetail>(
+    `/api/v1/repairs/${repairId}/complete`,
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function cancelRepair(
+  accessToken: string,
+  repairId: string,
+  cancellation_reason: string,
+): Promise<RepairDetail> {
+  return apiFetch<RepairDetail>(
+    `/api/v1/repairs/${repairId}/cancel`,
+    { method: "POST", body: JSON.stringify({ cancellation_reason }) },
+    accessToken,
+  );
+}
+
+export async function fetchRepairHistory(
+  accessToken: string,
+  repairId: string,
+): Promise<RepairHistoryItem[]> {
+  return apiFetch<RepairHistoryItem[]>(`/api/v1/repairs/${repairId}/history`, {}, accessToken);
+}
+
+export async function uploadRepairAttachment(
+  accessToken: string,
+  repairId: string,
+  file: File,
+): Promise<RepairDetail> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const headers = new Headers();
+  headers.set("Authorization", `Bearer ${accessToken}`);
+  const res = await fetch(`${API_URL}/api/v1/repairs/${repairId}/attachments`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+  return parseResponse<RepairDetail>(res);
+}

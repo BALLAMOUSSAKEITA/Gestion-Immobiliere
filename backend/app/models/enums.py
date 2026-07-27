@@ -84,3 +84,24 @@ class ExpenseStatus(str, enum.Enum):
     pending_validation = "pending_validation"
     validated = "validated"
     rejected = "rejected"
+
+
+class RepairStatus(str, enum.Enum):
+    new = "new"
+    under_review = "under_review"
+    technician_assigned = "technician_assigned"
+    in_progress = "in_progress"
+    completed = "completed"
+    cancelled = "cancelled"
+
+
+class UrgencyLevel(str, enum.Enum):
+    low = "low"
+    medium = "medium"
+    high = "high"
+
+
+class RepairAttachmentType(str, enum.Enum):
+    photo = "photo"
+    video = "video"
+    document = "document"
