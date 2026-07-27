@@ -1810,3 +1810,140 @@ export async function fetchEntityAuditLogs(
     accessToken,
   );
 }
+
+export type DashboardKpis = {
+  total_buildings: number;
+  total_apartments: number;
+  total_shops: number;
+  occupied_units: number;
+  free_units: number;
+  expected_rent_month: number | null;
+  collected_rent_month: number | null;
+  overdue_amount: number;
+  expenses_month: number | null;
+  net_profit_month: number | null;
+  expiring_leases_count: number;
+  repairs_in_progress: number;
+  show_financials: boolean;
+};
+
+export type MonthlySeriesPoint = {
+  label: string;
+  year: number;
+  month: number;
+  revenue: number;
+  expenses: number;
+  net_profit: number;
+};
+
+export type DashboardAlert = {
+  type: string;
+  severity: string;
+  title: string;
+  message: string;
+  href: string | null;
+};
+
+export type ReportSummary = {
+  id: string;
+  report_type: string;
+  period_start: string;
+  period_end: string;
+  filters: Record<string, unknown> | null;
+  pdf_url: string | null;
+  excel_url: string | null;
+  generated_by_name: string | null;
+  generated_at: string;
+};
+
+export type ReportDetail = ReportSummary & { data: Record<string, unknown> };
+
+export async function fetchDashboardKpis(
+  accessToken: string,
+  params: Record<string, string | number | undefined> = {},
+): Promise<DashboardKpis> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<DashboardKpis>(`/api/v1/dashboard/kpis${suffix}`, {}, accessToken);
+}
+
+export async function fetchRevenueExpenseChart(
+  accessToken: string,
+  params: Record<string, string | number | undefined> = {},
+): Promise<{ points: MonthlySeriesPoint[] }> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch(`/api/v1/dashboard/charts/revenue-expenses${suffix}`, {}, accessToken);
+}
+
+export async function fetchOccupancyChart(
+  accessToken: string,
+  params: Record<string, string | number | undefined> = {},
+): Promise<{ points: { label: string; occupancy_rate: number }[] }> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch(`/api/v1/dashboard/charts/occupancy${suffix}`, {}, accessToken);
+}
+
+export async function fetchDashboardAlerts(accessToken: string): Promise<{ items: DashboardAlert[] }> {
+  return apiFetch("/api/v1/dashboard/alerts", {}, accessToken);
+}
+
+export async function fetchDashboardTopOverdues(accessToken: string): Promise<{
+  items: { tenant_name: string; unit_code: string; amount_remaining: number; days_overdue: number }[];
+}> {
+  return apiFetch("/api/v1/dashboard/top-overdues", {}, accessToken);
+}
+
+export async function fetchDashboardExpiringLeases(accessToken: string): Promise<{
+  items: {
+    lease_id: string;
+    tenant_name: string;
+    unit_code: string;
+    building_name: string;
+    end_date: string;
+    days_remaining: number;
+  }[];
+}> {
+  return apiFetch("/api/v1/dashboard/expiring-leases", {}, accessToken);
+}
+
+export async function fetchReports(
+  accessToken: string,
+  page = 1,
+): Promise<{ items: ReportSummary[]; total: number }> {
+  return apiFetch(`/api/v1/reports?page=${page}`, {}, accessToken);
+}
+
+export async function fetchReport(accessToken: string, reportId: string): Promise<ReportDetail> {
+  return apiFetch(`/api/v1/reports/${reportId}`, {}, accessToken);
+}
+
+export async function generateReport(
+  accessToken: string,
+  payload: {
+    report_type: string;
+    period_start: string;
+    period_end: string;
+    export_formats?: string[];
+  },
+): Promise<ReportDetail> {
+  return apiFetch(
+    "/api/v1/reports/generate",
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export function getReportDownloadUrl(reportId: string, format: "pdf" | "excel"): string {
+  return `/api/v1/reports/${reportId}/${format}`;
+}

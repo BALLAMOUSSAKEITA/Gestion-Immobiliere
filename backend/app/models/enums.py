@@ -125,3 +125,10 @@ class ApprovalRequestStatus(str, enum.Enum):
     approved = "approved"
     rejected = "rejected"
     cancelled = "cancelled"
+
+
+class ReportType(str, enum.Enum):
+    daily = "daily"
+    weekly = "weekly"
+    monthly = "monthly"
+    annual = "annual"

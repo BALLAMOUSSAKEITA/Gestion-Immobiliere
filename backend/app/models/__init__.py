@@ -1,8 +1,10 @@
 from app.models.building import Building, Unit, UnitPhoto, UnitTenantHistory
 from app.models.audit import ApprovalRequest, AuditLog
+from app.models.report import ReportSnapshot
 from app.models.enums import (
     ApprovalRequestStatus,
     EntityType,
+    ReportType,
     ExpenseStatus,
     IdDocumentType,
     RepairAttachmentType,
@@ -85,4 +87,6 @@ __all__ = [
     "ApprovalRequest",
     "AuditLog",
     "ApprovalRequestStatus",
+    "ReportType",
+    "ReportSnapshot",
 ]
