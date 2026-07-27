@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 
 from fastapi import HTTPException, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.config import get_settings
@@ -32,7 +33,7 @@ class AuthService:
         user = (
             self.db.query(User)
             .options(joinedload(User.role))
-            .filter(User.email == email.lower())
+            .filter(func.lower(User.email) == email.strip().lower())
             .first()
         )
         if user is None or not verify_password(password, user.password_hash):

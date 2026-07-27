@@ -80,6 +80,23 @@ Les fichiers uploadés (PDF reçus, documents) sont stockés dans `uploads/`. Sa
 
 Compte admin créé lors de la migration `002_auth` avec `SUPER_ADMIN_EMAIL` / `SUPER_ADMIN_PASSWORD`.
 
+> **Important :** ces variables ne sont lues qu’**au moment de la première migration**. Si le backend a déployé avant que vous les définissiez, le compte par défaut est :
+> - Email : `admin@gestion-immo.local`
+> - Mot de passe : `Admin123!`
+
+### Réinitialiser le mot de passe admin
+
+Si vous avez changé `SUPER_ADMIN_*` après le premier déploiement, réinitialisez le compte :
+
+```bash
+# Avec Railway CLI (service backend)
+railway run python -m scripts.reset_admin_password
+```
+
+Le script lit `SUPER_ADMIN_EMAIL` et `SUPER_ADMIN_PASSWORD` depuis les variables Railway et met à jour le compte en base.
+
+Test direct via Swagger : `POST /api/v1/auth/login` avec votre email et mot de passe.
+
 ---
 
 ## 4. Service Frontend (Next.js)
@@ -139,7 +156,8 @@ Générez un domaine Railway pour le frontend, puis mettez à jour `CORS_ORIGINS
 |----------|----------------|----------|
 | Erreur CORS | `CORS_ORIGINS` incorrect | URL exacte du frontend, sans `/` final |
 | 502 au démarrage | Migrations lentes | Augmenter healthcheck timeout (déjà 120s) |
-| Login impossible | Mauvais admin | Vérifier variables avant 1er deploy |
+| Login impossible | Mauvais admin | Voir section « Réinitialiser le mot de passe admin » |
+| Login impossible | Identifiants définis après migration | Essayer `admin@gestion-immo.local` / `Admin123!` ou lancer `reset_admin_password` |
 | Fichiers perdus | Pas de volume | Monter volume sur `/app/uploads` |
 | Frontend appelle localhost | Build sans bonne URL | Redéployer frontend avec `NEXT_PUBLIC_API_URL` |
 
