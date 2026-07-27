@@ -188,6 +188,9 @@ class ApprovalService:
         request.review_comment = review_comment
         request.executed_at = datetime.now(UTC)
         self.db.commit()
+        from app.services.notification_hooks import notify_approval_reviewed
+
+        notify_approval_reviewed(self.db, request.requested_by, True, review_comment)
         return self._to_detail(self._get_or_404(request_id))
 
     def reject(
@@ -222,6 +225,9 @@ class ApprovalService:
             user_agent=user_agent,
         )
         self.db.commit()
+        from app.services.notification_hooks import notify_approval_reviewed
+
+        notify_approval_reviewed(self.db, request.requested_by, False, review_comment)
         return self._to_detail(self._get_or_404(request_id))
 
     def cancel(self, actor: User, request_id: UUID) -> ApprovalRequestDetail:

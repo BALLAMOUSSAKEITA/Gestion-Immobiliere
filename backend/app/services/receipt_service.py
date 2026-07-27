@@ -69,17 +69,15 @@ class ReceiptService:
         return receipt
 
     def send_email(self, receipt_id: UUID) -> datetime:
+        from app.core.config import get_settings
+        from app.services.notification_hooks import notify_receipt_available
+
         receipt = self._get_or_404(receipt_id)
         sent_at = datetime.now(UTC)
         receipt.sent_email_at = sent_at
-        tenant_email = receipt.payment.tenant.user.email if receipt.payment.tenant.user else "N/A"
-        logger.info(
-            "Email reçu %s simulé — destinataire %s, PDF %s",
-            receipt.receipt_number,
-            tenant_email,
-            receipt.pdf_url,
-        )
         self.db.commit()
+        settings = get_settings()
+        notify_receipt_available(self.db, receipt, settings.public_api_url)
         return sent_at
 
     def get_pdf_path(self, receipt_id: UUID) -> Path:

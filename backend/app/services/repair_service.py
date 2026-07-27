@@ -168,8 +168,9 @@ class RepairService:
         self._record_status_change(repair, None, RepairStatus.new, actor.id, "Demande créée")
         self.db.commit()
 
-        if payload.urgency == UrgencyLevel.high:
-            logger.info("Notification placeholder: réparation urgente %s", repair.id)
+        from app.services.notification_hooks import notify_repair_new
+
+        notify_repair_new(self.db, repair)
 
         return self._to_detail(self._get_or_404(repair.id))
 

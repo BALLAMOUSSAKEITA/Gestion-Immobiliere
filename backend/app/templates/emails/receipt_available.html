@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block extra %}
+<p><strong>Reçu n° :</strong> {{ receipt_number }}</p>
+<p><a href="{{ receipt_url }}">Télécharger le reçu PDF</a></p>
+{% endblock %}

@@ -15,7 +15,7 @@ from app.models.enums import EntityType, LeaseStatus
 from app.models.expense import Expense
 from app.models.payment import Payment, Receipt
 from app.models.repair import Repair
-from app.models.tenant import Lease
+from app.models.tenant import Lease, Tenant
 from app.models.user import User
 from app.schemas.document import (
     DocumentDetail,
@@ -147,6 +147,11 @@ class DocumentService:
         self.db.add(document)
         self._sync_legacy_url(document)
         self.db.commit()
+        recipient_ids = self._notification_recipients(entity_type, entity_id)
+        if recipient_ids:
+            from app.services.notification_hooks import notify_document_uploaded
+
+            notify_document_uploaded(self.db, recipient_ids, document.title)
         return self._to_detail(self._get_or_404(document.id))
 
     def update_document(
@@ -429,6 +434,22 @@ class DocumentService:
             lease = self.db.query(Lease).filter(Lease.id == document.entity_id).first()
             if lease:
                 lease.contract_document_url = document.file_url
+
+    def _notification_recipients(self, entity_type: EntityType, entity_id: UUID) -> list[UUID]:
+        from uuid import UUID as UUIDType
+
+        recipients: list[UUIDType] = []
+        if entity_type == EntityType.tenant:
+            tenant = self.db.query(Tenant).filter(Tenant.id == entity_id).first()
+            if tenant and tenant.user_id:
+                recipients.append(tenant.user_id)
+        elif entity_type == EntityType.lease:
+            lease = self.db.query(Lease).filter(Lease.id == entity_id).first()
+            if lease:
+                tenant = self.db.query(Tenant).filter(Tenant.id == lease.tenant_id).first()
+                if tenant and tenant.user_id:
+                    recipients.append(tenant.user_id)
+        return recipients
 
     def _get_or_404(self, document_id: UUID) -> Document:
         document = (

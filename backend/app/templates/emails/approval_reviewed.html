@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block extra %}
+<p><strong>Statut :</strong> {{ status_label }}</p>
+{% if comment %}<p><strong>Commentaire :</strong> {{ comment }}</p>{% endif %}
+{% endblock %}

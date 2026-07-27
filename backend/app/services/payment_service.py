@@ -219,7 +219,27 @@ class PaymentService:
             period_service.refresh_period_status(period, payload.payment_date)
 
         ReceiptService(self.db).generate_for_payment(payment, actor.id)
+        payment_id = payment.id
         self.db.commit()
+
+        from sqlalchemy.orm import joinedload
+
+        from app.services.notification_hooks import notify_payment_recorded, notify_receipt_available
+
+        payment = (
+            self.db.query(Payment)
+            .options(
+                joinedload(Payment.receipt),
+                joinedload(Payment.tenant),
+                joinedload(Payment.lease).joinedload(Lease.unit),
+            )
+            .filter(Payment.id == payment_id)
+            .first()
+        )
+        if payment:
+            notify_payment_recorded(self.db, payment)
+            if payment.receipt:
+                notify_receipt_available(self.db, payment.receipt)
 
         from app.services.overdue_detection_service import OverdueDetectionService
 

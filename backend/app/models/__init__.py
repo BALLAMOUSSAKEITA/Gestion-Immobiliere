@@ -1,11 +1,14 @@
 from app.models.building import Building, Unit, UnitPhoto, UnitTenantHistory
 from app.models.audit import ApprovalRequest, AuditLog
 from app.models.report import ReportSnapshot
+from app.models.notification import EmailQueue, Notification, NotificationPreference
 from app.models.portal import ContactMessage, TenantNotice, VisitRequest
 from app.models.enums import (
     ApprovalRequestStatus,
+    EmailQueueStatus,
     EntityType,
     NoticeType,
+    NotificationChannel,
     ReportType,
     ExpenseStatus,
     IdDocumentType,
@@ -97,4 +100,9 @@ __all__ = [
     "TenantNotice",
     "VisitRequestStatus",
     "NoticeType",
+    "Notification",
+    "NotificationPreference",
+    "EmailQueue",
+    "NotificationChannel",
+    "EmailQueueStatus",
 ]

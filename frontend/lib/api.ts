@@ -2151,3 +2151,102 @@ export async function replyToMessage(
     accessToken,
   );
 }
+
+export type NotificationSummary = {
+  id: string;
+  event_code: string;
+  title: string;
+  body: string;
+  entity_type: string | null;
+  entity_id: string | null;
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+};
+
+export type NotificationListResponse = {
+  items: NotificationSummary[];
+  total: number;
+  unread_count: number;
+};
+
+export type NotificationPreferenceItem = {
+  event_code: string;
+  label: string;
+  in_app_enabled: boolean;
+  email_enabled: boolean;
+  whatsapp_enabled: boolean;
+};
+
+export async function fetchNotifications(
+  accessToken: string,
+  limit = 50,
+): Promise<NotificationListResponse> {
+  return apiFetch<NotificationListResponse>(
+    `/api/v1/notifications?limit=${limit}`,
+    {},
+    accessToken,
+  );
+}
+
+export async function fetchUnreadNotificationCount(
+  accessToken: string,
+): Promise<{ count: number }> {
+  return apiFetch<{ count: number }>("/api/v1/notifications/unread-count", {}, accessToken);
+}
+
+export async function markNotificationRead(
+  accessToken: string,
+  notificationId: string,
+): Promise<NotificationSummary> {
+  return apiFetch<NotificationSummary>(
+    `/api/v1/notifications/${notificationId}/read`,
+    { method: "PATCH" },
+    accessToken,
+  );
+}
+
+export async function markAllNotificationsRead(accessToken: string): Promise<{ marked: number }> {
+  return apiFetch<{ marked: number }>(
+    "/api/v1/notifications/read-all",
+    { method: "POST" },
+    accessToken,
+  );
+}
+
+export async function fetchNotificationPreferences(
+  accessToken: string,
+): Promise<{ items: NotificationPreferenceItem[] }> {
+  return apiFetch<{ items: NotificationPreferenceItem[] }>(
+    "/api/v1/notification-preferences",
+    {},
+    accessToken,
+  );
+}
+
+export async function updateNotificationPreferences(
+  accessToken: string,
+  preferences: Array<{
+    event_code: string;
+    in_app_enabled?: boolean;
+    email_enabled?: boolean;
+    whatsapp_enabled?: boolean;
+  }>,
+): Promise<{ items: NotificationPreferenceItem[] }> {
+  return apiFetch<{ items: NotificationPreferenceItem[] }>(
+    "/api/v1/notification-preferences",
+    { method: "PUT", body: JSON.stringify({ preferences }) },
+    accessToken,
+  );
+}
+
+export async function getReceiptWhatsAppLink(
+  accessToken: string,
+  receiptId: string,
+): Promise<{ url: string; message: string }> {
+  return apiFetch<{ url: string; message: string }>(
+    `/api/v1/receipts/${receiptId}/send-whatsapp`,
+    { method: "POST" },
+    accessToken,
+  );
+}

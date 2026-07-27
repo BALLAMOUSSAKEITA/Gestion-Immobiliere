@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { RoleBadge } from "@/components/auth/role-badge";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { href: "/espace-locataire/reparations", label: "Réparations" },
   { href: "/espace-locataire/documents", label: "Documents" },
   { href: "/espace-locataire/messages", label: "Messages" },
+  { href: "/espace-locataire/notifications", label: "Notifications" },
 ];
 
 export function TenantSidebar() {
@@ -35,6 +37,7 @@ export function TenantSidebar() {
             {user.first_name} {user.last_name}
           </p>
           <RoleBadge code={user.role.code} label={user.role.label} />
+          <NotificationBell notificationsPath="/espace-locataire/notifications" />
         </div>
 
         <nav className="flex flex-col gap-1">

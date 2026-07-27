@@ -38,6 +38,9 @@ class MessageService:
         )
         self.db.add(message)
         self.db.commit()
+        from app.services.notification_hooks import notify_message_received
+
+        notify_message_received(self.db, recipient_id, message.subject, message.sender_name)
         return self._to_summary(message)
 
     def send_as_user(self, actor: User, payload: MessageCreate) -> MessageSummary:
@@ -54,6 +57,9 @@ class MessageService:
         )
         self.db.add(message)
         self.db.commit()
+        from app.services.notification_hooks import notify_message_received
+
+        notify_message_received(self.db, recipient_id, message.subject, message.sender_name)
         return self._to_summary(message)
 
     def list_messages(self, actor: User) -> MessageListResponse:
@@ -97,6 +103,10 @@ class MessageService:
         )
         self.db.add(reply)
         self.db.commit()
+        recipient_id = reply.recipient_user_id
+        from app.services.notification_hooks import notify_message_received
+
+        notify_message_received(self.db, recipient_id, reply.subject, reply.sender_name)
         return self._to_summary(reply)
 
     def mark_read(self, actor: User, message_id: UUID) -> MessageSummary:

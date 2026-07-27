@@ -18,7 +18,9 @@ from app.schemas.receipt import (
     ReceiptSummary,
     SendReceiptResponse,
 )
+from app.schemas.notification import WhatsAppLinkResponse
 from app.services.building_service import BuildingAccessService
+from app.services.notification_service import NotificationService
 from app.services.receipt_service import ReceiptService
 
 router = APIRouter(prefix="/receipts", tags=["receipts"])
@@ -108,7 +110,30 @@ def send_receipt_email(
     receipt = _get_receipt_or_404(db, receipt_id)
     _ensure_receipt_access(db, current_user, receipt)
     sent_at = ReceiptService(db).send_email(receipt_id)
-    return SendReceiptResponse(message="Reçu envoyé par email (simulation)", sent_at=sent_at)
+    return SendReceiptResponse(message="Reçu envoyé par email", sent_at=sent_at)
+
+
+@router.post("/{receipt_id}/send-whatsapp", response_model=WhatsAppLinkResponse)
+def send_receipt_whatsapp(
+    receipt_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> WhatsAppLinkResponse:
+    if current_user.role.code not in ("super_admin", "admin_familial", "gestionnaire"):
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
+    receipt = _get_receipt_or_404(db, receipt_id)
+    _ensure_receipt_access(db, current_user, receipt)
+    tenant = receipt.payment.tenant
+    phone = tenant.phone_primary
+    from app.core.config import get_settings
+
+    settings = get_settings()
+    message = (
+        f"Bonjour {tenant.first_name}, voici votre reçu {receipt.receipt_number}. "
+        f"Téléchargement : {settings.public_api_url}{receipt.pdf_url}"
+    )
+    url = NotificationService(db).build_whatsapp_link(phone, message)
+    return WhatsAppLinkResponse(url=url, message=message)
 
 
 def _ensure_read_access(actor: User) -> None:

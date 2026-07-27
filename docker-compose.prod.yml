@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-gestion_immo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gestion_immo}
+      POSTGRES_DB: ${POSTGRES_DB:-gestion_immo}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gestion_immo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-gestion_immo}:${POSTGRES_PASSWORD:-gestion_immo}@db:5432/${POSTGRES_DB:-gestion_immo}
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production-min-32-chars}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      ENVIRONMENT: production
+      ENABLE_SCHEDULER: "true"
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:8000}
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  uploads_data:

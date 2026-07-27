@@ -5,10 +5,10 @@ Application web de gestion immobilière — **Next.js** (frontend) + **FastAPI**
 ## Prérequis
 
 - [Node.js](https://nodejs.org/) 20+
-- [Python](https://www.python.org/) 3.11+
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (pour PostgreSQL)
+- [Python](https://www.python.org/) 3.12+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (PostgreSQL local ou déploiement prod)
 
-## Démarrage rapide
+## Démarrage rapide (développement)
 
 ### 1. Base de données
 
@@ -28,19 +28,16 @@ python -m venv .venv
 pip install -r requirements.txt
 copy .env.example .env
 
-# Migrations
 alembic upgrade head
-
-# Lancer l'API
 uvicorn app.main:app --reload
 ```
 
-API disponible sur : http://localhost:8000  
-Documentation Swagger : http://localhost:8000/docs
+- API : http://localhost:8000
+- Swagger : http://localhost:8000/docs
 
 **Compte super admin (après migration) :**
 - Email : `admin@gestion-immo.local`
-- Mot de passe : `Admin123!` (modifiable via `SUPER_ADMIN_PASSWORD`)
+- Mot de passe : `Admin123!`
 
 ### 3. Frontend (Next.js)
 
@@ -48,65 +45,79 @@ Documentation Swagger : http://localhost:8000/docs
 cd frontend
 npm install
 copy .env.local.example .env.local
-
 npm run dev
 ```
 
-Application disponible sur : http://localhost:3000
+Application : http://localhost:3000
+
+## Déploiement production (Docker)
+
+```bash
+# Configurer les variables dans .env à la racine ou exporter :
+# SECRET_KEY, POSTGRES_PASSWORD, NEXT_PUBLIC_API_URL, PUBLIC_API_URL
+
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml exec backend alembic upgrade head
+```
+
+Architecture recommandée :
+- **Frontend** : Vercel ou conteneur Docker (port 3000)
+- **Backend** : Railway / Render / Docker (port 8000)
+- **PostgreSQL** : Neon, Supabase ou conteneur Postgres
 
 ## Variables d'environnement
 
 ### Backend (`backend/.env`)
 
-| Variable | Description | Exemple |
-|----------|-------------|---------|
-| `DATABASE_URL` | Connexion PostgreSQL | `postgresql://gestion_immo:gestion_immo@localhost:5432/gestion_immo` |
-| `SECRET_KEY` | Clé secrète JWT | chaîne aléatoire 32+ caractères |
-| `CORS_ORIGINS` | Origines autorisées | `http://localhost:3000` |
-| `ENVIRONMENT` | Environnement | `dev` |
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | Connexion PostgreSQL |
+| `SECRET_KEY` | Clé JWT (32+ caractères) |
+| `CORS_ORIGINS` | Origines frontend autorisées |
+| `ENABLE_SCHEDULER` | Worker emails + rappels (`true`/`false`) |
+| `PUBLIC_API_URL` | URL publique API (liens reçus, WhatsApp) |
+| `SMTP_*` | Configuration email (optionnel en dev) |
 
 ### Frontend (`frontend/.env.local`)
 
 | Variable | Description |
 |----------|-------------|
-| `NEXT_PUBLIC_API_URL` | URL du backend (`http://localhost:8000`) |
+| `NEXT_PUBLIC_API_URL` | URL du backend |
 
-## Tests
+## Tests & CI
 
 ```bash
 cd backend
 pytest
 ```
 
-## Structure du projet
+Pipeline GitHub Actions : lint + tests backend + build frontend (`.github/workflows/ci.yml`).
+
+## Fonctionnalités principales
+
+- RBAC 6 rôles (super admin, admin familial, propriétaire, gestionnaire, locataire, visiteur)
+- Immeubles, logements, locataires, baux, paiements, reçus PDF
+- Impayés automatiques, relances, dépenses, réparations
+- Bibliothèque documentaire, validations super admin, audit trail
+- Dashboard KPIs, rapports PDF/Excel
+- Portails visiteur et locataire
+- **Notifications in-app + file d'envoi email + WhatsApp (reçus via lien wa.me)**
+
+## Structure
 
 ```
 Gestion-Immobiliere/
-├── backend/          # API FastAPI
-├── frontend/         # Application Next.js
-├── sprints/          # Plan de développement par sprint
-├── docker-compose.yml
+├── backend/              # API FastAPI
+├── frontend/             # Next.js
+├── sprints/              # Plan sprint par sprint
+├── docker-compose.yml    # Postgres dev
+├── docker-compose.prod.yml
 └── cahier_de_charge.md
 ```
 
 ## Plan de développement
 
-Consultez le dossier [`sprints/`](./sprints/README.md) pour le plan détaillé sprint par sprint.
-
-- **Sprint 0** ✅ Fondations
-- **Sprint 1** ✅ Authentification & rôles
-- **Sprint 2** ✅ Gestion des utilisateurs
-- **Sprint 3** — Immeubles & logements
-- …
-
-## Conventions
-
-| Sujet | Convention |
-|-------|------------|
-| Code | Anglais (variables, routes API) |
-| Interface | Français |
-| Commits | [Conventional Commits](https://www.conventionalcommits.org/) |
-| Devise | FCFA |
+Consultez [`sprints/README.md`](./sprints/README.md) — sprints 0 à 13.
 
 ## Licence
 

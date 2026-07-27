@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="utf-8"><title>{{ title }}</title></head>
+<body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+  <div style="background: #18181b; color: white; padding: 16px 24px;">
+    <strong>{{ agency_name }}</strong>
+  </div>
+  <div style="padding: 24px; background: #fafafa;">
+    <h2 style="margin-top: 0;">{{ title }}</h2>
+    <p>{{ body }}</p>
+    {% block extra %}{% endblock %}
+    <p style="color: #71717a; font-size: 12px; margin-top: 32px;">
+      Ceci est un message automatique de {{ agency_name }}.
+    </p>
+  </div>
+</body>
+</html>

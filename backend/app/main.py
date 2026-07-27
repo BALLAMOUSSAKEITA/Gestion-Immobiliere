@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -6,14 +8,26 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.v1.router import router as v1_router
 from app.core.config import get_settings
+from app.core.scheduler import lifespan as scheduler_lifespan
 from app.schemas.common import HealthResponse
 
 settings = get_settings()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if settings.enable_scheduler:
+        async with scheduler_lifespan(app):
+            yield
+    else:
+        yield
+
 
 app = FastAPI(
     title="Gestion Immobilière API",
     description="API backend pour la gestion immobilière",
     version=settings.app_version,
+    lifespan=lifespan,
 )
 
 app.add_middleware(

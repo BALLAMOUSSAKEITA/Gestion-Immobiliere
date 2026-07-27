@@ -117,6 +117,12 @@ class OverdueDetectionService:
                     status=status,
                 )
                 self.db.add(record)
+                self.db.flush()
+                if lease.tenant and lease.unit:
+                    from app.services.notification_hooks import notify_rent_overdue
+
+                    amount = f"{remaining:,.0f}".replace(",", " ")
+                    notify_rent_overdue(self.db, lease.tenant, lease.unit.code, amount)
             else:
                 record.amount_paid = period.paid_amount
                 record.amount_remaining = remaining

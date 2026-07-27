@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { RoleBadge } from "@/components/auth/role-badge";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
@@ -141,6 +142,7 @@ export function AppHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <NotificationBell />
           <RoleBadge code={user.role.code} label={user.role.label} />
           <Button asChild variant="outline">
             <Link href="/profil">Profil</Link>

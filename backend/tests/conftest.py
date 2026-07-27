@@ -1,3 +1,7 @@
+import os
+
+os.environ.setdefault("ENABLE_SCHEDULER", "false")
+
 import uuid
 from collections.abc import Generator
 from datetime import UTC, datetime
@@ -20,10 +24,13 @@ from app.models import (  # noqa: F401
     Document,
     DocumentShare,
     DocumentType,
+    EmailQueue,
     Expense,
     ExpenseCategory,
     Lease,
     LeaseRentHistory,
+    Notification,
+    NotificationPreference,
     OwnerProfile,
     OverdueRecord,
     Payment,

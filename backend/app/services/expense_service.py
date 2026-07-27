@@ -139,6 +139,10 @@ class ExpenseService:
         )
         self.db.add(expense)
         self.db.commit()
+        from app.services.notification_hooks import notify_expense_created
+
+        amount = f"{amount:,.0f}".replace(",", " ")
+        notify_expense_created(self.db, building_id or unit_id, amount, category.label)
         return self._to_detail(self._get_or_404(expense.id))
 
     def update_expense(

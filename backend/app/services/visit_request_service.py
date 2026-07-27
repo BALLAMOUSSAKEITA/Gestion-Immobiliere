@@ -50,6 +50,9 @@ class VisitRequestService:
         )
         self.db.add(request)
         self.db.commit()
+        from app.services.notification_hooks import notify_visit_requested
+
+        notify_visit_requested(self.db, request)
         return self._to_summary(self._get_or_404(request.id))
 
     def list_requests(self, actor: User) -> VisitRequestListResponse:

@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from app.api.deps import get_current_user, require_roles
-from app.api.v1 import auth, approval_requests, audit_logs, buildings, dashboard, document_types, documents, expense_categories, expenses, leases, overdues, owner_profiles, payments, portal_management, public, receipts, reminders, repairs, reports, tenant_portal, tenants, units, users
+from app.api.v1 import auth, approval_requests, audit_logs, buildings, dashboard, document_types, documents, expense_categories, expenses, leases, notifications, overdues, owner_profiles, payments, portal_management, public, receipts, reminders, repairs, reports, tenant_portal, tenants, units, users
 from app.core.config import get_settings
 from app.models.user import User
 from app.schemas.common import MessageResponse
@@ -31,6 +31,8 @@ router.include_router(approval_requests.router)
 router.include_router(audit_logs.router)
 router.include_router(dashboard.router)
 router.include_router(reports.router)
+router.include_router(notifications.router)
+router.include_router(notifications.preferences_router)
 router.include_router(public.router)
 router.include_router(tenant_portal.router)
 router.include_router(portal_management.router)

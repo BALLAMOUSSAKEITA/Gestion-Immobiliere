@@ -147,3 +147,15 @@ class NoticeType(str, enum.Enum):
     payment_reminder = "payment_reminder"
     maintenance = "maintenance"
     other = "other"
+
+
+class NotificationChannel(str, enum.Enum):
+    in_app = "in_app"
+    email = "email"
+    whatsapp = "whatsapp"
+
+
+class EmailQueueStatus(str, enum.Enum):
+    pending = "pending"
+    sent = "sent"
+    failed = "failed"
