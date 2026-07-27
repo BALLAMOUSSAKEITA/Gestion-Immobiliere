@@ -8,12 +8,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app.core.expense_categories_seed import EXPENSE_CATEGORY_SEED
 from app.core.database import get_db
 from app.core.security import hash_password
 from app.main import app
 from app.models.base import Base
 from app.models import (  # noqa: F401
     Building,
+    Expense,
+    ExpenseCategory,
     Lease,
     LeaseRentHistory,
     OwnerProfile,
@@ -123,6 +126,16 @@ def db_session() -> Generator[Session, None, None]:
         ),
     ]:
         db.add(user)
+
+    for item in EXPENSE_CATEGORY_SEED:
+        db.add(
+            ExpenseCategory(
+                id=item["id"],
+                code=str(item["code"]),
+                label=str(item["label"]),
+                is_active=True,
+            )
+        )
 
     db.commit()
 

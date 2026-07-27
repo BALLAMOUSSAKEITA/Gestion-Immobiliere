@@ -77,3 +77,10 @@ class ReminderStatus(str, enum.Enum):
     sent = "sent"
     failed = "failed"
     pending = "pending"
+
+
+class ExpenseStatus(str, enum.Enum):
+    recorded = "recorded"
+    pending_validation = "pending_validation"
+    validated = "validated"
+    rejected = "rejected"

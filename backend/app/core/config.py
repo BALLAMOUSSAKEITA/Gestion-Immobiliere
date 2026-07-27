@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     upload_dir: str = "uploads"
     building_code_prefix: str = "KM"
+    expense_validation_threshold: float = 500_000.0
     agency_name: str = "Gestion Immobilière"
     agency_address: str = "Abidjan, Côte d'Ivoire"
 

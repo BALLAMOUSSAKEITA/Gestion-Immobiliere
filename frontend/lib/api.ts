@@ -1103,3 +1103,157 @@ export async function sendReminder(
     accessToken,
   );
 }
+
+export type ExpenseCategory = {
+  id: string;
+  code: string;
+  label: string;
+  is_active: boolean;
+};
+
+export type ExpenseStatus = "recorded" | "pending_validation" | "validated" | "rejected";
+
+export type ExpenseSummary = {
+  id: string;
+  category_code: string;
+  category_label: string;
+  building_name: string | null;
+  unit_code: string | null;
+  supplier_name: string | null;
+  description: string;
+  amount: string;
+  payment_method: PaymentMethod;
+  expense_date: string;
+  status: ExpenseStatus;
+  requires_validation: boolean;
+  recorded_by_name: string;
+  created_at: string;
+};
+
+export type ExpenseDetail = ExpenseSummary & {
+  building_id: string | null;
+  unit_id: string | null;
+  owner_profile_id: string | null;
+  receipt_url: string | null;
+  validated_by_name: string | null;
+  validated_at: string | null;
+  updated_at: string;
+};
+
+export type ExpenseListResponse = {
+  items: ExpenseSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+};
+
+export type ExpenseSummaryStats = {
+  total_amount: string;
+  count: number;
+  by_category: { category: string; amount: string; count: number }[];
+};
+
+export const EXPENSE_STATUS_LABELS: Record<ExpenseStatus, string> = {
+  recorded: "Enregistrée",
+  pending_validation: "En attente",
+  validated: "Validée",
+  rejected: "Rejetée",
+};
+
+export type ExpenseCreatePayload = {
+  category_id: string;
+  building_id?: string;
+  unit_id?: string;
+  owner_profile_id?: string;
+  supplier_name?: string;
+  description: string;
+  amount: string;
+  payment_method: PaymentMethod;
+  expense_date: string;
+};
+
+export async function fetchExpenseCategories(accessToken: string): Promise<ExpenseCategory[]> {
+  return apiFetch<ExpenseCategory[]>("/api/v1/expense-categories", {}, accessToken);
+}
+
+export async function fetchExpenses(
+  accessToken: string,
+  params: Record<string, string | number | undefined> = {},
+): Promise<ExpenseListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<ExpenseListResponse>(`/api/v1/expenses${suffix}`, {}, accessToken);
+}
+
+export async function fetchExpense(
+  accessToken: string,
+  expenseId: string,
+): Promise<ExpenseDetail> {
+  return apiFetch<ExpenseDetail>(`/api/v1/expenses/${expenseId}`, {}, accessToken);
+}
+
+export async function fetchExpensesSummary(
+  accessToken: string,
+  params: Record<string, string | number | undefined> = {},
+): Promise<ExpenseSummaryStats> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<ExpenseSummaryStats>(`/api/v1/expenses/summary${suffix}`, {}, accessToken);
+}
+
+export async function createExpense(
+  accessToken: string,
+  payload: ExpenseCreatePayload,
+): Promise<ExpenseDetail> {
+  return apiFetch<ExpenseDetail>(
+    "/api/v1/expenses",
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function validateExpense(
+  accessToken: string,
+  expenseId: string,
+): Promise<ExpenseDetail> {
+  return apiFetch<ExpenseDetail>(
+    `/api/v1/expenses/${expenseId}/validate`,
+    { method: "POST" },
+    accessToken,
+  );
+}
+
+export async function rejectExpense(
+  accessToken: string,
+  expenseId: string,
+): Promise<ExpenseDetail> {
+  return apiFetch<ExpenseDetail>(
+    `/api/v1/expenses/${expenseId}/reject`,
+    { method: "POST" },
+    accessToken,
+  );
+}
+
+export async function uploadExpenseReceipt(
+  accessToken: string,
+  expenseId: string,
+  file: File,
+): Promise<ExpenseDetail> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const headers = new Headers();
+  headers.set("Authorization", `Bearer ${accessToken}`);
+  const res = await fetch(`${API_URL}/api/v1/expenses/${expenseId}/receipt`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+  return parseResponse<ExpenseDetail>(res);
+}

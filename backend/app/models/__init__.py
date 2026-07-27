@@ -1,5 +1,6 @@
 from app.models.building import Building, Unit, UnitPhoto, UnitTenantHistory
 from app.models.enums import (
+    ExpenseStatus,
     IdDocumentType,
     LeaseStatus,
     OverdueStatus,
@@ -20,6 +21,7 @@ from app.models.owner_profile import (
 )
 from app.models.refresh_token import RefreshToken
 from app.models.role import Role
+from app.models.expense import Expense, ExpenseCategory
 from app.models.overdue import OverdueRecord, Reminder
 from app.models.payment import Payment, PaymentAllocation, Receipt, RentPeriod
 from app.models.tenant import Lease, LeaseRentHistory, Tenant
@@ -57,6 +59,9 @@ __all__ = [
     "ReminderType",
     "ReminderChannel",
     "ReminderStatus",
+    "ExpenseStatus",
     "OverdueRecord",
     "Reminder",
+    "ExpenseCategory",
+    "Expense",
 ]

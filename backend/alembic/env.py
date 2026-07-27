@@ -9,6 +9,8 @@ from app.core.config import get_settings
 from app.models.base import Base
 from app.models import (  # noqa: F401
     Building,
+    Expense,
+    ExpenseCategory,
     Lease,
     LeaseRentHistory,
     OwnerProfile,
