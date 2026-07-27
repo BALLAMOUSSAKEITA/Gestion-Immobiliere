@@ -105,3 +105,15 @@ class RepairAttachmentType(str, enum.Enum):
     photo = "photo"
     video = "video"
     document = "document"
+
+
+class EntityType(str, enum.Enum):
+    building = "building"
+    unit = "unit"
+    tenant = "tenant"
+    lease = "lease"
+    payment = "payment"
+    expense = "expense"
+    repair = "repair"
+    owner_profile = "owner_profile"
+    receipt = "receipt"

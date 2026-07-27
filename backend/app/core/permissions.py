@@ -12,6 +12,8 @@ class Permission(str, Enum):
     EXPENSES_MANAGE = "expenses.manage"
     EXPENSES_READ = "expenses.read"
     REPAIRS_MANAGE = "repairs.manage"
+    DOCUMENTS_MANAGE = "documents.manage"
+    DOCUMENTS_READ = "documents.read"
     REPORTS_READ = "reports.read"
     PUBLIC_LISTINGS = "public.listings"
 
@@ -28,6 +30,8 @@ ROLE_PERMISSIONS: dict[str, set[Permission]] = {
         Permission.EXPENSES_MANAGE,
         Permission.EXPENSES_READ,
         Permission.REPAIRS_MANAGE,
+        Permission.DOCUMENTS_MANAGE,
+        Permission.DOCUMENTS_READ,
         Permission.REPORTS_READ,
     },
     "admin_familial": {
@@ -40,6 +44,8 @@ ROLE_PERMISSIONS: dict[str, set[Permission]] = {
         Permission.EXPENSES_MANAGE,
         Permission.EXPENSES_READ,
         Permission.REPAIRS_MANAGE,
+        Permission.DOCUMENTS_MANAGE,
+        Permission.DOCUMENTS_READ,
         Permission.REPORTS_READ,
     },
     "proprietaire": {
@@ -48,6 +54,7 @@ ROLE_PERMISSIONS: dict[str, set[Permission]] = {
         Permission.PAYMENTS_READ,
         Permission.EXPENSES_READ,
         Permission.REPAIRS_MANAGE,
+        Permission.DOCUMENTS_READ,
         Permission.REPORTS_READ,
     },
     "gestionnaire": {
@@ -57,6 +64,8 @@ ROLE_PERMISSIONS: dict[str, set[Permission]] = {
         Permission.PAYMENTS_MANAGE,
         Permission.EXPENSES_MANAGE,
         Permission.REPAIRS_MANAGE,
+        Permission.DOCUMENTS_MANAGE,
+        Permission.DOCUMENTS_READ,
     },
     "visiteur": {
         Permission.AUTH_LOGIN,
@@ -67,6 +76,7 @@ ROLE_PERMISSIONS: dict[str, set[Permission]] = {
         Permission.UNITS_READ,
         Permission.PAYMENTS_READ,
         Permission.REPAIRS_MANAGE,
+        Permission.DOCUMENTS_READ,
     },
 }
 

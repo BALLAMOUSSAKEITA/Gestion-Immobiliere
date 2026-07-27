@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { DocumentLibrary } from "@/components/documents/document-library";
 import { UnitStatusBadge } from "@/components/buildings/unit-status-badge";
 import { AppHeader } from "@/components/layout/app-header";
 import {
@@ -15,13 +16,20 @@ import {
   type UnitDetail,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useAuth } from "@/contexts/auth-context";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function UnitDetailPage() {
   const params = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [unit, setUnit] = useState<UnitDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const canManage =
+    user?.role.code === "super_admin" ||
+    user?.role.code === "admin_familial" ||
+    user?.role.code === "gestionnaire";
 
   useEffect(() => {
     const token = getAccessToken();
@@ -82,6 +90,12 @@ export default function UnitDetailPage() {
                 ))}
               </div>
             )}
+
+            <DocumentLibrary
+              entityType="unit"
+              entityId={unit.id}
+              canUpload={canManage}
+            />
 
             <Link
               href={`/dashboard/immeubles/${unit.building_id}`}

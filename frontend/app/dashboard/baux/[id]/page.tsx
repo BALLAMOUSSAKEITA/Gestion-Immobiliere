@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { LeaseStatusBadge } from "@/components/tenants/lease-status-badge";
+import { DocumentLibrary } from "@/components/documents/document-library";
 import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -131,6 +132,12 @@ export default function LeaseDetailPage() {
         )}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
+
+        <DocumentLibrary
+          entityType="lease"
+          entityId={lease.id}
+          canUpload={canManage}
+        />
 
         <div className="flex gap-4">
           <Link

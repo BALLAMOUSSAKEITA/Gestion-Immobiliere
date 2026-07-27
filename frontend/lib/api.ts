@@ -346,6 +346,7 @@ export const PERMISSION_LABELS: Record<string, string> = {
   "repairs.manage": "Gérer réparations",
   "reports.read": "Consulter rapports",
   "documents.manage": "Gérer documents",
+  "documents.read": "Consulter documents",
 };
 
 export type UnitType = "apartment" | "shop" | "office";
@@ -1441,4 +1442,149 @@ export async function uploadRepairAttachment(
     body: formData,
   });
   return parseResponse<RepairDetail>(res);
+}
+
+export type DocumentEntityType =
+  | "building"
+  | "unit"
+  | "tenant"
+  | "lease"
+  | "payment"
+  | "expense"
+  | "repair"
+  | "owner_profile"
+  | "receipt";
+
+export type DocumentTypeItem = {
+  id: string;
+  code: string;
+  label: string;
+};
+
+export type DocumentSummary = {
+  id: string;
+  document_type_code: string;
+  document_type_label: string;
+  title: string;
+  description: string | null;
+  file_name: string;
+  file_size: number;
+  mime_type: string;
+  entity_type: DocumentEntityType;
+  entity_id: string;
+  uploaded_by_name: string;
+  uploaded_at: string;
+  is_archived: boolean;
+  expires_at: string | null;
+};
+
+export type DocumentDetail = DocumentSummary & {
+  file_url: string;
+  updated_at: string;
+};
+
+export type DocumentListResponse = {
+  items: DocumentSummary[];
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+};
+
+export type DocumentShareResponse = {
+  id: string;
+  share_token: string;
+  share_url: string;
+  expires_at: string;
+  max_access: number;
+  accessed_count: number;
+};
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+export async function fetchDocumentTypes(accessToken: string): Promise<DocumentTypeItem[]> {
+  return apiFetch<DocumentTypeItem[]>("/api/v1/document-types", {}, accessToken);
+}
+
+export async function fetchDocuments(
+  accessToken: string,
+  params: Record<string, string | number | boolean | undefined> = {},
+): Promise<DocumentListResponse> {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") query.set(key, String(value));
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return apiFetch<DocumentListResponse>(`/api/v1/documents${suffix}`, {}, accessToken);
+}
+
+export async function fetchDocument(
+  accessToken: string,
+  documentId: string,
+): Promise<DocumentDetail> {
+  return apiFetch<DocumentDetail>(`/api/v1/documents/${documentId}`, {}, accessToken);
+}
+
+export async function uploadDocument(
+  accessToken: string,
+  payload: {
+    document_type_id: string;
+    title: string;
+    entity_type: DocumentEntityType;
+    entity_id: string;
+    description?: string;
+    file: File;
+  },
+): Promise<DocumentDetail> {
+  const formData = new FormData();
+  formData.append("document_type_id", payload.document_type_id);
+  formData.append("title", payload.title);
+  formData.append("entity_type", payload.entity_type);
+  formData.append("entity_id", payload.entity_id);
+  if (payload.description) formData.append("description", payload.description);
+  formData.append("file", payload.file);
+  const headers = new Headers();
+  headers.set("Authorization", `Bearer ${accessToken}`);
+  const res = await fetch(`${API_BASE}/api/v1/documents`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+  return parseResponse<DocumentDetail>(res);
+}
+
+export function getDocumentDownloadUrl(documentId: string, accessToken: string): string {
+  return `${API_BASE}/api/v1/documents/${documentId}/download?access_token=${accessToken}`;
+}
+
+export function getDocumentPreviewUrl(documentId: string, accessToken: string): string {
+  return `${API_BASE}/api/v1/documents/${documentId}/preview`;
+}
+
+export async function shareDocument(
+  accessToken: string,
+  documentId: string,
+  payload: { expires_in_days?: number; max_access?: number } = {},
+): Promise<DocumentShareResponse> {
+  return apiFetch<DocumentShareResponse>(
+    `/api/v1/documents/${documentId}/share`,
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function fetchSharedDocument(token: string): Promise<{
+  title: string;
+  file_name: string;
+  mime_type: string;
+  file_size: number;
+  download_url: string;
+}> {
+  return apiFetch(`/api/v1/documents/shared/${token}`);
+}
+
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} o`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
 }

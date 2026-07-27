@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { DocumentLibrary } from "@/components/documents/document-library";
 import { UnitForm } from "@/components/buildings/unit-form";
 import { UnitStatusBadge } from "@/components/buildings/unit-status-badge";
 import { AppHeader } from "@/components/layout/app-header";
@@ -105,6 +106,12 @@ export default function BuildingDetailPage() {
             {formatCurrency(building.monthly_expected_rent)}
           </p>
         </div>
+
+        <DocumentLibrary
+          entityType="building"
+          entityId={building.id}
+          canUpload={canManage}
+        />
 
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Logements</h2>

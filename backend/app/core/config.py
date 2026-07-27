@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     building_code_prefix: str = "KM"
     expense_validation_threshold: float = 500_000.0
     repair_set_unit_under_repair: bool = True
+    document_max_size_bytes: int = 10 * 1024 * 1024
+    document_share_expiry_days: int = 7
+    document_share_max_access: int = 10
     agency_name: str = "Gestion Immobilière"
     agency_address: str = "Abidjan, Côte d'Ivoire"
 

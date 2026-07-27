@@ -1,5 +1,6 @@
 from app.models.building import Building, Unit, UnitPhoto, UnitTenantHistory
 from app.models.enums import (
+    EntityType,
     ExpenseStatus,
     IdDocumentType,
     RepairAttachmentType,
@@ -25,6 +26,7 @@ from app.models.owner_profile import (
 from app.models.repair import Repair, RepairAttachment, RepairStatusHistory
 from app.models.refresh_token import RefreshToken
 from app.models.role import Role
+from app.models.document import Document, DocumentShare, DocumentType
 from app.models.expense import Expense, ExpenseCategory
 from app.models.overdue import OverdueRecord, Reminder
 from app.models.payment import Payment, PaymentAllocation, Receipt, RentPeriod
@@ -74,4 +76,8 @@ __all__ = [
     "Repair",
     "RepairAttachment",
     "RepairStatusHistory",
+    "EntityType",
+    "DocumentType",
+    "Document",
+    "DocumentShare",
 ]

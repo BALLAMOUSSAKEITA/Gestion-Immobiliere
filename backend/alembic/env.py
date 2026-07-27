@@ -9,6 +9,9 @@ from app.core.config import get_settings
 from app.models.base import Base
 from app.models import (  # noqa: F401
     Building,
+    Document,
+    DocumentShare,
+    DocumentType,
     Expense,
     ExpenseCategory,
     Lease,

@@ -127,6 +127,26 @@ def list_tenant_reminders(
     )
 
 
+@router.get("/{tenant_id}/documents")
+def list_tenant_documents(
+    tenant_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+):
+    from app.models.enums import EntityType
+    from app.services.document_service import DocumentService
+
+    return DocumentService(db).list_documents(
+        current_user,
+        page=page,
+        page_size=page_size,
+        entity_type=EntityType.tenant,
+        entity_id=tenant_id,
+    )
+
+
 @router.post("/{tenant_id}/create-account", response_model=CreateTenantAccountResponse)
 def create_tenant_account(
     tenant_id: UUID,

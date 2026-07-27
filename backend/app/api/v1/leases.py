@@ -126,3 +126,23 @@ def generate_lease_periods(
     db: Annotated[Session, Depends(get_db)],
 ) -> list[RentPeriodResponse]:
     return PaymentService(db).generate_periods(current_user, lease_id)
+
+
+@router.get("/{lease_id}/documents")
+def list_lease_documents(
+    lease_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+):
+    from app.models.enums import EntityType
+    from app.services.document_service import DocumentService
+
+    return DocumentService(db).list_documents(
+        current_user,
+        page=page,
+        page_size=page_size,
+        entity_type=EntityType.lease,
+        entity_id=lease_id,
+    )

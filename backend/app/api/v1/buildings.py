@@ -114,3 +114,19 @@ def upload_building_photo(
         shutil.copyfileobj(file.file, buffer)
     photo_url = f"/uploads/buildings/{filename}"
     return BuildingService(db).set_photo_url(current_user, building_id, photo_url)
+
+
+@router.get("/{building_id}/documents")
+def list_building_documents(
+    building_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+):
+    from app.schemas.document import DocumentListResponse
+    from app.services.document_service import DocumentService
+
+    return DocumentService(db).list_documents(
+        current_user, page=page, page_size=page_size, building_id=building_id
+    )

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { DocumentLibrary } from "@/components/documents/document-library";
 import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -145,6 +146,14 @@ export default function TenantDetailPage() {
         )}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
+
+        {tenant && (
+          <DocumentLibrary
+            entityType="tenant"
+            entityId={tenant.id}
+            canUpload={canManage}
+          />
+        )}
 
         <Link href="/dashboard/locataires" className="text-sm font-medium underline">
           Retour à la liste
