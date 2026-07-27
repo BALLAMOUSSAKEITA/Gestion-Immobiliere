@@ -5,8 +5,10 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   ApiError,
+  createVisitRequest,
   fetchPublicUnit,
   formatCurrency,
   UNIT_TYPE_LABELS,
@@ -19,6 +21,16 @@ export default function PublicUnitPage() {
   const params = useParams<{ id: string }>();
   const [unit, setUnit] = useState<PublicUnitDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [visitForm, setVisitForm] = useState({
+    visitor_name: "",
+    visitor_email: "",
+    visitor_phone: "",
+    preferred_date: "",
+    message: "",
+  });
+  const [visitSuccess, setVisitSuccess] = useState(false);
+  const [visitError, setVisitError] = useState<string | null>(null);
+  const [visitLoading, setVisitLoading] = useState(false);
 
   useEffect(() => {
     if (!params.id) return;
@@ -28,6 +40,35 @@ export default function PublicUnitPage() {
         setError(err instanceof ApiError ? err.message : "Annonce introuvable"),
       );
   }, [params.id]);
+
+  async function handleVisitRequest(e: React.FormEvent) {
+    e.preventDefault();
+    if (!unit) return;
+    setVisitLoading(true);
+    setVisitError(null);
+    try {
+      await createVisitRequest({
+        unit_id: unit.id,
+        visitor_name: visitForm.visitor_name,
+        visitor_email: visitForm.visitor_email,
+        visitor_phone: visitForm.visitor_phone,
+        preferred_date: visitForm.preferred_date || undefined,
+        message: visitForm.message || undefined,
+      });
+      setVisitSuccess(true);
+      setVisitForm({
+        visitor_name: "",
+        visitor_email: "",
+        visitor_phone: "",
+        preferred_date: "",
+        message: "",
+      });
+    } catch (err) {
+      setVisitError(err instanceof ApiError ? err.message : "Demande impossible");
+    } finally {
+      setVisitLoading(false);
+    }
+  }
 
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-16">
@@ -65,6 +106,57 @@ export default function PublicUnitPage() {
               ))}
             </div>
           )}
+
+          <section className="rounded-xl border border-zinc-200 bg-white p-6">
+            <h2 className="text-xl font-bold">Demander une visite</h2>
+            <p className="mt-1 text-sm text-zinc-600">
+              Remplissez le formulaire et nous vous recontacterons.
+            </p>
+
+            {visitSuccess && (
+              <p className="mt-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+                Demande envoyée avec succès !
+              </p>
+            )}
+            {visitError && <p className="mt-4 text-sm text-red-600">{visitError}</p>}
+
+            <form onSubmit={handleVisitRequest} className="mt-4 space-y-3">
+              <Input
+                required
+                placeholder="Nom complet"
+                value={visitForm.visitor_name}
+                onChange={(e) => setVisitForm({ ...visitForm, visitor_name: e.target.value })}
+              />
+              <Input
+                required
+                type="email"
+                placeholder="Email"
+                value={visitForm.visitor_email}
+                onChange={(e) => setVisitForm({ ...visitForm, visitor_email: e.target.value })}
+              />
+              <Input
+                required
+                placeholder="Téléphone"
+                value={visitForm.visitor_phone}
+                onChange={(e) => setVisitForm({ ...visitForm, visitor_phone: e.target.value })}
+              />
+              <Input
+                type="date"
+                value={visitForm.preferred_date}
+                onChange={(e) => setVisitForm({ ...visitForm, preferred_date: e.target.value })}
+              />
+              <textarea
+                rows={3}
+                placeholder="Message (optionnel)"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                value={visitForm.message}
+                onChange={(e) => setVisitForm({ ...visitForm, message: e.target.value })}
+              />
+              <Button type="submit" disabled={visitLoading}>
+                {visitLoading ? "Envoi…" : "Envoyer la demande"}
+              </Button>
+            </form>
+          </section>
         </>
       )}
 

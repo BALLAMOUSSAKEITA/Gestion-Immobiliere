@@ -1947,3 +1947,207 @@ export async function generateReport(
 export function getReportDownloadUrl(reportId: string, format: "pdf" | "excel"): string {
   return `/api/v1/reports/${reportId}/${format}`;
 }
+
+export type VisitRequestSummary = {
+  id: string;
+  unit_id: string;
+  unit_code: string;
+  visitor_name: string;
+  visitor_email: string;
+  visitor_phone: string;
+  preferred_date: string | null;
+  preferred_time: string | null;
+  message: string | null;
+  status: string;
+  assigned_to_name: string | null;
+  created_at: string;
+};
+
+export type VisitRequestListResponse = {
+  items: VisitRequestSummary[];
+  total: number;
+};
+
+export type PortalMessageSummary = {
+  id: string;
+  sender_name: string;
+  sender_email: string;
+  subject: string;
+  body: string;
+  is_read: boolean;
+  created_at: string;
+  parent_message_id: string | null;
+};
+
+export type PortalMessageListResponse = {
+  items: PortalMessageSummary[];
+  total: number;
+};
+
+export type TenantPortalDashboard = {
+  tenant: { full_name: string };
+  unit: { code: string; type: string } | null;
+  lease: { rent_amount: number; end_date: string | null } | null;
+  payment_status: {
+    current_month_paid: boolean;
+    total_unpaid: number;
+    next_due_date: string | null;
+  };
+  unread_notices: number;
+  active_repairs: number;
+  has_active_lease: boolean;
+};
+
+export type TenantUnitInfo = {
+  id: string;
+  code: string;
+  type: string;
+  number: string;
+  rent_amount: number;
+  building_name: string;
+  commune: string;
+  quartier: string | null;
+  description: string | null;
+  photos: { id: string; url: string }[];
+};
+
+export type TenantLeaseInfo = {
+  id: string;
+  start_date: string;
+  end_date: string | null;
+  rent_amount: number;
+  deposit_amount: number;
+  status: string;
+  contract_document_url: string | null;
+};
+
+export type TenantNoticeSummary = {
+  id: string;
+  title: string;
+  content: string | null;
+  notice_type: string;
+  published_at: string;
+  is_read: boolean;
+};
+
+export type TenantDocumentItem = {
+  id: string;
+  title: string;
+  file_name: string;
+  mime_type: string;
+  uploaded_at: string;
+};
+
+export async function createVisitRequest(payload: {
+  unit_id: string;
+  visitor_name: string;
+  visitor_email: string;
+  visitor_phone: string;
+  preferred_date?: string;
+  preferred_time?: string;
+  message?: string;
+}): Promise<VisitRequestSummary> {
+  return apiFetch<VisitRequestSummary>("/api/v1/public/visit-requests", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function createPublicContact(payload: {
+  sender_name: string;
+  sender_email: string;
+  sender_phone?: string;
+  unit_id?: string;
+  subject: string;
+  body: string;
+}): Promise<PortalMessageSummary> {
+  return apiFetch<PortalMessageSummary>("/api/v1/public/contact", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function fetchVisitRequests(accessToken: string): Promise<VisitRequestListResponse> {
+  return apiFetch<VisitRequestListResponse>("/api/v1/visit-requests", {}, accessToken);
+}
+
+export async function updateVisitRequest(
+  accessToken: string,
+  requestId: string,
+  payload: { status?: string; assigned_to?: string },
+): Promise<VisitRequestSummary> {
+  return apiFetch<VisitRequestSummary>(
+    `/api/v1/visit-requests/${requestId}`,
+    { method: "PATCH", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function fetchTenantDashboard(accessToken: string): Promise<TenantPortalDashboard> {
+  return apiFetch<TenantPortalDashboard>("/api/v1/tenant-portal/dashboard", {}, accessToken);
+}
+
+export async function fetchTenantUnit(accessToken: string): Promise<TenantUnitInfo> {
+  return apiFetch<TenantUnitInfo>("/api/v1/tenant-portal/my-unit", {}, accessToken);
+}
+
+export async function fetchTenantLease(accessToken: string): Promise<TenantLeaseInfo> {
+  return apiFetch<TenantLeaseInfo>("/api/v1/tenant-portal/my-lease", {}, accessToken);
+}
+
+export async function fetchTenantPayments(accessToken: string): Promise<PaymentListResponse> {
+  return apiFetch<PaymentListResponse>("/api/v1/tenant-portal/payments", {}, accessToken);
+}
+
+export async function fetchTenantReceipts(accessToken: string): Promise<ReceiptListResponse> {
+  return apiFetch<ReceiptListResponse>("/api/v1/tenant-portal/receipts", {}, accessToken);
+}
+
+export async function fetchTenantDocuments(
+  accessToken: string,
+): Promise<{ items: TenantDocumentItem[] }> {
+  return apiFetch<{ items: TenantDocumentItem[] }>(
+    "/api/v1/tenant-portal/documents",
+    {},
+    accessToken,
+  );
+}
+
+export async function fetchTenantNotices(accessToken: string): Promise<TenantNoticeSummary[]> {
+  return apiFetch<TenantNoticeSummary[]>("/api/v1/tenant-portal/notices", {}, accessToken);
+}
+
+export async function fetchTenantMessages(accessToken: string): Promise<PortalMessageListResponse> {
+  return apiFetch<PortalMessageListResponse>(
+    "/api/v1/tenant-portal/messages",
+    {},
+    accessToken,
+  );
+}
+
+export async function sendTenantMessage(
+  accessToken: string,
+  payload: { subject: string; body: string; unit_id?: string },
+): Promise<PortalMessageSummary> {
+  return apiFetch<PortalMessageSummary>(
+    "/api/v1/tenant-portal/messages",
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
+export async function fetchManagerMessages(accessToken: string): Promise<PortalMessageListResponse> {
+  return apiFetch<PortalMessageListResponse>("/api/v1/messages", {}, accessToken);
+}
+
+export async function replyToMessage(
+  accessToken: string,
+  messageId: string,
+  body: string,
+): Promise<PortalMessageSummary> {
+  return apiFetch<PortalMessageSummary>(
+    `/api/v1/messages/${messageId}/reply`,
+    { method: "POST", body: JSON.stringify({ body }) },
+    accessToken,
+  );
+}

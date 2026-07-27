@@ -132,3 +132,18 @@ class ReportType(str, enum.Enum):
     weekly = "weekly"
     monthly = "monthly"
     annual = "annual"
+
+
+class VisitRequestStatus(str, enum.Enum):
+    pending = "pending"
+    confirmed = "confirmed"
+    cancelled = "cancelled"
+    completed = "completed"
+
+
+class NoticeType(str, enum.Enum):
+    info = "info"
+    warning = "warning"
+    payment_reminder = "payment_reminder"
+    maintenance = "maintenance"
+    other = "other"

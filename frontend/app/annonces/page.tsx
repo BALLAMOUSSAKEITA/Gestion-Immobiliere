@@ -46,7 +46,10 @@ export default function AnnoncesPage() {
         </p>
       )}
 
-      <div className="flex justify-center">
+      <div className="flex justify-center gap-3">
+        <Button asChild variant="outline">
+          <Link href="/contact">Contact</Link>
+        </Button>
         <Button asChild variant="outline">
           <Link href="/">Retour à l&apos;accueil</Link>
         </Button>

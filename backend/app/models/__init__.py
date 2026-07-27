@@ -1,9 +1,11 @@
 from app.models.building import Building, Unit, UnitPhoto, UnitTenantHistory
 from app.models.audit import ApprovalRequest, AuditLog
 from app.models.report import ReportSnapshot
+from app.models.portal import ContactMessage, TenantNotice, VisitRequest
 from app.models.enums import (
     ApprovalRequestStatus,
     EntityType,
+    NoticeType,
     ReportType,
     ExpenseStatus,
     IdDocumentType,
@@ -21,6 +23,7 @@ from app.models.enums import (
     UrgencyLevel,
     UnitStatus,
     UnitType,
+    VisitRequestStatus,
 )
 from app.models.owner_profile import (
     OwnerProfile,
@@ -89,4 +92,9 @@ __all__ = [
     "ApprovalRequestStatus",
     "ReportType",
     "ReportSnapshot",
+    "VisitRequest",
+    "ContactMessage",
+    "TenantNotice",
+    "VisitRequestStatus",
+    "NoticeType",
 ]

@@ -11,6 +11,7 @@ from app.models import (  # noqa: F401
     ApprovalRequest,
     AuditLog,
     Building,
+    ContactMessage,
     Document,
     DocumentShare,
     DocumentType,
@@ -32,6 +33,7 @@ from app.models import (  # noqa: F401
     ReportSnapshot,
     Role,
     Tenant,
+    TenantNotice,
     Unit,
     UnitPhoto,
     UnitTenantHistory,
@@ -39,6 +41,7 @@ from app.models import (  # noqa: F401
     UserBuildingAssignment,
     UserOwnerAssignment,
     UserPermission,
+    VisitRequest,
 )
 
 config = context.config

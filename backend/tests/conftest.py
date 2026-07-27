@@ -16,6 +16,7 @@ from app.main import app
 from app.models.base import Base
 from app.models import (  # noqa: F401
     Building,
+    ContactMessage,
     Document,
     DocumentShare,
     DocumentType,
@@ -36,6 +37,7 @@ from app.models import (  # noqa: F401
     RentPeriod,
     Role,
     Tenant,
+    TenantNotice,
     Unit,
     UnitPhoto,
     UnitTenantHistory,
@@ -43,6 +45,7 @@ from app.models import (  # noqa: F401
     UserBuildingAssignment,
     UserOwnerAssignment,
     UserPermission,
+    VisitRequest,
 )
 
 ROLE_IDS = {
