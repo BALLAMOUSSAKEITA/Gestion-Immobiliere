@@ -23,7 +23,7 @@ export function OccupancyChart({ points }: OccupancyChartProps) {
           <XAxis dataKey="label" tick={{ fontSize: 11 }} />
           <YAxis domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
           <Tooltip formatter={(value) => `${value}%`} />
-          <Line type="monotone" dataKey="occupancy_rate" stroke="#0d9488" name="Occupation" />
+          <Line type="monotone" dataKey="occupancy_rate" stroke="#222222" name="Occupation" />
         </LineChart>
       </ResponsiveContainer>
     </div>

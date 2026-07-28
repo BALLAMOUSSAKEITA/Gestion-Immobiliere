@@ -81,7 +81,7 @@ export function NotificationBell({
         type="button"
         aria-label="Notifications"
         onClick={() => setOpen((value) => !value)}
-        className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+        className="relative flex h-10 w-10 items-center justify-center rounded-full bg-faint text-foreground transition-colors hover:bg-[var(--bebe)]"
       >
         <Bell className="h-4 w-4" />
         {count > 0 && (
@@ -92,7 +92,7 @@ export function NotificationBell({
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-[12px] bg-card shadow-[var(--shadow-dropdown)]">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <p className="font-semibold">Notifications</p>
             {count > 0 && (

@@ -1,35 +1,60 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f7fb;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --primary: #0c4a6e;
-  --primary-foreground: #f8fafc;
-  --secondary: #e0f2fe;
-  --secondary-foreground: #0c4a6e;
-  --accent: #0d9488;
-  --accent-foreground: #ffffff;
-  --muted: #e2e8f0;
-  --muted-foreground: #64748b;
-  --border: #dbe3ef;
-  --input: #dbe3ef;
-  --ring: #0ea5e9;
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-  --success: #059669;
-  --success-foreground: #ffffff;
+  /* Airbnb palette */
+  --rausch: #ff385c;
+  --rausch-600: #e00b41;
+  --hof: #222222;
+  --foggy: #6a6a6a;
+  --grey-500: #c1c1c1;
+  --bebe: #ebebeb;
+  --deco: #dddddd;
+  --faint: #f7f7f7;
+  --white: #ffffff;
+
+  /* Semantic tokens */
+  --background: var(--faint);
+  --foreground: var(--hof);
+  --card: var(--white);
+  --card-foreground: var(--hof);
+  --primary: var(--hof);
+  --primary-foreground: var(--white);
+  --secondary: var(--faint);
+  --secondary-foreground: var(--hof);
+  --accent: var(--rausch);
+  --accent-foreground: var(--white);
+  --muted: var(--faint);
+  --muted-foreground: var(--foggy);
+  --border: var(--bebe);
+  --input: var(--bebe);
+  --ring: var(--hof);
+  --destructive: var(--rausch-600);
+  --destructive-foreground: var(--white);
+  --success: #008a05;
   --warning: #d97706;
-  --warning-foreground: #ffffff;
-  --sidebar: #0f2744;
-  --sidebar-foreground: #e2e8f0;
-  --sidebar-accent: #1e3a5f;
-  --sidebar-active: #0d9488;
-  --radius: 0.75rem;
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.04);
-  --shadow-md: 0 8px 24px rgb(15 23 42 / 0.08);
-  --shadow-lg: 0 20px 48px rgb(15 23 42 / 0.12);
+
+  /* Sidebar — light canvas like Airbnb host tools */
+  --sidebar: var(--white);
+  --sidebar-foreground: var(--hof);
+  --sidebar-accent: var(--faint);
+  --sidebar-active: var(--faint);
+  --sidebar-active-border: var(--rausch);
+
+  /* Radii */
+  --radius-card: 12px;
+  --radius-input: 8px;
+  --radius-pill: 9999px;
+
+  /* Shadows — only for elevated elements */
+  --shadow-subtle: rgba(0, 0, 0, 0.02) 0px 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 2px 6px 0px, rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
+  --shadow-overlay: 0 8px 28px rgba(0, 0, 0, 0.28);
+  --shadow-dropdown: 0 6px 20px rgba(0, 0, 0, 0.2);
+
+  /* Typography scale */
+  --text-body: 14px;
+  --text-ui: 16px;
+  --text-heading-sm: 22px;
+  --text-heading: 28px;
 }
 
 @theme inline {
@@ -55,11 +80,14 @@
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-active: var(--sidebar-active);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --color-rausch: var(--rausch);
+  --color-foggy: var(--foggy);
+  --color-faint: var(--faint);
+  --color-hof: var(--hof);
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --radius-lg: var(--radius-card);
+  --radius-md: var(--radius-input);
+  --radius-sm: 6px;
 }
 
 * {
@@ -69,21 +97,75 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--text-body);
+  line-height: 1.43;
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--accent) 25%, white);
+  background: color-mix(in srgb, var(--rausch) 18%, white);
 }
 
 @layer utilities {
+  .surface-card {
+    @apply rounded-[12px] bg-card text-card-foreground;
+  }
+
   .glass-card {
-    @apply rounded-xl border border-border bg-card shadow-[var(--shadow-sm)];
+    @apply rounded-[12px] bg-card text-card-foreground;
+  }
+
+  .listing-card {
+    @apply rounded-[12px] bg-card text-card-foreground;
   }
 
   .page-container {
-    @apply mx-auto w-full max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8;
+    @apply mx-auto w-full max-w-[1440px] px-5 py-8 sm:px-10 sm:py-10;
+  }
+
+  .section-gap {
+    @apply mb-12;
+  }
+
+  .heading-page {
+    font-size: var(--text-heading);
+    font-weight: 700;
+    line-height: 1.43;
+    letter-spacing: normal;
+  }
+
+  .heading-section {
+    font-size: var(--text-heading-sm);
+    font-weight: 500;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+  }
+
+  .text-body {
+    font-size: var(--text-body);
+    font-weight: 400;
+    line-height: 1.43;
+  }
+
+  .text-ui {
+    font-size: var(--text-ui);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .search-capsule {
+    box-shadow: var(--shadow-subtle);
+    @apply flex w-full max-w-[880px] items-stretch overflow-hidden rounded-full border border-border bg-card;
+  }
+
+  .nav-tab-active {
+    @apply relative text-foreground;
+  }
+
+  .nav-tab-active::after {
+    content: "";
+    @apply absolute -bottom-3 left-1/2 h-0.5 w-full -translate-x-1/2 bg-foreground;
   }
 
   .pb-safe {
@@ -99,7 +181,7 @@ body {
   }
 
   .table-scroll table {
-    @apply min-w-full text-left text-xs sm:text-sm;
+    @apply min-w-full text-left text-sm;
   }
 
   .table-scroll th,
@@ -107,15 +189,11 @@ body {
     @apply whitespace-nowrap px-3 py-3 sm:px-4;
   }
 
-  .gradient-hero {
-    background:
-      radial-gradient(circle at top right, rgb(13 148 136 / 0.15), transparent 40%),
-      radial-gradient(circle at bottom left, rgb(12 74 110 / 0.12), transparent 45%),
-      linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
+  .table-shell {
+    @apply overflow-hidden rounded-[12px] bg-card;
   }
 
-  .gradient-auth {
-    background:
-      linear-gradient(135deg, #0f2744 0%, #0c4a6e 50%, #0d9488 100%);
+  .hairline {
+    border-color: var(--bebe);
   }
 }

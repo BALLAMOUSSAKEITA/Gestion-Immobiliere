@@ -3,7 +3,6 @@ import Link from "next/link";
 import type { PublicUnitSummary } from "@/lib/api";
 import { formatCurrency, UNIT_TYPE_LABELS } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 
 type PublicUnitCardProps = {
   unit: PublicUnitSummary;
@@ -15,34 +14,35 @@ export function PublicUnitCard({ unit }: PublicUnitCardProps) {
 
   return (
     <Link href={`/annonces/${unit.id}`} className="group block">
-      <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lg)]">
-        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+      <article>
+        <div className="relative aspect-square overflow-hidden rounded-[12px] bg-[var(--deco)]">
           {photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={photoUrl}
               alt={unit.code}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
               Aucune photo
             </div>
           )}
-          <Badge variant="accent" className="absolute left-3 top-3">
+          <Badge className="absolute left-3 top-3">
             {UNIT_TYPE_LABELS[unit.type]}
           </Badge>
         </div>
-        <div className="space-y-2 p-5">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-xl font-bold text-primary">{formatCurrency(unit.rent_amount)}</p>
-            <span className="text-xs text-muted-foreground">{unit.code}</span>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {[unit.commune, unit.quartier].filter(Boolean).join(" · ")}
+        <div className="mt-3 space-y-0.5">
+          <p className="truncate text-sm font-medium text-foreground">
+            {unit.code} · {[unit.commune, unit.quartier].filter(Boolean).join(", ")}
+          </p>
+          <p className="text-sm text-muted-foreground">Disponible · Location mensuelle</p>
+          <p className="text-sm text-foreground">
+            <span className="font-semibold">{formatCurrency(unit.rent_amount)}</span>
+            <span className="text-muted-foreground"> / mois</span>
           </p>
         </div>
-      </Card>
+      </article>
     </Link>
   );
 }

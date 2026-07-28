@@ -35,9 +35,9 @@ export function RevenueExpenseChart({ points }: RevenueExpenseChartProps) {
           <YAxis tickFormatter={(v) => `${Math.round(v / 1000)}k`} />
           <Tooltip formatter={(value) => formatCurrency(Number(value))} />
           <Legend />
-          <Bar dataKey="revenus" fill="#0c4a6e" name="Revenus" />
-          <Line dataKey="depenses" stroke="#dc2626" name="Dépenses" />
-          <Line dataKey="benefice" stroke="#0d9488" name="Bénéfice" />
+          <Bar dataKey="revenus" fill="#222222" name="Revenus" />
+          <Line dataKey="depenses" stroke="#6a6a6a" name="Dépenses" />
+          <Line dataKey="benefice" stroke="#222222" strokeDasharray="4 4" name="Bénéfice" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
