@@ -2,9 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
 import { TenantForm } from "@/components/tenants/tenant-form";
-import { AppHeader } from "@/components/layout/app-header";
 import { ApiError, createTenant } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useState } from "react";
@@ -14,9 +12,7 @@ export default function NewTenantPage() {
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold">Nouveau locataire</h1>
           <p className="mt-2 text-muted-foreground">Créer un dossier locataire complet.</p>
@@ -36,7 +32,6 @@ export default function NewTenantPage() {
             }
           }}
         />
-      </main>
-    </ProtectedRoute>
+      </div>
   );
 }

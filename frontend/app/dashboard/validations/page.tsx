@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { SuperAdminRoute } from "@/components/auth/super-admin-route";
-import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import {
   ApiError,
@@ -37,8 +36,7 @@ export default function ValidationsPage() {
 
   return (
     <SuperAdminRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold">Validations en attente</h1>
           <p className="mt-2 text-muted-foreground">
@@ -87,7 +85,7 @@ export default function ValidationsPage() {
             <p className="p-6 text-center text-muted-foreground">Aucune demande en attente.</p>
           )}
         </div>
-      </main>
+      </div>
     </SuperAdminRoute>
   );
 }

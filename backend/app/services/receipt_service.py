@@ -148,13 +148,13 @@ class ReceiptService:
         for allocation in payment.allocations:
             period = allocation.rent_period
             label = f"{period.period_month:02d}/{period.period_year}"
-            line = f"  • {label} : {allocation.allocated_amount:,.0f} FCFA".replace(",", " ")
+            line = f"  • {label} : {allocation.allocated_amount:,.0f} FG".replace(",", " ")
             c.drawString(2 * cm, y, line)
             y -= 0.5 * cm
 
         y -= 0.5 * cm
         c.setFont("Helvetica-Bold", 12)
-        total_line = f"TOTAL : {payment.amount:,.0f} FCFA".replace(",", " ")
+        total_line = f"TOTAL : {payment.amount:,.0f} FG".replace(",", " ")
         c.drawString(2 * cm, y, total_line)
         y -= 1 * cm
 

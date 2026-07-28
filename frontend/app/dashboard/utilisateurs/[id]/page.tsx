@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 
 import { SuperAdminRoute } from "@/components/auth/super-admin-route";
 import { RoleBadge } from "@/components/auth/role-badge";
-import { AppHeader } from "@/components/layout/app-header";
 import { UserForm } from "@/components/users/user-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,18 +53,16 @@ export default function UserDetailPage() {
   if (!user) {
     return (
       <SuperAdminRoute>
-        <AppHeader />
-        <main className="px-6 py-16 text-center text-muted-foreground">
+        <div className="py-16 text-center text-muted-foreground">
           {error ?? "Chargement..."}
-        </main>
+        </div>
       </SuperAdminRoute>
     );
   }
 
   return (
     <SuperAdminRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">
@@ -124,7 +121,7 @@ export default function UserDetailPage() {
             </Button>
           )}
         </div>
-      </main>
+      </div>
     </SuperAdminRoute>
   );
 }

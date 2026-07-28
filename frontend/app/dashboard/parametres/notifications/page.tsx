@@ -55,7 +55,7 @@ export default function NotificationPreferencesPage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold">Préférences notifications</h1>
         <p className="mt-2 text-muted-foreground">Choisissez comment vous souhaitez être alerté.</p>
@@ -105,6 +105,6 @@ export default function NotificationPreferencesPage() {
       <Button onClick={handleSave} className="w-fit">
         Enregistrer
       </Button>
-    </main>
+    </div>
   );
 }

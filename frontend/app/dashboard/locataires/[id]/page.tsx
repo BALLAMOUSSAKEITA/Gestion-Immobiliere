@@ -4,9 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
 import { DocumentLibrary } from "@/components/documents/document-library";
-import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -62,19 +60,14 @@ export default function TenantDetailPage() {
 
   if (!tenant) {
     return (
-      <ProtectedRoute>
-        <AppHeader />
-        <main className="mx-auto max-w-4xl px-6 py-10">
+        <div className="flex flex-col gap-6">
           <p className="text-muted-foreground">{error ?? "Chargement…"}</p>
-        </main>
-      </ProtectedRoute>
+        </div>
     );
   }
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold">
             {tenant.first_name} {tenant.last_name}
@@ -158,8 +151,7 @@ export default function TenantDetailPage() {
         <Link href="/dashboard/locataires" className="text-sm font-medium underline">
           Retour à la liste
         </Link>
-      </main>
-    </ProtectedRoute>
+      </div>
   );
 }
 

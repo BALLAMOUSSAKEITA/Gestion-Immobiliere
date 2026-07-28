@@ -30,7 +30,7 @@ export default function LoginPage() {
         <p className="text-sm text-white/50">© Gestion Immobilière</p>
       </div>
 
-      <div className="flex flex-col items-center justify-center px-6 py-12">
+      <div className="flex flex-col items-center justify-center px-4 py-10 pb-safe sm:px-6 sm:py-12">
         <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden">
             <div className="flex items-center gap-3">

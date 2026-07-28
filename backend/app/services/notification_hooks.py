@@ -64,7 +64,7 @@ def notify_payment_recorded(db: Session, payment: Payment) -> None:
         "payment.recorded",
         [tenant_user],
         title="Paiement enregistré",
-        body=f"Votre paiement de {amount} FCFA pour {unit_code} a été enregistré.",
+        body=f"Votre paiement de {amount} FG pour {unit_code} a été enregistré.",
         entity_type="payment",
         entity_id=payment.id,
         email_template="payment_confirmation.html",
@@ -181,7 +181,7 @@ def notify_expense_created(db: Session, building_id: UUID, amount: str, label: s
         "expense.created",
         recipients,
         title="Nouvelle dépense",
-        body=f"{label} — {amount} FCFA.",
+        body=f"{label} — {amount} FG.",
         entity_type="expense",
     )
 
@@ -209,7 +209,7 @@ def notify_rent_overdue(db: Session, tenant: Tenant, unit_code: str, amount: str
         "rent.overdue",
         recipients,
         title="Loyer en retard",
-        body=f"Loyer impayé pour {unit_code} : {amount} FCFA restants.",
+        body=f"Loyer impayé pour {unit_code} : {amount} FG restants.",
         email_template="rent_overdue.html",
         email_context={"unit_code": unit_code, "amount": amount},
     )
@@ -225,7 +225,7 @@ def notify_rent_due_soon(
         "rent.due_soon",
         [tenant_user],
         title="Loyer bientôt exigible",
-        body=f"Échéance le {due_date} pour {unit_code} : {amount} FCFA.",
+        body=f"Échéance le {due_date} pour {unit_code} : {amount} FG.",
         email_template="rent_due_soon.html",
         email_context={"due_date": due_date, "amount": amount},
     )

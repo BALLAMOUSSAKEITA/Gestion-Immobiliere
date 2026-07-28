@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { ApiError, fetchTenantReceipts, type ReceiptSummary } from "@/lib/api";
+import { ApiError, fetchTenantReceipts, formatCurrency, type ReceiptSummary } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -22,7 +22,7 @@ export default function TenantReceiptsPage() {
   }, []);
 
   return (
-    <main className="flex flex-col gap-6 px-6 py-10">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold">Mes reçus</h1>
         <p className="mt-2 text-muted-foreground">Téléchargez vos reçus de paiement.</p>
@@ -44,7 +44,7 @@ export default function TenantReceiptsPage() {
               <div>
                 <p className="font-semibold">{item.receipt_number}</p>
                 <p className="text-sm text-muted-foreground">
-                  {new Date(item.issued_at).toLocaleDateString("fr-FR")} · {item.amount} FCFA
+                  {new Date(item.issued_at).toLocaleDateString("fr-FR")} · {formatCurrency(item.amount)}
                 </p>
               </div>
               <a
@@ -59,6 +59,6 @@ export default function TenantReceiptsPage() {
           ))
         )}
       </div>
-    </main>
+    </div>
   );
 }

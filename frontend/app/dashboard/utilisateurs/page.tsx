@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import { SuperAdminRoute } from "@/components/auth/super-admin-route";
 import { RoleBadge } from "@/components/auth/role-badge";
-import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError, fetchUsers, ROLE_OPTIONS, type UserSummary } from "@/lib/api";
@@ -42,8 +41,7 @@ export default function UsersPage() {
 
   return (
     <SuperAdminRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Utilisateurs</h1>
@@ -140,7 +138,7 @@ export default function UsersPage() {
             </tbody>
           </table>
         </div>
-      </main>
+      </div>
     </SuperAdminRoute>
   );
 }

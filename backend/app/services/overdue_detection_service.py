@@ -23,16 +23,16 @@ logger = logging.getLogger(__name__)
 
 REMINDER_TEMPLATES = {
     ReminderType.before_due: (
-        "Bonjour {nom}, votre loyer de {mois} d'un montant de {montant} FCFA "
+        "Bonjour {nom}, votre loyer de {mois} d'un montant de {montant} FG "
         "est exigible le {date}. Merci de procéder au règlement."
     ),
     ReminderType.after_due: (
         "Bonjour {nom}, sauf erreur, nous n'avons pas reçu votre loyer de {mois} "
-        "({montant} FCFA), en retard de {jours} jours."
+        "({montant} FG), en retard de {jours} jours."
     ),
     ReminderType.final_notice: (
         "Bonjour {nom}, malgré nos relances, votre loyer de {mois} reste impayé. "
-        "Montant total dû : {total} FCFA. Merci de régulariser sous 7 jours."
+        "Montant total dû : {total} FG. Merci de régulariser sous 7 jours."
     ),
 }
 

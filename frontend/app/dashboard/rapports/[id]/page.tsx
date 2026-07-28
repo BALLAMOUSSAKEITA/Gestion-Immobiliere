@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
-import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import { ApiError, fetchReport, getReportDownloadUrl, type ReportDetail } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
@@ -46,9 +44,7 @@ export default function RapportDetailPage() {
   const kpis = (report?.data?.kpis ?? {}) as Record<string, unknown>;
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <Button asChild variant="outline" className="w-fit">
           <Link href="/dashboard/rapports">← Rapports</Link>
         </Button>
@@ -88,7 +84,6 @@ export default function RapportDetailPage() {
             </div>
           </>
         )}
-      </main>
-    </ProtectedRoute>
+      </div>
   );
 }

@@ -51,7 +51,7 @@ export default function TenantMessagesPage() {
   }
 
   return (
-    <main className="flex flex-col gap-6 px-6 py-10">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold">Messages</h1>
         <p className="mt-2 text-muted-foreground">Contactez votre gestionnaire.</p>
@@ -103,6 +103,6 @@ export default function TenantMessagesPage() {
           ))
         )}
       </div>
-    </main>
+    </div>
   );
 }

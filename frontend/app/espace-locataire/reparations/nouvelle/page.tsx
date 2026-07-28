@@ -10,7 +10,7 @@ export default function TenantNewRepairPage() {
   const router = useRouter();
 
   return (
-    <main className="flex flex-col gap-6 px-6 py-10">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold">Signaler une panne</h1>
         <p className="mt-2 text-muted-foreground">
@@ -26,6 +26,6 @@ export default function TenantNewRepairPage() {
           router.push("/espace-locataire/reparations");
         }}
       />
-    </main>
+    </div>
   );
 }

@@ -3,9 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
 import { PaymentForm } from "@/components/payments/payment-form";
-import { AppHeader } from "@/components/layout/app-header";
 import {
   ApiError,
   createPayment,
@@ -30,9 +28,7 @@ export default function NewPaymentPage() {
   }, []);
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold">Enregistrer un paiement</h1>
           <p className="mt-2 text-muted-foreground">
@@ -52,7 +48,6 @@ export default function NewPaymentPage() {
             router.push(`/dashboard/paiements/${payment.id}`);
           }}
         />
-      </main>
-    </ProtectedRoute>
+      </div>
   );
 }

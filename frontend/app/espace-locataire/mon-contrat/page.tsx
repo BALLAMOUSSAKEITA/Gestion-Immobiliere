@@ -25,7 +25,7 @@ export default function TenantLeasePage() {
   }, []);
 
   return (
-    <main className="flex flex-col gap-6 px-6 py-10">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold">Mon contrat</h1>
         <p className="mt-2 text-muted-foreground">Informations sur votre bail actif.</p>
@@ -69,6 +69,6 @@ export default function TenantLeasePage() {
           )}
         </div>
       )}
-    </main>
+    </div>
   );
 }

@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
-import { AppHeader } from "@/components/layout/app-header";
 import {
   ApiError,
   fetchAuditLogs,
@@ -36,19 +34,14 @@ export default function HistoriquePage() {
 
   if (user && !canAccess) {
     return (
-      <ProtectedRoute>
-        <AppHeader />
-        <main className="mx-auto max-w-4xl px-6 py-10">
+        <div className="flex flex-col gap-6">
           <p className="text-red-600">Accès réservé aux administrateurs.</p>
-        </main>
-      </ProtectedRoute>
+        </div>
     );
   }
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold">Historique des modifications</h1>
           <p className="mt-2 text-muted-foreground">
@@ -87,7 +80,6 @@ export default function HistoriquePage() {
             <p className="p-6 text-center text-muted-foreground">Aucune entrée d&apos;audit.</p>
           )}
         </div>
-      </main>
-    </ProtectedRoute>
+      </div>
   );
 }

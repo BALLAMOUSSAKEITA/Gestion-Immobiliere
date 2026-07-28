@@ -5,8 +5,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { AppHeader } from "@/components/layout/app-header";
-import { ProtectedRoute } from "@/components/auth/protected-route";
 import { RoleBadge } from "@/components/auth/role-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,7 +60,7 @@ function ProfilContent() {
   });
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-10">
+    <div className="flex flex-col gap-8">
       <div>
         <h1 className="text-3xl font-bold">Mon profil</h1>
         <p className="mt-2 text-muted-foreground">Informations de votre compte.</p>
@@ -138,15 +136,10 @@ function ProfilContent() {
           </Button>
         </form>
       </section>
-    </main>
+    </div>
   );
 }
 
 export default function ProfilPage() {
-  return (
-    <ProtectedRoute>
-      <AppHeader />
-      <ProfilContent />
-    </ProtectedRoute>
-  );
+  return <ProfilContent />;
 }

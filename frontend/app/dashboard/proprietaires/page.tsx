@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
-import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -59,9 +57,7 @@ export default function OwnerProfilesPage() {
   };
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold">Propriétaires famille</h1>
           <p className="mt-2 text-muted-foreground">
@@ -155,7 +151,6 @@ export default function OwnerProfilesPage() {
             </tbody>
           </table>
         </div>
-      </main>
-    </ProtectedRoute>
+      </div>
   );
 }

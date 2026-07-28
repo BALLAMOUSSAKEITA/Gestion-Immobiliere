@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   fetchLeasePeriods,
+  formatCurrency,
   PAYMENT_METHOD_LABELS,
   type PaymentCreatePayload,
   type PaymentMethod,
@@ -107,7 +108,7 @@ export function PaymentForm({ leases, onSubmit }: PaymentFormProps) {
                   {String(period.period_month).padStart(2, "0")}/{period.period_year}
                 </span>
                 <span className="text-muted-foreground">
-                  Reste : {Number(period.remaining_amount).toLocaleString("fr-FR")} FCFA
+                  Reste : {formatCurrency(period.remaining_amount)}
                 </span>
                 <Input
                   placeholder="Montant"
@@ -128,7 +129,7 @@ export function PaymentForm({ leases, onSubmit }: PaymentFormProps) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Input
-          placeholder="Montant total (FCFA)"
+          placeholder="Montant total (FG)"
           value={form.amount}
           onChange={(e) => setForm({ ...form, amount: e.target.value })}
           required

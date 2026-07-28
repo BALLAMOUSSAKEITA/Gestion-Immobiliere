@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 
 type KpiCardProps = {
   label: string;
@@ -10,9 +9,11 @@ type KpiCardProps = {
 
 export function KpiCard({ label, value, hint, trend = "neutral" }: KpiCardProps) {
   return (
-    <div className="glass-card p-5 transition-shadow hover:shadow-[var(--shadow-md)]">
-      <p className="text-sm font-medium text-muted-foreground">{label}</p>
-      <p className="mt-2 text-3xl font-bold tracking-tight text-foreground">{value}</p>
+    <div className="glass-card p-4 transition-shadow hover:shadow-[var(--shadow-md)] sm:p-5">
+      <p className="text-xs font-medium text-muted-foreground sm:text-sm">{label}</p>
+      <p className="mt-2 break-words text-xl font-bold tabular-nums tracking-tight text-foreground sm:text-2xl lg:text-3xl">
+        {value}
+      </p>
       {hint && (
         <p
           className={cn(

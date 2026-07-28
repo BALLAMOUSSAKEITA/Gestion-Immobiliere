@@ -6,7 +6,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import { DiffViewer } from "@/components/approvals/diff-viewer";
 import { SuperAdminRoute } from "@/components/auth/super-admin-route";
-import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -75,8 +74,7 @@ export default function ValidationDetailPage() {
 
   return (
     <SuperAdminRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <Button asChild variant="outline" className="w-fit">
           <Link href="/dashboard/validations">← Validations</Link>
         </Button>
@@ -130,7 +128,7 @@ export default function ValidationDetailPage() {
             )}
           </>
         )}
-      </main>
+      </div>
     </SuperAdminRoute>
   );
 }

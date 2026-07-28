@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
-import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import {
   ApiError,
@@ -32,9 +30,7 @@ export default function PaymentDetailPage() {
   }, [params.id]);
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         {!payment ? (
           <p className="text-muted-foreground">{error ?? "Chargement…"}</p>
         ) : (
@@ -90,8 +86,7 @@ export default function PaymentDetailPage() {
             </Link>
           </>
         )}
-      </main>
-    </ProtectedRoute>
+      </div>
   );
 }
 

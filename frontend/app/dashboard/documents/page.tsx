@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
-import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import {
   ApiError,
@@ -35,9 +33,7 @@ export default function DocumentsPage() {
   }, [load]);
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold">Bibliothèque documentaire</h1>
           <p className="mt-2 text-muted-foreground">Tous les documents centralisés de la plateforme.</p>
@@ -70,7 +66,6 @@ export default function DocumentsPage() {
             </Link>
           ))}
         </div>
-      </main>
-    </ProtectedRoute>
+      </div>
   );
 }

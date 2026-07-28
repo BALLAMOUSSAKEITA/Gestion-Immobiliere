@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { SuperAdminRoute } from "@/components/auth/super-admin-route";
-import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import {
   ApiError,
@@ -61,8 +60,7 @@ export default function UserPermissionsPage() {
 
   return (
     <SuperAdminRoute>
-      <AppHeader />
-      <main className="mx-auto w-full max-w-3xl px-6 py-10">
+      <div className="flex flex-col gap-6">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Permissions</h1>
@@ -103,7 +101,7 @@ export default function UserPermissionsPage() {
 
           <Button onClick={handleSave}>Enregistrer</Button>
         </div>
-      </main>
+      </div>
     </SuperAdminRoute>
   );
 }

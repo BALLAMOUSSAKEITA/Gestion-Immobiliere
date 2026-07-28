@@ -43,7 +43,7 @@ export default function VisitRequestsPage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold">Demandes de visite</h1>
         <p className="mt-2 text-muted-foreground">
@@ -106,6 +106,6 @@ export default function VisitRequestsPage() {
           ))
         )}
       </div>
-    </main>
+    </div>
   );
 }

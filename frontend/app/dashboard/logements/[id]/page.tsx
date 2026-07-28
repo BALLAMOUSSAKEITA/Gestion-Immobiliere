@@ -4,10 +4,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
 import { DocumentLibrary } from "@/components/documents/document-library";
 import { UnitStatusBadge } from "@/components/buildings/unit-status-badge";
-import { AppHeader } from "@/components/layout/app-header";
 import {
   ApiError,
   fetchUnit,
@@ -42,9 +40,7 @@ export default function UnitDetailPage() {
   }, [params.id]);
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         {!unit ? (
           <p className="text-muted-foreground">{error ?? "Chargement…"}</p>
         ) : (
@@ -105,7 +101,6 @@ export default function UnitDetailPage() {
             </Link>
           </>
         )}
-      </main>
-    </ProtectedRoute>
+      </div>
   );
 }

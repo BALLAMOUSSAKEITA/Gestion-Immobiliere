@@ -124,7 +124,7 @@ export function ExpenseForm({ categories, buildings, onSubmit }: ExpenseFormProp
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="amount" className="mb-1 block text-sm text-muted-foreground">
-            Montant (FCFA)
+            Montant (FG)
           </label>
           <Input
             id="amount"

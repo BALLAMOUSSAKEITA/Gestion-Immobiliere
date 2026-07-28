@@ -3,9 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
 import { RepairForm } from "@/components/repairs/repair-form";
-import { AppHeader } from "@/components/layout/app-header";
 import { ApiError, createRepair, fetchUnits } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 
@@ -27,9 +25,7 @@ export default function NewRepairPage() {
   }, []);
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold">Nouvelle réparation</h1>
           <p className="mt-2 text-muted-foreground">Déclarer une intervention sur un logement.</p>
@@ -46,7 +42,6 @@ export default function NewRepairPage() {
             }}
           />
         )}
-      </main>
-    </ProtectedRoute>
+      </div>
   );
 }

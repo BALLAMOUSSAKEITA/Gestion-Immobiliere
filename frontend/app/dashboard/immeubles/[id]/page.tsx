@@ -4,11 +4,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
 import { DocumentLibrary } from "@/components/documents/document-library";
 import { UnitForm } from "@/components/buildings/unit-form";
 import { UnitStatusBadge } from "@/components/buildings/unit-status-badge";
-import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import {
   ApiError,
@@ -54,23 +52,18 @@ export default function BuildingDetailPage() {
 
   if (!building) {
     return (
-      <ProtectedRoute>
-        <AppHeader />
-        <main className="mx-auto max-w-6xl px-6 py-10">
+        <div className="flex flex-col gap-6">
           {error ? (
             <p className="text-red-600">{error}</p>
           ) : (
             <p className="text-muted-foreground">Chargement…</p>
           )}
-        </main>
-      </ProtectedRoute>
+        </div>
     );
   }
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p className="text-sm text-muted-foreground">{building.code}</p>
@@ -170,8 +163,7 @@ export default function BuildingDetailPage() {
             <p className="p-6 text-center text-muted-foreground">Aucun logement.</p>
           )}
         </div>
-      </main>
-    </ProtectedRoute>
+      </div>
   );
 }
 

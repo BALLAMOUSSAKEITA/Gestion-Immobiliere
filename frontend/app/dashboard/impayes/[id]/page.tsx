@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
-import { AppHeader } from "@/components/layout/app-header";
 import { Button } from "@/components/ui/button";
 import {
   ApiError,
@@ -74,9 +72,7 @@ export default function OverdueDetailPage() {
   }
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10">
+      <div className="flex flex-col gap-6">
         <Button asChild variant="outline" className="w-fit">
           <Link href="/dashboard/impayes">← Retour aux impayés</Link>
         </Button>
@@ -175,7 +171,6 @@ export default function OverdueDetailPage() {
             )}
           </>
         )}
-      </main>
-    </ProtectedRoute>
+      </div>
   );
 }

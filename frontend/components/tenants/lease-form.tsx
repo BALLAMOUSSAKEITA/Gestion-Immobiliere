@@ -104,13 +104,13 @@ export function LeaseForm({
         onChange={(e) => setForm({ ...form, end_date: e.target.value })}
       />
       <Input
-        placeholder="Loyer (FCFA)"
+        placeholder="Loyer (FG)"
         value={form.rent_amount}
         onChange={(e) => setForm({ ...form, rent_amount: e.target.value })}
         required
       />
       <Input
-        placeholder="Caution (FCFA)"
+        placeholder="Caution (FG)"
         value={form.deposit_amount}
         onChange={(e) => setForm({ ...form, deposit_amount: e.target.value })}
       />

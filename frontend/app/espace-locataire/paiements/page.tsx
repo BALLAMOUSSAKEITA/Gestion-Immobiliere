@@ -26,7 +26,7 @@ export default function TenantPaymentsPage() {
   }, []);
 
   return (
-    <main className="flex flex-col gap-6 px-6 py-10">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold">Mes paiements</h1>
         <p className="mt-2 text-muted-foreground">Historique de vos règlements de loyer.</p>
@@ -66,6 +66,6 @@ export default function TenantPaymentsPage() {
           </tbody>
         </table>
       </div>
-    </main>
+    </div>
   );
 }

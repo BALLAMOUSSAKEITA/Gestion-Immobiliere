@@ -358,10 +358,8 @@ export const UNIT_TYPE_LABELS: Record<UnitType, string> = {
   office: "Bureau",
 };
 
-export function formatCurrency(value: string | number): string {
-  const amount = typeof value === "string" ? Number(value) : value;
-  return `${new Intl.NumberFormat("fr-FR").format(amount)} FCFA`;
-}
+
+export { formatCurrency, CURRENCY_CODE } from "./currency";
 
 export type BuildingSummary = {
   id: string;
