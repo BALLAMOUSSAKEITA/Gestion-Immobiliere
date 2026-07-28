@@ -9,6 +9,7 @@ import {
   ApiError,
   fetchReceipt,
   formatCurrency,
+  getReceiptWhatsAppLink,
   sendReceiptEmail,
   type ReceiptDetail,
 } from "@/lib/api";
@@ -55,6 +56,18 @@ export default function ReceiptDetailPage() {
     }
   };
 
+  const handleSendWhatsApp = async () => {
+    const token = getAccessToken();
+    if (!token || !receipt) return;
+    try {
+      const result = await getReceiptWhatsAppLink(token, receipt.id);
+      window.open(result.url, "_blank", "noopener,noreferrer");
+      setMessage(result.message);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Envoi WhatsApp impossible");
+    }
+  };
+
   return (
       <div className="flex flex-col gap-6">
         {!receipt ? (
@@ -87,6 +100,9 @@ export default function ReceiptDetailPage() {
               )}
               <Button variant="outline" onClick={handleSendEmail}>
                 Envoyer par email
+              </Button>
+              <Button variant="outline" onClick={handleSendWhatsApp}>
+                Envoyer par WhatsApp
               </Button>
             </div>
 

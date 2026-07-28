@@ -9,6 +9,7 @@ import {
   createBuilding,
   fetchOwnerProfiles,
   fetchUsers,
+  uploadBuildingPhoto,
   type OwnerProfile,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
@@ -59,11 +60,15 @@ export default function NewBuildingPage() {
         <BuildingForm
           ownerProfiles={ownerProfiles}
           managers={managers}
+          showPhotoField
           submitLabel="Créer l'immeuble"
-          onSubmit={async (values) => {
+          onSubmit={async (values, photo) => {
             const token = getAccessToken();
             if (!token) return;
             const building = await createBuilding(token, values);
+            if (photo) {
+              await uploadBuildingPhoto(token, building.id, photo);
+            }
             router.push(`/dashboard/immeubles/${building.id}`);
           }}
         />

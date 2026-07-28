@@ -11,7 +11,7 @@ from reportlab.pdfgen import canvas
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.config import get_settings
-from app.models.enums import ReportType
+from app.models.enums import ReportType, UnitType
 from app.models.report import ReportSnapshot
 from app.models.role import Role
 from app.models.user import User
@@ -72,6 +72,11 @@ class ReportService:
         owner_profile_id = (
             UUID(filters["owner_profile_id"]) if filters.get("owner_profile_id") else None
         )
+        tenant_id = UUID(filters["tenant_id"]) if filters.get("tenant_id") else None
+        manager_user_id = (
+            UUID(filters["manager_user_id"]) if filters.get("manager_user_id") else None
+        )
+        unit_type = UnitType(filters["unit_type"]) if filters.get("unit_type") else None
 
         data = DashboardService(self.db).collect_report_data(
             actor,
@@ -79,6 +84,9 @@ class ReportService:
             period_end=payload.period_end,
             building_id=building_id,
             owner_profile_id=owner_profile_id,
+            tenant_id=tenant_id,
+            manager_user_id=manager_user_id,
+            unit_type=unit_type,
         )
 
         snapshot = ReportSnapshot(

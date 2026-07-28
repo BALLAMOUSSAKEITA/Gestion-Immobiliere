@@ -173,6 +173,7 @@ class UnitService:
         BuildingAccessService.ensure_building_access(self.db, actor, unit.building_id)
         history = (
             self.db.query(UnitTenantHistory)
+            .options(joinedload(UnitTenantHistory.tenant))
             .filter(UnitTenantHistory.unit_id == unit_id)
             .order_by(UnitTenantHistory.entry_date.desc())
             .all()
@@ -181,6 +182,11 @@ class UnitService:
             UnitHistoryItem(
                 id=str(item.id),
                 tenant_id=str(item.tenant_id) if item.tenant_id else None,
+                tenant_name=(
+                    f"{item.tenant.first_name} {item.tenant.last_name}"
+                    if item.tenant
+                    else None
+                ),
                 entry_date=item.entry_date,
                 exit_date=item.exit_date,
                 rent_amount=item.rent_amount,

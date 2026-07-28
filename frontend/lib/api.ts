@@ -527,6 +527,23 @@ export async function updateBuilding(
   );
 }
 
+export async function uploadBuildingPhoto(
+  accessToken: string,
+  buildingId: string,
+  file: File,
+): Promise<BuildingDetail> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const headers = new Headers();
+  headers.set("Authorization", `Bearer ${accessToken}`);
+  const res = await fetch(`${API_URL}/api/v1/buildings/${buildingId}/photo`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+  return parseResponse<BuildingDetail>(res);
+}
+
 export async function fetchBuildingUnits(
   accessToken: string,
   buildingId: string,
@@ -569,6 +586,39 @@ export async function fetchUnit(
   unitId: string,
 ): Promise<UnitDetail> {
   return apiFetch<UnitDetail>(`/api/v1/units/${unitId}`, {}, accessToken);
+}
+
+export async function uploadUnitPhoto(
+  accessToken: string,
+  unitId: string,
+  file: File,
+): Promise<{ id: string; url: string; is_primary: boolean }> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const headers = new Headers();
+  headers.set("Authorization", `Bearer ${accessToken}`);
+  const res = await fetch(`${API_URL}/api/v1/units/${unitId}/photos`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+  return parseResponse(res);
+}
+
+export async function deleteUnitPhoto(
+  accessToken: string,
+  unitId: string,
+  photoId: string,
+): Promise<void> {
+  const headers = new Headers();
+  headers.set("Authorization", `Bearer ${accessToken}`);
+  const res = await fetch(`${API_URL}/api/v1/units/${unitId}/photos/${photoId}`, {
+    method: "DELETE",
+    headers,
+  });
+  if (!res.ok) {
+    throw new ApiError(await res.text(), res.status);
+  }
 }
 
 export async function updateUnit(
@@ -1760,6 +1810,8 @@ export type AuditLogSummary = {
   action: string;
   entity_type: string;
   entity_id: string;
+  old_values: Record<string, unknown> | null;
+  new_values: Record<string, unknown> | null;
   created_at: string;
 };
 
@@ -1933,6 +1985,13 @@ export async function generateReport(
     period_start: string;
     period_end: string;
     export_formats?: string[];
+    filters?: {
+      building_id?: string;
+      owner_profile_id?: string;
+      tenant_id?: string;
+      manager_user_id?: string;
+      unit_type?: string;
+    };
   },
 ): Promise<ReportDetail> {
   return apiFetch(
@@ -2247,4 +2306,21 @@ export async function getReceiptWhatsAppLink(
     { method: "POST" },
     accessToken,
   );
+}
+
+export type UnitHistoryItem = {
+  id: string;
+  tenant_id: string | null;
+  tenant_name: string | null;
+  entry_date: string;
+  exit_date: string | null;
+  rent_amount: string;
+  notes: string | null;
+};
+
+export async function fetchUnitHistory(
+  accessToken: string,
+  unitId: string,
+): Promise<UnitHistoryItem[]> {
+  return apiFetch<UnitHistoryItem[]>(`/api/v1/units/${unitId}/history`, {}, accessToken);
 }

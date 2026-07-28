@@ -3,26 +3,6 @@ import { ArrowRight, Building2, Search, Shield, Wallet } from "lucide-react";
 
 import { PublicShell } from "@/components/layout/public-shell";
 import { Button } from "@/components/ui/button";
-import { fetchHealth } from "@/lib/api";
-
-async function ApiStatus() {
-  try {
-    const health = await fetchHealth();
-    return (
-      <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-        <span className="h-2 w-2 rounded-full bg-[var(--success)]" />
-        Service en ligne — v{health.version}
-      </span>
-    );
-  } catch {
-    return (
-      <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-        <span className="h-2 w-2 rounded-full bg-accent" />
-        Service temporairement indisponible
-      </span>
-    );
-  }
-}
 
 export default function Home() {
   return (
@@ -70,9 +50,6 @@ export default function Home() {
             <Button asChild variant="outline" size="lg">
               <Link href="/contact">Nous contacter</Link>
             </Button>
-          </div>
-          <div className="mt-6">
-            <ApiStatus />
           </div>
         </div>
       </section>

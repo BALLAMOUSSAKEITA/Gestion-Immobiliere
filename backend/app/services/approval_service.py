@@ -296,7 +296,7 @@ class AuditLogService:
         date_from: datetime | None = None,
         date_to: datetime | None = None,
     ) -> AuditLogListResponse:
-        if actor.role.code not in ("super_admin", "admin_familial"):
+        if actor.role.code not in ("super_admin",):
             raise HTTPException(status_code=403, detail="Accès non autorisé")
 
         query = self.db.query(AuditLog).options(joinedload(AuditLog.user))
@@ -330,7 +330,7 @@ class AuditLogService:
         )
 
     def get_log(self, actor: User, log_id: UUID) -> AuditLogDetail:
-        if actor.role.code not in ("super_admin", "admin_familial"):
+        if actor.role.code not in ("super_admin",):
             raise HTTPException(status_code=403, detail="Accès non autorisé")
         log = (
             self.db.query(AuditLog)
@@ -345,7 +345,7 @@ class AuditLogService:
     def list_entity_logs(
         self, actor: User, entity_type: str, entity_id: UUID
     ) -> list[AuditLogSummary]:
-        if actor.role.code not in ("super_admin", "admin_familial"):
+        if actor.role.code not in ("super_admin",):
             raise HTTPException(status_code=403, detail="Accès non autorisé")
         logs = (
             self.db.query(AuditLog)
@@ -367,6 +367,8 @@ class AuditLogService:
             action=log.action,
             entity_type=log.entity_type,
             entity_id=str(log.entity_id),
+            old_values=log.old_values,
+            new_values=log.new_values,
             created_at=log.created_at,
         )
 
@@ -374,8 +376,6 @@ class AuditLogService:
         summary = self._to_summary(log)
         return AuditLogDetail(
             **summary.model_dump(),
-            old_values=log.old_values,
-            new_values=log.new_values,
             ip_address=log.ip_address,
             user_agent=log.user_agent,
         )

@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ImageUploadField } from "@/components/ui/image-upload-field";
 import type { BuildingCreatePayload } from "@/lib/api";
 
 type BuildingFormProps = {
@@ -11,7 +12,8 @@ type BuildingFormProps = {
   ownerProfiles: { id: string; label: string }[];
   managers: { id: string; label: string }[];
   submitLabel?: string;
-  onSubmit: (values: BuildingCreatePayload) => Promise<void>;
+  showPhotoField?: boolean;
+  onSubmit: (values: BuildingCreatePayload, photo?: File | null) => Promise<void>;
 };
 
 export function BuildingForm({
@@ -19,8 +21,10 @@ export function BuildingForm({
   ownerProfiles,
   managers,
   submitLabel = "Enregistrer",
+  showPhotoField = false,
   onSubmit,
 }: BuildingFormProps) {
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [form, setForm] = useState({
     name: initialValues?.name ?? "",
     address: initialValues?.address ?? "",
@@ -39,16 +43,19 @@ export function BuildingForm({
     setLoading(true);
     setError(null);
     try {
-      await onSubmit({
-        name: form.name,
-        address: form.address,
-        commune: form.commune,
-        quartier: form.quartier || undefined,
-        floor_count: Number(form.floor_count) || 0,
-        owner_profile_id: form.owner_profile_id || undefined,
-        manager_user_id: form.manager_user_id || undefined,
-        observations: form.observations || undefined,
-      });
+      await onSubmit(
+        {
+          name: form.name,
+          address: form.address,
+          commune: form.commune,
+          quartier: form.quartier || undefined,
+          floor_count: Number(form.floor_count) || 0,
+          owner_profile_id: form.owner_profile_id || undefined,
+          manager_user_id: form.manager_user_id || undefined,
+          observations: form.observations || undefined,
+        },
+        photoFile,
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
     } finally {
@@ -127,6 +134,17 @@ export function BuildingForm({
         onChange={(e) => setForm({ ...form, observations: e.target.value })}
         className="min-h-24 rounded-md border border-border px-3 py-2 text-sm sm:col-span-2"
       />
+      {showPhotoField && (
+        <div className="sm:col-span-2">
+          <ImageUploadField
+            embedded
+            selectOnly
+            label="Photo de l'immeuble (optionnel)"
+            hint="Sera enregistrée automatiquement après la création."
+            onFileSelect={(files) => setPhotoFile(files[0] ?? null)}
+          />
+        </div>
+      )}
       {error && (
         <p className="text-sm text-red-600 sm:col-span-2">{error}</p>
       )}

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { DocumentLibrary } from "@/components/documents/document-library";
 import { UnitForm } from "@/components/buildings/unit-form";
 import { UnitStatusBadge } from "@/components/buildings/unit-status-badge";
+import { ImageUploadField } from "@/components/ui/image-upload-field";
 import { Button } from "@/components/ui/button";
 import {
   ApiError,
@@ -14,6 +15,7 @@ import {
   fetchBuilding,
   fetchBuildingUnits,
   formatCurrency,
+  uploadBuildingPhoto,
   type BuildingDetail,
   type UnitSummary,
 } from "@/lib/api";
@@ -78,10 +80,23 @@ export default function BuildingDetailPage() {
             <img
               src={`${API_URL}${building.photo_url}`}
               alt={building.name}
-              className="h-40 w-full max-w-xs rounded-xl object-cover"
+              className="h-48 w-full max-w-sm rounded-xl border border-border object-cover"
             />
           )}
         </div>
+
+        {canManage && (
+          <ImageUploadField
+            label="Photo de l'immeuble"
+            hint="Ajoutez une photo principale visible sur la liste et la fiche immeuble."
+            onUpload={async (files) => {
+              const token = getAccessToken();
+              if (!token || !files[0]) return;
+              const updated = await uploadBuildingPhoto(token, building.id, files[0]);
+              setBuilding(updated);
+            }}
+          />
+        )}
 
         <div className="grid gap-4 sm:grid-cols-4">
           <Stat label="Logements" value={String(building.total_units)} />

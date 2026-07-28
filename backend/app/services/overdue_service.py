@@ -263,6 +263,7 @@ class OverdueService:
             "super_admin",
             "admin_familial",
             "gestionnaire",
+            "proprietaire",
             "locataire",
         ):
             raise HTTPException(status_code=403, detail="Accès non autorisé")

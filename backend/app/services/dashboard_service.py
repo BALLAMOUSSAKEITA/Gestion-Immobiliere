@@ -82,6 +82,7 @@ class DashboardService:
         actor: User,
         building_id: UUID | None = None,
         owner_profile_id: UUID | None = None,
+        manager_user_id: UUID | None = None,
     ) -> list[UUID] | None:
         allowed = BuildingAccessService.accessible_building_ids(self.db, actor)
         query = self.db.query(Building.id).filter(Building.is_active.is_(True))
@@ -94,20 +95,44 @@ class DashboardService:
             query = query.filter(Building.id == building_id)
         if owner_profile_id:
             query = query.filter(Building.owner_profile_id == owner_profile_id)
+        if manager_user_id:
+            query = query.filter(Building.manager_user_id == manager_user_id)
         return [row[0] for row in query.all()]
+
+    def _scoped_unit_ids(
+        self,
+        actor: User,
+        *,
+        building_id: UUID | None = None,
+        owner_profile_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+        manager_user_id: UUID | None = None,
+        unit_type: UnitType | None = None,
+    ) -> list[UUID] | None:
+        if not any([tenant_id, unit_type, manager_user_id]):
+            return None
+        query = self._units_query(actor, building_id, owner_profile_id, manager_user_id, unit_type)
+        if tenant_id:
+            tenant_units = self.db.query(Lease.unit_id).filter(Lease.tenant_id == tenant_id).distinct()
+            query = query.filter(Unit.id.in_(tenant_units))
+        return [row[0] for row in query.with_entities(Unit.id).all()]
 
     def _units_query(
         self,
         actor: User,
         building_id: UUID | None = None,
         owner_profile_id: UUID | None = None,
+        manager_user_id: UUID | None = None,
+        unit_type: UnitType | None = None,
     ):
-        building_ids = self._building_ids(actor, building_id, owner_profile_id)
+        building_ids = self._building_ids(actor, building_id, owner_profile_id, manager_user_id)
         query = self.db.query(Unit).join(Building).filter(Building.is_active.is_(True))
         if building_ids is not None:
             if not building_ids:
                 return query.filter(Unit.id.is_(None))
             query = query.filter(Unit.building_id.in_(building_ids))
+        if unit_type:
+            query = query.filter(Unit.type == unit_type)
         return query
 
     def get_kpis(
@@ -118,6 +143,9 @@ class DashboardService:
         month: int | None = None,
         building_id: UUID | None = None,
         owner_profile_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+        manager_user_id: UUID | None = None,
+        unit_type: UnitType | None = None,
     ) -> DashboardKpis:
         self._ensure_access(actor)
         today = date.today()
@@ -125,8 +153,23 @@ class DashboardService:
         month = month or today.month
         show_financials = self._show_financials(actor)
 
-        building_ids = self._building_ids(actor, building_id, owner_profile_id)
-        units_q = self._units_query(actor, building_id, owner_profile_id)
+        building_ids = self._building_ids(
+            actor, building_id, owner_profile_id, manager_user_id
+        )
+        unit_ids = self._scoped_unit_ids(
+            actor,
+            building_id=building_id,
+            owner_profile_id=owner_profile_id,
+            tenant_id=tenant_id,
+            manager_user_id=manager_user_id,
+            unit_type=unit_type,
+        )
+        units_q = self._units_query(
+            actor, building_id, owner_profile_id, manager_user_id, unit_type
+        )
+        if tenant_id:
+            tenant_units = self.db.query(Lease.unit_id).filter(Lease.tenant_id == tenant_id).distinct()
+            units_q = units_q.filter(Unit.id.in_(tenant_units))
 
         total_buildings = len(building_ids) if building_ids is not None else (
             self.db.query(func.count(Building.id))
@@ -142,14 +185,14 @@ class DashboardService:
 
         expected_rent = collected_rent = expenses_month = net_profit = None
         if show_financials:
-            expected_rent = self._sum_expected_rent(building_ids, year, month)
-            collected_rent = self._sum_collected_rent(building_ids, year, month)
-            expenses_month = self._sum_expenses(building_ids, year, month)
+            expected_rent = self._sum_expected_rent(building_ids, year, month, unit_ids)
+            collected_rent = self._sum_collected_rent(building_ids, year, month, unit_ids)
+            expenses_month = self._sum_expenses(building_ids, year, month, unit_ids)
             net_profit = collected_rent - expenses_month
 
-        overdue_amount = self._sum_overdues(building_ids)
-        expiring_leases_count = self._count_expiring_leases(building_ids, today)
-        repairs_in_progress = self._count_repairs_in_progress(building_ids)
+        overdue_amount = self._sum_overdues(building_ids, unit_ids)
+        expiring_leases_count = self._count_expiring_leases(building_ids, today, unit_ids)
+        repairs_in_progress = self._count_repairs_in_progress(building_ids, unit_ids)
 
         return DashboardKpis(
             total_buildings=total_buildings,
@@ -174,17 +217,30 @@ class DashboardService:
         year: int | None = None,
         building_id: UUID | None = None,
         owner_profile_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+        manager_user_id: UUID | None = None,
+        unit_type: UnitType | None = None,
     ) -> RevenueExpenseChart:
         self._ensure_access(actor)
         if not self._show_financials(actor):
             return RevenueExpenseChart(points=[])
         today = date.today()
         year = year or today.year
-        building_ids = self._building_ids(actor, building_id, owner_profile_id)
+        building_ids = self._building_ids(
+            actor, building_id, owner_profile_id, manager_user_id
+        )
+        unit_ids = self._scoped_unit_ids(
+            actor,
+            building_id=building_id,
+            owner_profile_id=owner_profile_id,
+            tenant_id=tenant_id,
+            manager_user_id=manager_user_id,
+            unit_type=unit_type,
+        )
         points: list[MonthlySeriesPoint] = []
         for month in range(1, 13):
-            revenue = self._sum_collected_rent(building_ids, year, month)
-            expenses = self._sum_expenses(building_ids, year, month)
+            revenue = self._sum_collected_rent(building_ids, year, month, unit_ids)
+            expenses = self._sum_expenses(building_ids, year, month, unit_ids)
             points.append(
                 MonthlySeriesPoint(
                     label=f"{month:02d}/{year}",
@@ -234,6 +290,9 @@ class DashboardService:
         month: int | None = None,
         building_id: UUID | None = None,
         owner_profile_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+        manager_user_id: UUID | None = None,
+        unit_type: UnitType | None = None,
     ) -> ExpenseCategoryChart:
         self._ensure_access(actor)
         if not self._show_financials(actor):
@@ -241,7 +300,17 @@ class DashboardService:
         today = date.today()
         year = year or today.year
         month = month or today.month
-        building_ids = self._building_ids(actor, building_id, owner_profile_id)
+        building_ids = self._building_ids(
+            actor, building_id, owner_profile_id, manager_user_id
+        )
+        unit_ids = self._scoped_unit_ids(
+            actor,
+            building_id=building_id,
+            owner_profile_id=owner_profile_id,
+            tenant_id=tenant_id,
+            manager_user_id=manager_user_id,
+            unit_type=unit_type,
+        )
 
         query = (
             self.db.query(Expense)
@@ -254,6 +323,12 @@ class DashboardService:
             if not building_ids:
                 return ExpenseCategoryChart(slices=[], total=Decimal("0"))
             query = query.filter(Expense.building_id.in_(building_ids))
+        if unit_ids is not None:
+            if not unit_ids:
+                return ExpenseCategoryChart(slices=[], total=Decimal("0"))
+            query = query.filter(
+                (Expense.unit_id.in_(unit_ids)) | (Expense.unit_id.is_(None))
+            )
 
         records = query.all()
         buckets: dict[str, CategorySlice] = {}
@@ -430,9 +505,22 @@ class DashboardService:
         limit: int = 10,
         building_id: UUID | None = None,
         owner_profile_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+        manager_user_id: UUID | None = None,
+        unit_type: UnitType | None = None,
     ) -> OverdueQuickList:
         self._ensure_access(actor)
-        building_ids = self._building_ids(actor, building_id, owner_profile_id)
+        building_ids = self._building_ids(
+            actor, building_id, owner_profile_id, manager_user_id
+        )
+        unit_ids = self._scoped_unit_ids(
+            actor,
+            building_id=building_id,
+            owner_profile_id=owner_profile_id,
+            tenant_id=tenant_id,
+            manager_user_id=manager_user_id,
+            unit_type=unit_type,
+        )
         query = (
             self.db.query(OverdueRecord, Unit)
             .join(Unit, OverdueRecord.unit_id == Unit.id)
@@ -444,6 +532,10 @@ class DashboardService:
             query = query.filter(
                 Unit.building_id.in_(building_ids) if building_ids else Unit.id.is_(None)
             )
+        if unit_ids is not None:
+            query = query.filter(Unit.id.in_(unit_ids) if unit_ids else Unit.id.is_(None))
+        if tenant_id:
+            query = query.filter(OverdueRecord.tenant_id == tenant_id)
         records = query.limit(limit).all()
         return OverdueQuickList(
             items=[
@@ -465,9 +557,22 @@ class DashboardService:
         days: int = 30,
         building_id: UUID | None = None,
         owner_profile_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+        manager_user_id: UUID | None = None,
+        unit_type: UnitType | None = None,
     ) -> ExpiringLeasesList:
         self._ensure_access(actor)
-        building_ids = self._building_ids(actor, building_id, owner_profile_id)
+        building_ids = self._building_ids(
+            actor, building_id, owner_profile_id, manager_user_id
+        )
+        unit_ids = self._scoped_unit_ids(
+            actor,
+            building_id=building_id,
+            owner_profile_id=owner_profile_id,
+            tenant_id=tenant_id,
+            manager_user_id=manager_user_id,
+            unit_type=unit_type,
+        )
         today = date.today()
         deadline = today + timedelta(days=days)
         query = (
@@ -487,6 +592,10 @@ class DashboardService:
             query = query.filter(
                 Unit.building_id.in_(building_ids) if building_ids else Unit.id.is_(None)
             )
+        if unit_ids is not None:
+            query = query.filter(Unit.id.in_(unit_ids) if unit_ids else Unit.id.is_(None))
+        if tenant_id:
+            query = query.filter(Lease.tenant_id == tenant_id)
         leases = query.limit(10).all()
         items = []
         for lease in leases:
@@ -505,7 +614,11 @@ class DashboardService:
         return ExpiringLeasesList(items=items)
 
     def _sum_expected_rent(
-        self, building_ids: list[UUID] | None, year: int, month: int
+        self,
+        building_ids: list[UUID] | None,
+        year: int,
+        month: int,
+        unit_ids: list[UUID] | None = None,
     ) -> Decimal:
         query = self.db.query(func.coalesce(func.sum(RentPeriod.expected_amount), 0)).join(
             Lease
@@ -515,10 +628,18 @@ class DashboardService:
             if not building_ids:
                 return Decimal("0")
             query = query.filter(Unit.building_id.in_(building_ids))
+        if unit_ids is not None:
+            if not unit_ids:
+                return Decimal("0")
+            query = query.filter(Unit.id.in_(unit_ids))
         return Decimal(str(query.scalar() or 0))
 
     def _sum_collected_rent(
-        self, building_ids: list[UUID] | None, year: int, month: int
+        self,
+        building_ids: list[UUID] | None,
+        year: int,
+        month: int,
+        unit_ids: list[UUID] | None = None,
     ) -> Decimal:
         query = (
             self.db.query(func.coalesce(func.sum(Payment.amount), 0))
@@ -532,10 +653,18 @@ class DashboardService:
             if not building_ids:
                 return Decimal("0")
             query = query.filter(Unit.building_id.in_(building_ids))
+        if unit_ids is not None:
+            if not unit_ids:
+                return Decimal("0")
+            query = query.filter(Unit.id.in_(unit_ids))
         return Decimal(str(query.scalar() or 0))
 
     def _sum_expenses(
-        self, building_ids: list[UUID] | None, year: int, month: int
+        self,
+        building_ids: list[UUID] | None,
+        year: int,
+        month: int,
+        unit_ids: list[UUID] | None = None,
     ) -> Decimal:
         query = (
             self.db.query(func.coalesce(func.sum(Expense.amount), 0))
@@ -547,9 +676,19 @@ class DashboardService:
             if not building_ids:
                 return Decimal("0")
             query = query.filter(Expense.building_id.in_(building_ids))
+        if unit_ids is not None:
+            if not unit_ids:
+                return Decimal("0")
+            query = query.filter(
+                (Expense.unit_id.in_(unit_ids)) | (Expense.unit_id.is_(None))
+            )
         return Decimal(str(query.scalar() or 0))
 
-    def _sum_overdues(self, building_ids: list[UUID] | None) -> Decimal:
+    def _sum_overdues(
+        self,
+        building_ids: list[UUID] | None,
+        unit_ids: list[UUID] | None = None,
+    ) -> Decimal:
         query = (
             self.db.query(func.coalesce(func.sum(OverdueRecord.amount_remaining), 0))
             .join(Unit)
@@ -559,9 +698,18 @@ class DashboardService:
             if not building_ids:
                 return Decimal("0")
             query = query.filter(Unit.building_id.in_(building_ids))
+        if unit_ids is not None:
+            if not unit_ids:
+                return Decimal("0")
+            query = query.filter(Unit.id.in_(unit_ids))
         return Decimal(str(query.scalar() or 0))
 
-    def _count_expiring_leases(self, building_ids: list[UUID] | None, today: date) -> int:
+    def _count_expiring_leases(
+        self,
+        building_ids: list[UUID] | None,
+        today: date,
+        unit_ids: list[UUID] | None = None,
+    ) -> int:
         deadline = today + timedelta(days=30)
         query = (
             self.db.query(func.count(Lease.id))
@@ -574,9 +722,17 @@ class DashboardService:
             if not building_ids:
                 return 0
             query = query.filter(Unit.building_id.in_(building_ids))
+        if unit_ids is not None:
+            if not unit_ids:
+                return 0
+            query = query.filter(Unit.id.in_(unit_ids))
         return query.scalar() or 0
 
-    def _count_repairs_in_progress(self, building_ids: list[UUID] | None) -> int:
+    def _count_repairs_in_progress(
+        self,
+        building_ids: list[UUID] | None,
+        unit_ids: list[UUID] | None = None,
+    ) -> int:
         query = (
             self.db.query(func.count(Repair.id))
             .join(Unit)
@@ -586,6 +742,10 @@ class DashboardService:
             if not building_ids:
                 return 0
             query = query.filter(Unit.building_id.in_(building_ids))
+        if unit_ids is not None:
+            if not unit_ids:
+                return 0
+            query = query.filter(Unit.id.in_(unit_ids))
         return query.scalar() or 0
 
     def _count_units_at_month(
@@ -623,6 +783,9 @@ class DashboardService:
         period_end: date,
         building_id: UUID | None = None,
         owner_profile_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+        manager_user_id: UUID | None = None,
+        unit_type: UnitType | None = None,
     ) -> dict:
         year = period_start.year
         month = period_start.month
@@ -632,20 +795,46 @@ class DashboardService:
             month=month,
             building_id=building_id,
             owner_profile_id=owner_profile_id,
+            tenant_id=tenant_id,
+            manager_user_id=manager_user_id,
+            unit_type=unit_type,
         )
         revenue_chart = self.get_revenue_expenses_chart(
-            actor, year=year, building_id=building_id, owner_profile_id=owner_profile_id
+            actor,
+            year=year,
+            building_id=building_id,
+            owner_profile_id=owner_profile_id,
+            tenant_id=tenant_id,
+            manager_user_id=manager_user_id,
+            unit_type=unit_type,
         )
         return {
             "period_start": period_start.isoformat(),
             "period_end": period_end.isoformat(),
+            "filters": {
+                "building_id": str(building_id) if building_id else None,
+                "owner_profile_id": str(owner_profile_id) if owner_profile_id else None,
+                "tenant_id": str(tenant_id) if tenant_id else None,
+                "manager_user_id": str(manager_user_id) if manager_user_id else None,
+                "unit_type": unit_type.value if unit_type else None,
+            },
             "kpis": kpis.model_dump(mode="json"),
             "revenue_expenses": [p.model_dump(mode="json") for p in revenue_chart.points],
             "top_overdues": self.get_top_overdues(
-                actor, building_id=building_id, owner_profile_id=owner_profile_id
+                actor,
+                building_id=building_id,
+                owner_profile_id=owner_profile_id,
+                tenant_id=tenant_id,
+                manager_user_id=manager_user_id,
+                unit_type=unit_type,
             ).model_dump(mode="json"),
             "expiring_leases": self.get_expiring_leases(
-                actor, building_id=building_id, owner_profile_id=owner_profile_id
+                actor,
+                building_id=building_id,
+                owner_profile_id=owner_profile_id,
+                tenant_id=tenant_id,
+                manager_user_id=manager_user_id,
+                unit_type=unit_type,
             ).model_dump(mode="json"),
             "expenses_by_category": self.get_expenses_by_category(
                 actor,
@@ -653,5 +842,8 @@ class DashboardService:
                 month=month,
                 building_id=building_id,
                 owner_profile_id=owner_profile_id,
+                tenant_id=tenant_id,
+                manager_user_id=manager_user_id,
+                unit_type=unit_type,
             ).model_dump(mode="json"),
         }

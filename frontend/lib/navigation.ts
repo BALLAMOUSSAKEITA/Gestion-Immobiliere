@@ -9,10 +9,12 @@ export type NavGroup = {
   items: NavItem[];
 };
 
+const STAFF_ROLES = ["super_admin", "admin_familial", "proprietaire", "gestionnaire"];
+
 export const DASHBOARD_NAV: NavGroup[] = [
   {
     title: "Principal",
-    items: [{ href: "/dashboard", label: "Tableau de bord", roles: ["all"] }],
+    items: [{ href: "/dashboard", label: "Tableau de bord", roles: STAFF_ROLES }],
   },
   {
     title: "Patrimoine",
@@ -31,18 +33,18 @@ export const DASHBOARD_NAV: NavGroup[] = [
   {
     title: "Finances",
     items: [
-      { href: "/dashboard/paiements", label: "Paiements", roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire", "locataire"] },
+      { href: "/dashboard/paiements", label: "Paiements", roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire"] },
       { href: "/dashboard/impayes", label: "Impayés", roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire"] },
       { href: "/dashboard/relances", label: "Relances", roles: ["super_admin", "admin_familial", "gestionnaire"] },
-      { href: "/dashboard/recus", label: "Reçus", roles: ["super_admin", "admin_familial", "gestionnaire", "locataire"] },
+      { href: "/dashboard/recus", label: "Reçus", roles: ["super_admin", "admin_familial", "gestionnaire"] },
       { href: "/dashboard/depenses", label: "Dépenses", roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire"] },
     ],
   },
   {
     title: "Opérations",
     items: [
-      { href: "/dashboard/reparations", label: "Réparations", roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire", "locataire"] },
-      { href: "/dashboard/documents", label: "Documents", roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire", "locataire"] },
+      { href: "/dashboard/reparations", label: "Réparations", roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire"] },
+      { href: "/dashboard/documents", label: "Documents", roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire"] },
       { href: "/dashboard/demandes-visite", label: "Visites", roles: ["super_admin", "admin_familial", "gestionnaire"] },
     ],
   },
@@ -51,12 +53,12 @@ export const DASHBOARD_NAV: NavGroup[] = [
     items: [
       { href: "/dashboard/validations", label: "Validations", roles: ["super_admin"] },
       { href: "/dashboard/mes-demandes", label: "Mes demandes", roles: ["super_admin", "admin_familial", "gestionnaire"] },
-      { href: "/dashboard/historique", label: "Historique", roles: ["super_admin", "admin_familial"] },
+      { href: "/dashboard/historique", label: "Historique", roles: ["super_admin"] },
       { href: "/dashboard/rapports", label: "Rapports", roles: ["super_admin", "admin_familial", "proprietaire"] },
       { href: "/dashboard/utilisateurs", label: "Utilisateurs", roles: ["super_admin"] },
       { href: "/dashboard/proprietaires", label: "Propriétaires", roles: ["super_admin", "admin_familial"] },
-      { href: "/dashboard/notifications", label: "Notifications", roles: ["all"] },
-      { href: "/dashboard/parametres/notifications", label: "Préférences", roles: ["all"] },
+      { href: "/dashboard/notifications", label: "Notifications", roles: STAFF_ROLES },
+      { href: "/dashboard/parametres/notifications", label: "Préférences", roles: STAFF_ROLES },
     ],
   },
 ];

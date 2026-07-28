@@ -70,6 +70,7 @@ class UnitListResponse(BaseModel):
 class UnitHistoryItem(BaseModel):
     id: str
     tenant_id: str | None
+    tenant_name: str | None = None
     entry_date: date
     exit_date: date | None
     rent_amount: Decimal

@@ -15,6 +15,8 @@ class AuditLogSummary(BaseModel):
     action: str
     entity_type: str
     entity_id: str
+    old_values: dict | None = None
+    new_values: dict | None = None
     created_at: datetime
 
 
