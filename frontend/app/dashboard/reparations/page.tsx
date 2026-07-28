@@ -20,16 +20,16 @@ import { useAuth } from "@/contexts/auth-context";
 function SummaryCards({ summary }: { summary: RepairSummaryStats }) {
   return (
     <div className="grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-sm text-zinc-500">En cours</p>
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+        <p className="text-sm text-muted-foreground">En cours</p>
         <p className="mt-1 text-2xl font-bold">{summary.in_progress_count}</p>
       </div>
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-sm text-zinc-500">Urgentes</p>
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+        <p className="text-sm text-muted-foreground">Urgentes</p>
         <p className="mt-1 text-2xl font-bold text-red-600">{summary.urgent_count}</p>
       </div>
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-sm text-zinc-500">Terminées ce mois</p>
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+        <p className="text-sm text-muted-foreground">Terminées ce mois</p>
         <p className="mt-1 text-2xl font-bold text-green-600">{summary.completed_this_month}</p>
       </div>
     </div>
@@ -72,7 +72,7 @@ export default function RepairsPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Réparations</h1>
-            <p className="mt-2 text-zinc-600">Suivi des demandes d&apos;intervention et maintenance.</p>
+            <p className="mt-2 text-muted-foreground">Suivi des demandes d&apos;intervention et maintenance.</p>
           </div>
           {canManage && (
             <Button asChild>
@@ -96,9 +96,9 @@ export default function RepairsPage() {
         {view === "kanban" ? (
           <RepairKanban items={items} />
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+          <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
             <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-zinc-200 bg-zinc-50">
+              <thead className="border-b border-border bg-muted/50">
                 <tr>
                   <th className="px-4 py-3">Titre</th>
                   <th className="px-4 py-3">Logement</th>
@@ -109,7 +109,7 @@ export default function RepairsPage() {
               </thead>
               <tbody>
                 {items.map((item) => (
-                  <tr key={item.id} className="border-b border-zinc-100">
+                  <tr key={item.id} className="border-b border-border">
                     <td className="px-4 py-3">{item.title}</td>
                     <td className="px-4 py-3">{item.unit_code}</td>
                     <td className="px-4 py-3">{item.urgency}</td>

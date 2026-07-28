@@ -59,7 +59,7 @@ export default function RapportDetailPage() {
           <>
             <div>
               <h1 className="text-3xl font-bold capitalize">Rapport {report.report_type}</h1>
-              <p className="mt-2 text-zinc-600">
+              <p className="mt-2 text-muted-foreground">
                 {report.period_start} → {report.period_end}
               </p>
             </div>
@@ -75,12 +75,12 @@ export default function RapportDetailPage() {
               )}
             </div>
 
-            <div className="rounded-xl border border-zinc-200 bg-white p-5">
+            <div className="rounded-xl border border-border bg-card shadow-sm p-5">
               <h2 className="mb-3 text-lg font-semibold">Résumé KPI</h2>
               <dl className="grid gap-2 text-sm sm:grid-cols-2">
                 {Object.entries(kpis).map(([key, value]) => (
-                  <div key={key} className="flex justify-between gap-4 border-b border-zinc-100 py-1">
-                    <dt className="text-zinc-500">{key}</dt>
+                  <div key={key} className="flex justify-between gap-4 border-b border-border py-1">
+                    <dt className="text-muted-foreground">{key}</dt>
                     <dd className="font-medium">{String(value ?? "—")}</dd>
                   </div>
                 ))}

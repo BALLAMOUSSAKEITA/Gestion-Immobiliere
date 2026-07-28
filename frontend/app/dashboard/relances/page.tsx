@@ -39,7 +39,7 @@ export default function RemindersPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Relances</h1>
-            <p className="mt-2 text-zinc-600">Historique des relances automatiques et manuelles.</p>
+            <p className="mt-2 text-muted-foreground">Historique des relances automatiques et manuelles.</p>
           </div>
           <Button asChild variant="outline">
             <Link href="/dashboard/impayes">Voir les impayés</Link>
@@ -48,9 +48,9 @@ export default function RemindersPage() {
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50">
+            <thead className="border-b border-border bg-muted/50">
               <tr>
                 <th className="px-4 py-3">Date</th>
                 <th className="px-4 py-3">Locataire</th>
@@ -63,13 +63,13 @@ export default function RemindersPage() {
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                     Aucune relance enregistrée.
                   </td>
                 </tr>
               ) : (
                 items.map((item) => (
-                  <tr key={item.id} className="border-b border-zinc-100">
+                  <tr key={item.id} className="border-b border-border">
                     <td className="px-4 py-3 whitespace-nowrap">
                       {new Date(item.sent_at).toLocaleString("fr-FR")}
                     </td>

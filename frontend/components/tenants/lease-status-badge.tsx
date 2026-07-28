@@ -4,7 +4,7 @@ import type { LeaseStatus } from "@/lib/api";
 import { LEASE_STATUS_LABELS } from "@/lib/api";
 
 const STATUS_COLORS: Record<LeaseStatus, string> = {
-  pending: "bg-zinc-100 text-zinc-800",
+  pending: "bg-muted text-foreground",
   active: "bg-emerald-100 text-emerald-800",
   expired: "bg-amber-100 text-amber-800",
   terminated: "bg-red-100 text-red-800",

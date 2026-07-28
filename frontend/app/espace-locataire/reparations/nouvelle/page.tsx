@@ -13,7 +13,7 @@ export default function TenantNewRepairPage() {
     <main className="flex flex-col gap-6 px-6 py-10">
       <div>
         <h1 className="text-3xl font-bold">Signaler une panne</h1>
-        <p className="mt-2 text-zinc-600">
+        <p className="mt-2 text-muted-foreground">
           Votre logement actif sera utilisé automatiquement pour la demande.
         </p>
       </div>

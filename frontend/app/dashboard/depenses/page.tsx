@@ -21,16 +21,16 @@ import { useAuth } from "@/contexts/auth-context";
 function SummaryCards({ summary }: { summary: ExpenseSummaryStats }) {
   return (
     <div className="grid gap-4 lg:grid-cols-3">
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-sm text-zinc-500">Total validé / enregistré</p>
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+        <p className="text-sm text-muted-foreground">Total validé / enregistré</p>
         <p className="mt-1 text-2xl font-bold">{formatCurrency(summary.total_amount)}</p>
       </div>
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-sm text-zinc-500">Nombre de dépenses</p>
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+        <p className="text-sm text-muted-foreground">Nombre de dépenses</p>
         <p className="mt-1 text-2xl font-bold">{summary.count}</p>
       </div>
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="mb-2 text-sm text-zinc-500">Par catégorie</p>
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+        <p className="mb-2 text-sm text-muted-foreground">Par catégorie</p>
         <ul className="space-y-1 text-sm">
           {summary.by_category.slice(0, 3).map((item) => (
             <li key={item.category} className="flex justify-between gap-2">
@@ -84,7 +84,7 @@ export default function ExpensesPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Dépenses</h1>
-            <p className="mt-2 text-zinc-600">Suivi des charges et justificatifs du patrimoine.</p>
+            <p className="mt-2 text-muted-foreground">Suivi des charges et justificatifs du patrimoine.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {user?.role.code === "super_admin" && (
@@ -103,16 +103,16 @@ export default function ExpensesPage() {
         {error && <p className="text-sm text-red-600">{error}</p>}
         {summary && <SummaryCards summary={summary} />}
 
-        <div className="grid gap-3 rounded-xl border border-zinc-200 bg-white p-4 sm:grid-cols-3">
+        <div className="grid gap-3 rounded-xl border border-border bg-card shadow-sm p-4 sm:grid-cols-3">
           <div>
-            <label htmlFor="status" className="mb-1 block text-sm text-zinc-600">
+            <label htmlFor="status" className="mb-1 block text-sm text-muted-foreground">
               Statut
             </label>
             <select
               id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-input px-3 py-2 text-sm"
             >
               <option value="">Tous</option>
               <option value="recorded">Enregistrée</option>
@@ -122,7 +122,7 @@ export default function ExpensesPage() {
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label htmlFor="supplier" className="mb-1 block text-sm text-zinc-600">
+            <label htmlFor="supplier" className="mb-1 block text-sm text-muted-foreground">
               Fournisseur
             </label>
             <input
@@ -130,14 +130,14 @@ export default function ExpensesPage() {
               value={supplier}
               onChange={(e) => setSupplier(e.target.value)}
               placeholder="Rechercher un fournisseur…"
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-input px-3 py-2 text-sm"
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50">
+            <thead className="border-b border-border bg-muted/50">
               <tr>
                 <th className="px-4 py-3">Date</th>
                 <th className="px-4 py-3">Catégorie</th>
@@ -151,13 +151,13 @@ export default function ExpensesPage() {
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                     Aucune dépense trouvée.
                   </td>
                 </tr>
               ) : (
                 items.map((item) => (
-                  <tr key={item.id} className="border-b border-zinc-100">
+                  <tr key={item.id} className="border-b border-border">
                     <td className="px-4 py-3">{item.expense_date}</td>
                     <td className="px-4 py-3">{item.category_label}</td>
                     <td className="px-4 py-3">{item.building_name ?? "—"}</td>

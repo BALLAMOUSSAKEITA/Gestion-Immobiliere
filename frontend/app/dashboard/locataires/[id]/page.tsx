@@ -65,7 +65,7 @@ export default function TenantDetailPage() {
       <ProtectedRoute>
         <AppHeader />
         <main className="mx-auto max-w-4xl px-6 py-10">
-          <p className="text-zinc-500">{error ?? "Chargement…"}</p>
+          <p className="text-muted-foreground">{error ?? "Chargement…"}</p>
         </main>
       </ProtectedRoute>
     );
@@ -79,7 +79,7 @@ export default function TenantDetailPage() {
           <h1 className="text-3xl font-bold">
             {tenant.first_name} {tenant.last_name}
           </h1>
-          <p className="mt-2 text-zinc-600">{tenant.phone_primary}</p>
+          <p className="mt-2 text-muted-foreground">{tenant.phone_primary}</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -107,15 +107,15 @@ export default function TenantDetailPage() {
         </div>
 
         {tenant.current_lease && (
-          <section className="rounded-xl border border-zinc-200 bg-white p-6">
+          <section className="rounded-xl border border-border bg-card shadow-sm p-6">
             <h2 className="text-lg font-semibold">Bail actuel</h2>
-            <p className="mt-2 text-zinc-600">
+            <p className="mt-2 text-muted-foreground">
               {tenant.current_lease.building_name} — {tenant.current_lease.unit_code}
             </p>
             <p className="mt-1 font-medium">
               {formatCurrency(tenant.current_lease.rent_amount)} / mois
             </p>
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-muted-foreground">
               Depuis le {tenant.current_lease.start_date}
             </p>
             <Link
@@ -128,7 +128,7 @@ export default function TenantDetailPage() {
         )}
 
         {canManage && !tenant.user_id && user?.role.code !== "gestionnaire" && (
-          <section className="rounded-xl border border-zinc-200 bg-white p-6">
+          <section className="rounded-xl border border-border bg-card shadow-sm p-6">
             <h2 className="text-lg font-semibold">Compte espace locataire</h2>
             <div className="mt-4 flex flex-col gap-3 sm:flex-row">
               <Input
@@ -165,8 +165,8 @@ export default function TenantDetailPage() {
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4">
-      <p className="text-sm text-zinc-500">{label}</p>
+    <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+      <p className="text-sm text-muted-foreground">{label}</p>
       <p className="mt-1 font-medium">{value}</p>
     </div>
   );

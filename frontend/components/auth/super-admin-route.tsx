@@ -19,7 +19,7 @@ export function SuperAdminRoute({ children }: { children: React.ReactNode }) {
 
   if (isLoading || !user) {
     return (
-      <div className="flex flex-1 items-center justify-center py-16 text-zinc-500">
+      <div className="flex flex-1 items-center justify-center py-16 text-muted-foreground">
         Chargement...
       </div>
     );

@@ -77,10 +77,10 @@ export function PaymentForm({ leases, onSubmit }: PaymentFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid gap-4 rounded-xl border border-zinc-200 bg-white p-6"
+      className="grid gap-4 rounded-xl border border-border bg-card shadow-sm p-6"
     >
       <select
-        className="rounded-md border border-zinc-200 px-3 py-2 text-sm"
+        className="rounded-md border border-border px-3 py-2 text-sm"
         value={leaseId}
         onChange={(e) => {
           setLeaseId(e.target.value);
@@ -97,7 +97,7 @@ export function PaymentForm({ leases, onSubmit }: PaymentFormProps) {
       </select>
 
       {periods.length > 0 && (
-        <div className="space-y-2 rounded-lg bg-zinc-50 p-4">
+        <div className="space-y-2 rounded-lg bg-muted/50 p-4">
           <p className="text-sm font-medium">Répartition par mois (optionnel)</p>
           {periods.map((period) => {
             const key = `${period.period_year}-${period.period_month}`;
@@ -106,7 +106,7 @@ export function PaymentForm({ leases, onSubmit }: PaymentFormProps) {
                 <span className="w-20">
                   {String(period.period_month).padStart(2, "0")}/{period.period_year}
                 </span>
-                <span className="text-zinc-500">
+                <span className="text-muted-foreground">
                   Reste : {Number(period.remaining_amount).toLocaleString("fr-FR")} FCFA
                 </span>
                 <Input
@@ -120,7 +120,7 @@ export function PaymentForm({ leases, onSubmit }: PaymentFormProps) {
               </div>
             );
           })}
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-muted-foreground">
             Laissez vide pour une répartition automatique sur les mois les plus anciens.
           </p>
         </div>
@@ -134,7 +134,7 @@ export function PaymentForm({ leases, onSubmit }: PaymentFormProps) {
           required
         />
         <select
-          className="rounded-md border border-zinc-200 px-3 py-2 text-sm"
+          className="rounded-md border border-border px-3 py-2 text-sm"
           value={form.payment_method}
           onChange={(e) =>
             setForm({ ...form, payment_method: e.target.value as PaymentMethod })

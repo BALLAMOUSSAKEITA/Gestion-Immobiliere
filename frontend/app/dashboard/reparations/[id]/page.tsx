@@ -140,7 +140,7 @@ export default function RepairDetailPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h1 className="text-3xl font-bold">{repair.title}</h1>
-                <p className="mt-2 text-zinc-600">
+                <p className="mt-2 text-muted-foreground">
                   {repair.unit_code} — {repair.building_name}
                 </p>
               </div>
@@ -150,27 +150,27 @@ export default function RepairDetailPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-zinc-200 bg-white p-6">
-              <p className="text-sm text-zinc-500">Description</p>
+            <div className="rounded-xl border border-border bg-card shadow-sm p-6">
+              <p className="text-sm text-muted-foreground">Description</p>
               <p className="mt-1">{repair.description}</p>
               <div className="mt-4 grid gap-4 sm:grid-cols-2 text-sm">
                 <div>
-                  <p className="text-zinc-500">Signalé par</p>
+                  <p className="text-muted-foreground">Signalé par</p>
                   <p>{repair.reported_by_name}</p>
                 </div>
                 <div>
-                  <p className="text-zinc-500">Assigné à</p>
+                  <p className="text-muted-foreground">Assigné à</p>
                   <p>{repair.assigned_to_name ?? "Non assigné"}</p>
                 </div>
                 {repair.final_cost && (
                   <div>
-                    <p className="text-zinc-500">Coût final</p>
+                    <p className="text-muted-foreground">Coût final</p>
                     <p className="font-semibold">{formatCurrency(repair.final_cost)}</p>
                   </div>
                 )}
                 {repair.expense_id && (
                   <div>
-                    <p className="text-zinc-500">Dépense liée</p>
+                    <p className="text-muted-foreground">Dépense liée</p>
                     <Link href={`/dashboard/depenses/${repair.expense_id}`} className="text-blue-600 hover:underline">
                       Voir la dépense
                     </Link>
@@ -182,7 +182,7 @@ export default function RepairDetailPage() {
             {canManage &&
               repair.status !== "completed" &&
               repair.status !== "cancelled" && (
-                <div className="rounded-xl border border-zinc-200 bg-white p-6">
+                <div className="rounded-xl border border-border bg-card shadow-sm p-6">
                   <h2 className="text-lg font-semibold">Actions</h2>
                   {nextStatus && (
                     <div className="mt-4 space-y-3">
@@ -193,7 +193,7 @@ export default function RepairDetailPage() {
                           placeholder="Coût final (FCFA)"
                           value={finalCost}
                           onChange={(e) => setFinalCost(e.target.value)}
-                          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                          className="w-full rounded-md border border-input px-3 py-2 text-sm"
                         />
                       )}
                       <Button disabled={processing} onClick={handleNextStatus}>
@@ -202,13 +202,13 @@ export default function RepairDetailPage() {
                       </Button>
                     </div>
                   )}
-                  <div className="mt-4 border-t border-zinc-100 pt-4">
+                  <div className="mt-4 border-t border-border pt-4">
                     <textarea
                       value={cancelReason}
                       onChange={(e) => setCancelReason(e.target.value)}
                       placeholder="Raison de l'annulation"
                       rows={2}
-                      className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                      className="w-full rounded-md border border-input px-3 py-2 text-sm"
                     />
                     <Button
                       variant="outline"
@@ -222,10 +222,10 @@ export default function RepairDetailPage() {
                 </div>
               )}
 
-            <div className="rounded-xl border border-zinc-200 bg-white p-6">
+            <div className="rounded-xl border border-border bg-card shadow-sm p-6">
               <h2 className="text-lg font-semibold">Pièces jointes</h2>
               {repair.attachments.length === 0 ? (
-                <p className="mt-2 text-sm text-zinc-500">Aucune pièce jointe.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Aucune pièce jointe.</p>
               ) : (
                 <ul className="mt-3 space-y-2 text-sm">
                   {repair.attachments.map((item) => (
@@ -259,15 +259,15 @@ export default function RepairDetailPage() {
             </div>
 
             {history.length > 0 && (
-              <div className="rounded-xl border border-zinc-200 bg-white p-6">
+              <div className="rounded-xl border border-border bg-card shadow-sm p-6">
                 <h2 className="text-lg font-semibold">Historique</h2>
                 <ul className="mt-4 space-y-3">
                   {history.map((item) => (
-                    <li key={item.id} className="border-l-2 border-zinc-200 pl-4 text-sm">
+                    <li key={item.id} className="border-l-2 border-border pl-4 text-sm">
                       <p className="font-medium">
                         {item.old_status ? `${item.old_status} → ${item.new_status}` : item.new_status}
                       </p>
-                      <p className="text-zinc-500">
+                      <p className="text-muted-foreground">
                         {item.changed_by_name} — {new Date(item.changed_at).toLocaleString("fr-FR")}
                       </p>
                       {item.comment && <p className="mt-1">{item.comment}</p>}

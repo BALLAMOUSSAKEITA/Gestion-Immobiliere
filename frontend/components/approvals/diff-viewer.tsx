@@ -18,14 +18,14 @@ export function DiffViewer({ before, after }: DiffViewerProps) {
 
   if (keys.length === 0) {
     return (
-      <p className="text-sm text-zinc-500">Aucune donnée de comparaison disponible.</p>
+      <p className="text-sm text-muted-foreground">Aucune donnée de comparaison disponible.</p>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-200">
+    <div className="overflow-x-auto rounded-xl border border-border">
       <table className="min-w-full text-left text-sm">
-        <thead className="border-b border-zinc-200 bg-zinc-50">
+        <thead className="border-b border-border bg-muted/50">
           <tr>
             <th className="px-4 py-3">Champ</th>
             <th className="px-4 py-3">Avant</th>
@@ -38,11 +38,11 @@ export function DiffViewer({ before, after }: DiffViewerProps) {
             const newVal = after?.[key];
             const changed = JSON.stringify(oldVal) !== JSON.stringify(newVal);
             return (
-              <tr key={key} className="border-b border-zinc-100">
+              <tr key={key} className="border-b border-border">
                 <td className="px-4 py-3 font-medium">{key}</td>
-                <td className="px-4 py-3 text-zinc-600">{formatValue(oldVal)}</td>
+                <td className="px-4 py-3 text-muted-foreground">{formatValue(oldVal)}</td>
                 <td
-                  className={`px-4 py-3 ${changed ? "bg-amber-50 font-medium text-amber-900" : "text-zinc-600"}`}
+                  className={`px-4 py-3 ${changed ? "bg-amber-50 font-medium text-amber-900" : "text-muted-foreground"}`}
                 >
                   {formatValue(newVal)}
                 </td>

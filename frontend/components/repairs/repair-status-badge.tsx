@@ -7,7 +7,7 @@ const STYLES: Record<RepairStatus, string> = {
   technician_assigned: "bg-indigo-100 text-indigo-800",
   in_progress: "bg-amber-100 text-amber-800",
   completed: "bg-green-100 text-green-800",
-  cancelled: "bg-zinc-200 text-zinc-700",
+  cancelled: "bg-muted text-foreground",
 };
 
 export function RepairStatusBadge({

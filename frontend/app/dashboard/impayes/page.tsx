@@ -18,18 +18,18 @@ import { getAccessToken } from "@/lib/auth-storage";
 function SummaryCards({ summary }: { summary: OverdueSummary }) {
   return (
     <div className="grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-sm text-zinc-500">Total impayé</p>
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+        <p className="text-sm text-muted-foreground">Total impayé</p>
         <p className="mt-1 text-2xl font-bold text-red-600">
           {formatCurrency(summary.total_overdue_amount)}
         </p>
       </div>
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-sm text-zinc-500">Locataires concernés</p>
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+        <p className="text-sm text-muted-foreground">Locataires concernés</p>
         <p className="mt-1 text-2xl font-bold">{summary.total_tenants_affected}</p>
       </div>
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-sm text-zinc-500">Mois en retard</p>
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+        <p className="text-sm text-muted-foreground">Mois en retard</p>
         <p className="mt-1 text-2xl font-bold">{summary.total_periods_overdue}</p>
       </div>
     </div>
@@ -63,7 +63,7 @@ export default function OverduesPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Impayés</h1>
-            <p className="mt-2 text-zinc-600">Suivi des loyers en retard et créances ouvertes.</p>
+            <p className="mt-2 text-muted-foreground">Suivi des loyers en retard et créances ouvertes.</p>
           </div>
           <div className="flex gap-2">
             <Button asChild variant="outline">
@@ -76,14 +76,14 @@ export default function OverduesPage() {
         {summary && <SummaryCards summary={summary} />}
 
         <div className="flex items-center gap-2">
-          <label htmlFor="sort" className="text-sm text-zinc-600">
+          <label htmlFor="sort" className="text-sm text-muted-foreground">
             Trier par
           </label>
           <select
             id="sort"
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+            className="rounded-md border border-input px-3 py-2 text-sm"
           >
             <option value="days_overdue">Jours de retard</option>
             <option value="amount">Montant</option>
@@ -91,9 +91,9 @@ export default function OverduesPage() {
           </select>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50">
+            <thead className="border-b border-border bg-muted/50">
               <tr>
                 <th className="px-4 py-3">Locataire</th>
                 <th className="px-4 py-3">Logement</th>
@@ -107,20 +107,20 @@ export default function OverduesPage() {
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                     Aucun impayé en cours.
                   </td>
                 </tr>
               ) : (
                 items.map((item) => (
-                  <tr key={item.id} className="border-b border-zinc-100">
+                  <tr key={item.id} className="border-b border-border">
                     <td className="px-4 py-3">
                       <div className="font-medium">{item.tenant.full_name}</div>
-                      <div className="text-xs text-zinc-500">{item.tenant.phone}</div>
+                      <div className="text-xs text-muted-foreground">{item.tenant.phone}</div>
                     </td>
                     <td className="px-4 py-3">
                       <div>{item.unit_code}</div>
-                      <div className="text-xs text-zinc-500">{item.building_name}</div>
+                      <div className="text-xs text-muted-foreground">{item.building_name}</div>
                     </td>
                     <td className="px-4 py-3">{item.period}</td>
                     <td className="px-4 py-3 font-medium text-red-600">

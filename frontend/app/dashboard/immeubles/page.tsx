@@ -46,7 +46,7 @@ export default function BuildingsPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Immeubles</h1>
-            <p className="mt-2 text-zinc-600">Patrimoine immobilier de la famille.</p>
+            <p className="mt-2 text-muted-foreground">Patrimoine immobilier de la famille.</p>
           </div>
           {canManage && (
             <Button asChild>
@@ -68,9 +68,9 @@ export default function BuildingsPage() {
             <Link
               key={building.id}
               href={`/dashboard/immeubles/${building.id}`}
-              className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md"
+              className="overflow-hidden rounded-xl border border-border bg-card shadow-sm shadow-sm transition hover:shadow-md"
             >
-              <div className="aspect-[16/9] bg-zinc-100">
+              <div className="aspect-[16/9] bg-muted">
                 {building.photo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -79,7 +79,7 @@ export default function BuildingsPage() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-sm text-zinc-400">
+                  <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
                     {building.code}
                   </div>
                 )}
@@ -88,13 +88,13 @@ export default function BuildingsPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="font-semibold">{building.name}</p>
-                    <p className="text-sm text-zinc-500">{building.code}</p>
+                    <p className="text-sm text-muted-foreground">{building.code}</p>
                   </div>
-                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs">
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
                     {building.apartment_count + building.shop_count} logements
                   </span>
                 </div>
-                <p className="text-sm text-zinc-600">
+                <p className="text-sm text-muted-foreground">
                   {building.commune}
                   {building.quartier ? ` · ${building.quartier}` : ""}
                 </p>
@@ -104,7 +104,7 @@ export default function BuildingsPage() {
         </div>
 
         {buildings.length === 0 && !error && (
-          <p className="text-center text-zinc-500">Aucun immeuble trouvé.</p>
+          <p className="text-center text-muted-foreground">Aucun immeuble trouvé.</p>
         )}
       </main>
     </ProtectedRoute>

@@ -87,17 +87,17 @@ export function DocumentLibrary({
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-6">
+    <div className="rounded-xl border border-border bg-card shadow-sm p-6">
       <h2 className="text-lg font-semibold">{title}</h2>
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
       {canUpload && types.length > 0 && (
-        <form onSubmit={handleUpload} className="mt-4 grid gap-3 border-b border-zinc-100 pb-4">
+        <form onSubmit={handleUpload} className="mt-4 grid gap-3 border-b border-border pb-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <select
               value={typeId}
               onChange={(e) => setTypeId(e.target.value)}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+              className="rounded-md border border-input px-3 py-2 text-sm"
             >
               {types.map((type) => (
                 <option key={type.id} value={type.id}>
@@ -127,16 +127,16 @@ export function DocumentLibrary({
 
       <div className="mt-4 space-y-3">
         {items.length === 0 ? (
-          <p className="text-sm text-zinc-500">Aucun document.</p>
+          <p className="text-sm text-muted-foreground">Aucun document.</p>
         ) : (
           items.map((item) => (
             <div
               key={item.id}
-              className="flex flex-col gap-2 rounded-lg border border-zinc-100 p-3 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-2 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
                 <p className="font-medium">{item.title}</p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-muted-foreground">
                   {item.document_type_label} — {formatFileSize(item.file_size)} —{" "}
                   {new Date(item.uploaded_at).toLocaleDateString("fr-FR")}
                 </p>

@@ -41,16 +41,16 @@ export default function ValidationsPage() {
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10">
         <div>
           <h1 className="text-3xl font-bold">Validations en attente</h1>
-          <p className="mt-2 text-zinc-600">
+          <p className="mt-2 text-muted-foreground">
             Actions sensibles soumises par les gestionnaires et administrateurs.
           </p>
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50">
+            <thead className="border-b border-border bg-muted/50">
               <tr>
                 <th className="px-4 py-3">Action</th>
                 <th className="px-4 py-3">Entité</th>
@@ -62,7 +62,7 @@ export default function ValidationsPage() {
             </thead>
             <tbody>
               {items.map((item) => (
-                <tr key={item.id} className="border-b border-zinc-100">
+                <tr key={item.id} className="border-b border-border">
                   <td className="px-4 py-3 font-medium">
                     {APPROVAL_ACTION_LABELS[item.action_code] ?? item.action_code}
                   </td>
@@ -84,7 +84,7 @@ export default function ValidationsPage() {
             </tbody>
           </table>
           {items.length === 0 && (
-            <p className="p-6 text-center text-zinc-500">Aucune demande en attente.</p>
+            <p className="p-6 text-center text-muted-foreground">Aucune demande en attente.</p>
           )}
         </div>
       </main>

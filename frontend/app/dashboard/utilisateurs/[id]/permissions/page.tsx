@@ -66,7 +66,7 @@ export default function UserPermissionsPage() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Permissions</h1>
-            <p className="mt-2 text-zinc-600">
+            <p className="mt-2 text-muted-foreground">
               Définissez les autorisations de l&apos;administrateur familial.
             </p>
           </div>
@@ -75,7 +75,7 @@ export default function UserPermissionsPage() {
           </Button>
         </div>
 
-        <div className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6">
+        <div className="space-y-4 rounded-xl border border-border bg-card shadow-sm p-6">
           {permissions.map((item) => (
             <label
               key={item.permission_code}

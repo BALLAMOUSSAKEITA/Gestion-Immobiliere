@@ -46,7 +46,7 @@ export default function PaymentsPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Paiements</h1>
-            <p className="mt-2 text-zinc-600">Historique des encaissements de loyers.</p>
+            <p className="mt-2 text-muted-foreground">Historique des encaissements de loyers.</p>
           </div>
           {canManage && (
             <Button asChild>
@@ -57,9 +57,9 @@ export default function PaymentsPage() {
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50">
+            <thead className="border-b border-border bg-muted/50">
               <tr>
                 <th className="px-4 py-3">Date</th>
                 <th className="px-4 py-3">Locataire</th>
@@ -72,7 +72,7 @@ export default function PaymentsPage() {
             </thead>
             <tbody>
               {payments.map((payment) => (
-                <tr key={payment.id} className="border-b border-zinc-100">
+                <tr key={payment.id} className="border-b border-border">
                   <td className="px-4 py-3">{payment.payment_date}</td>
                   <td className="px-4 py-3">{payment.tenant_name}</td>
                   <td className="px-4 py-3">{payment.unit_code}</td>
@@ -94,7 +94,7 @@ export default function PaymentsPage() {
             </tbody>
           </table>
           {payments.length === 0 && !error && (
-            <p className="p-6 text-center text-zinc-500">Aucun paiement.</p>
+            <p className="p-6 text-center text-muted-foreground">Aucun paiement.</p>
           )}
         </div>
       </main>

@@ -46,15 +46,15 @@ export default function UnitDetailPage() {
       <AppHeader />
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-10">
         {!unit ? (
-          <p className="text-zinc-500">{error ?? "Chargement…"}</p>
+          <p className="text-muted-foreground">{error ?? "Chargement…"}</p>
         ) : (
           <>
             <div>
-              <p className="text-sm text-zinc-500">{unit.code}</p>
+              <p className="text-sm text-muted-foreground">{unit.code}</p>
               <h1 className="text-3xl font-bold">
                 {UNIT_TYPE_LABELS[unit.type]} {unit.number}
               </h1>
-              <p className="mt-2 text-zinc-600">
+              <p className="mt-2 text-muted-foreground">
                 {unit.building_name} · {unit.commune}
               </p>
             </div>
@@ -72,7 +72,7 @@ export default function UnitDetailPage() {
             </div>
 
             {unit.description && (
-              <p className="rounded-xl border border-zinc-200 bg-white p-4 text-zinc-700">
+              <p className="rounded-xl border border-border bg-card shadow-sm p-4 text-foreground">
                 {unit.description}
               </p>
             )}

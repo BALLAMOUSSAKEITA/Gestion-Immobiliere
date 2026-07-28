@@ -73,53 +73,53 @@ export default function ExpenseDetailPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1 className="text-3xl font-bold">Détail dépense</h1>
-                <p className="mt-2 text-zinc-600">{expense.category_label}</p>
+                <p className="mt-2 text-muted-foreground">{expense.category_label}</p>
               </div>
               <ExpenseStatusBadge status={expense.status} />
             </div>
 
-            <div className="grid gap-4 rounded-xl border border-zinc-200 bg-white p-6 sm:grid-cols-2">
+            <div className="grid gap-4 rounded-xl border border-border bg-card shadow-sm p-6 sm:grid-cols-2">
               <div>
-                <p className="text-sm text-zinc-500">Montant</p>
+                <p className="text-sm text-muted-foreground">Montant</p>
                 <p className="text-xl font-bold">{formatCurrency(expense.amount)}</p>
               </div>
               <div>
-                <p className="text-sm text-zinc-500">Date</p>
+                <p className="text-sm text-muted-foreground">Date</p>
                 <p className="font-medium">{expense.expense_date}</p>
               </div>
               <div>
-                <p className="text-sm text-zinc-500">Immeuble</p>
+                <p className="text-sm text-muted-foreground">Immeuble</p>
                 <p className="font-medium">{expense.building_name ?? "—"}</p>
               </div>
               <div>
-                <p className="text-sm text-zinc-500">Mode de paiement</p>
+                <p className="text-sm text-muted-foreground">Mode de paiement</p>
                 <p className="font-medium">{PAYMENT_METHOD_LABELS[expense.payment_method]}</p>
               </div>
               <div className="sm:col-span-2">
-                <p className="text-sm text-zinc-500">Description</p>
+                <p className="text-sm text-muted-foreground">Description</p>
                 <p className="font-medium">{expense.description}</p>
               </div>
               {expense.supplier_name && (
                 <div>
-                  <p className="text-sm text-zinc-500">Fournisseur</p>
+                  <p className="text-sm text-muted-foreground">Fournisseur</p>
                   <p className="font-medium">{expense.supplier_name}</p>
                 </div>
               )}
               <div>
-                <p className="text-sm text-zinc-500">Enregistré par</p>
+                <p className="text-sm text-muted-foreground">Enregistré par</p>
                 <p className="font-medium">{expense.recorded_by_name}</p>
               </div>
               {expense.validated_by_name && (
                 <div>
-                  <p className="text-sm text-zinc-500">Validé par</p>
+                  <p className="text-sm text-muted-foreground">Validé par</p>
                   <p className="font-medium">{expense.validated_by_name}</p>
                 </div>
               )}
             </div>
 
             {expense.receipt_url ? (
-              <div className="rounded-xl border border-zinc-200 bg-white p-4">
-                <p className="text-sm text-zinc-500">Justificatif</p>
+              <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+                <p className="text-sm text-muted-foreground">Justificatif</p>
                 <a
                   href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}${expense.receipt_url}`}
                   target="_blank"
@@ -130,7 +130,7 @@ export default function ExpenseDetailPage() {
                 </a>
               </div>
             ) : canManage && expense.status !== "validated" && expense.status !== "rejected" ? (
-              <div className="rounded-xl border border-zinc-200 bg-white p-6">
+              <div className="rounded-xl border border-border bg-card shadow-sm p-6">
                 <p className="mb-3 text-sm font-medium">Joindre un justificatif (PDF ou image)</p>
                 <input
                   type="file"

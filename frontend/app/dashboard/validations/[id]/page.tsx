@@ -89,16 +89,16 @@ export default function ValidationDetailPage() {
               <h1 className="text-3xl font-bold">
                 {APPROVAL_ACTION_LABELS[request.action_code] ?? request.action_code}
               </h1>
-              <p className="mt-2 text-zinc-600">
+              <p className="mt-2 text-muted-foreground">
                 {APPROVAL_STATUS_LABELS[request.status]} — demandé par{" "}
                 {request.requested_by.full_name}
               </p>
             </div>
 
-            <div className="rounded-xl border border-zinc-200 bg-white p-5">
-              <p className="text-sm text-zinc-500">Justification du demandeur</p>
+            <div className="rounded-xl border border-border bg-card shadow-sm p-5">
+              <p className="text-sm text-muted-foreground">Justification du demandeur</p>
               <p className="mt-1">{request.reason}</p>
-              <p className="mt-4 text-sm text-zinc-500">
+              <p className="mt-4 text-sm text-muted-foreground">
                 Entité : {request.entity_type} ({request.entity_id})
               </p>
             </div>
@@ -109,7 +109,7 @@ export default function ValidationDetailPage() {
             </div>
 
             {request.status === "pending" && (
-              <div className="space-y-3 rounded-xl border border-zinc-200 bg-white p-5">
+              <div className="space-y-3 rounded-xl border border-border bg-card shadow-sm p-5">
                 <label className="block text-sm font-medium">
                   Commentaire (obligatoire pour rejeter)
                 </label>

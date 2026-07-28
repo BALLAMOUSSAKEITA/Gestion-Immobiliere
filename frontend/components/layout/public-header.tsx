@@ -17,7 +17,7 @@ export function PublicHeader() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="border-b border-zinc-200 bg-white">
+    <header className="border-b border-border bg-card">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
         <Link href="/annonces" className="text-lg font-bold">
           Gestion Immobilière
@@ -31,8 +31,8 @@ export function PublicHeader() {
               className={cn(
                 "rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 pathname === item.href || pathname.startsWith(`${item.href}/`)
-                  ? "bg-zinc-900 text-white"
-                  : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200",
+                  ? "bg-primary text-white"
+                  : "bg-muted text-foreground hover:bg-muted/80",
               )}
             >
               {item.label}

@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { OccupancyChart } from "@/components/dashboard/occupancy-chart";
 import { RevenueExpenseChart } from "@/components/dashboard/revenue-expense-chart";
-import { AppHeader } from "@/components/layout/app-header";
+import { PageHeader } from "@/components/layout/page-header";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import {
   ApiError,
   fetchDashboardAlerts,
@@ -74,37 +76,27 @@ export default function DashboardPage() {
 
   if (user && !canViewDashboard) {
     return (
-      <ProtectedRoute>
-        <AppHeader />
-        <main className="mx-auto max-w-4xl px-6 py-10">
-          <p className="text-zinc-600">Tableau de bord non disponible pour votre rôle.</p>
-        </main>
-      </ProtectedRoute>
+      <Alert className="max-w-lg">
+        Tableau de bord non disponible pour votre rôle.
+      </Alert>
     );
   }
 
   return (
-    <ProtectedRoute>
-      <AppHeader />
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Tableau de bord</h1>
-            <p className="mt-2 text-zinc-600">
-              Bienvenue, {user?.first_name}. Vue d&apos;ensemble de l&apos;activité.
-            </p>
-          </div>
+    <>
+      <PageHeader
+        title="Tableau de bord"
+        description={`Bienvenue, ${user?.first_name}. Vue d'ensemble de l'activité.`}
+        actions={
           <div className="flex items-center gap-2">
-            <label className="text-sm text-zinc-500">Année</label>
+            <Label className="sr-only">Année</Label>
             <select
               value={year}
               onChange={(e) => setYear(Number(e.target.value))}
-              className="rounded-md border border-zinc-300 px-3 py-2 text-sm"
+              className="h-10 rounded-lg border border-input bg-card px-3 text-sm"
             >
               {[year - 1, year, year + 1].map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
+                <option key={y} value={y}>{y}</option>
               ))}
             </select>
             {(user?.role.code === "super_admin" ||
@@ -115,9 +107,10 @@ export default function DashboardPage() {
               </Button>
             )}
           </div>
-        </div>
+        }
+      />
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <Alert variant="destructive">{error}</Alert>}
 
         {kpis && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -152,80 +145,89 @@ export default function DashboardPage() {
         )}
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <div className="rounded-xl border border-zinc-200 bg-white p-5 lg:col-span-2">
-            <h2 className="mb-4 text-lg font-semibold">Revenus vs Dépenses</h2>
-            {kpis?.show_financials ? (
-              <RevenueExpenseChart points={revenuePoints} />
-            ) : (
-              <p className="text-sm text-zinc-500">Données financières non disponibles pour votre rôle.</p>
-            )}
-          </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-5">
-            <h2 className="mb-4 text-lg font-semibold">Taux d&apos;occupation</h2>
-            <OccupancyChart points={occupancyPoints} />
-          </div>
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Revenus vs Dépenses</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {kpis?.show_financials ? (
+                <RevenueExpenseChart points={revenuePoints} />
+              ) : (
+                <p className="text-sm text-muted-foreground">Données financières non disponibles pour votre rôle.</p>
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Taux d&apos;occupation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OccupancyChart points={occupancyPoints} />
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-xl border border-zinc-200 bg-white p-5">
-            <h2 className="mb-4 text-lg font-semibold">Alertes</h2>
-            {alerts.length === 0 ? (
-              <p className="text-sm text-zinc-500">Aucune alerte.</p>
-            ) : (
-              <ul className="space-y-3">
-                {alerts.map((alert, index) => (
-                  <li key={`${alert.type}-${index}`} className="rounded-lg border border-zinc-100 p-3">
-                    <p className="font-medium">{alert.title}</p>
-                    <p className="text-sm text-zinc-600">{alert.message}</p>
-                    {alert.href && (
-                      <Link href={alert.href} className="mt-1 inline-block text-sm underline">
-                        Voir
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div className="rounded-xl border border-zinc-200 bg-white p-5">
-            <h2 className="mb-4 text-lg font-semibold">Top impayés</h2>
-            {overdues.length === 0 ? (
-              <p className="text-sm text-zinc-500">Aucun impayé.</p>
-            ) : (
-              <ul className="space-y-2 text-sm">
-                {overdues.map((item) => (
-                  <li key={`${item.tenant_name}-${item.unit_code}`} className="flex justify-between">
-                    <span>
-                      {item.tenant_name} — {item.unit_code}
-                    </span>
-                    <span className="font-medium">
-                      {formatCurrency(Number(item.amount_remaining))} ({item.days_overdue}j)
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <Card>
+            <CardHeader><CardTitle>Alertes</CardTitle></CardHeader>
+            <CardContent>
+              {alerts.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Aucune alerte.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {alerts.map((alert, index) => (
+                    <li key={`${alert.type}-${index}`} className="rounded-lg border border-border bg-background p-3">
+                      <p className="font-medium">{alert.title}</p>
+                      <p className="text-sm text-muted-foreground">{alert.message}</p>
+                      {alert.href && (
+                        <Link href={alert.href} className="mt-1 inline-block text-sm text-accent hover:underline">
+                          Voir
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle>Top impayés</CardTitle></CardHeader>
+            <CardContent>
+              {overdues.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Aucun impayé.</p>
+              ) : (
+                <ul className="space-y-2 text-sm">
+                  {overdues.map((item) => (
+                    <li key={`${item.tenant_name}-${item.unit_code}`} className="flex justify-between gap-4">
+                      <span>{item.tenant_name} — {item.unit_code}</span>
+                      <span className="font-medium text-destructive">
+                        {formatCurrency(Number(item.amount_remaining))} ({item.days_overdue}j)
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-white p-5">
-          <h2 className="mb-4 text-lg font-semibold">Baux expirants (30 jours)</h2>
-          {leases.length === 0 ? (
-            <p className="text-sm text-zinc-500">Aucun bail n&apos;expire prochainement.</p>
-          ) : (
-            <ul className="space-y-2 text-sm">
-              {leases.map((item) => (
-                <li key={`${item.tenant_name}-${item.unit_code}`} className="flex justify-between">
-                  <span>
-                    {item.tenant_name} — {item.unit_code} ({item.building_name})
-                  </span>
-                  <span>{item.days_remaining} jour(s)</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </main>
-    </ProtectedRoute>
+        <Card>
+          <CardHeader><CardTitle>Baux expirants (30 jours)</CardTitle></CardHeader>
+          <CardContent>
+            {leases.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Aucun bail n&apos;expire prochainement.</p>
+            ) : (
+              <ul className="space-y-2 text-sm">
+                {leases.map((item) => (
+                  <li key={`${item.tenant_name}-${item.unit_code}`} className="flex justify-between gap-4">
+                    <span>{item.tenant_name} — {item.unit_code} ({item.building_name})</span>
+                    <span className="font-medium">{item.days_remaining} jour(s)</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+    </>
   );
 }

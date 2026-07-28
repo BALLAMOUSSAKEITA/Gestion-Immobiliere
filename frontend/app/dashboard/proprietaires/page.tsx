@@ -64,7 +64,7 @@ export default function OwnerProfilesPage() {
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
         <div>
           <h1 className="text-3xl font-bold">Propriétaires famille</h1>
-          <p className="mt-2 text-zinc-600">
+          <p className="mt-2 text-muted-foreground">
             Membres de la famille propriétaires de biens.
           </p>
         </div>
@@ -72,7 +72,7 @@ export default function OwnerProfilesPage() {
         {canCreate && (
           <form
             onSubmit={handleSubmit}
-            className="grid gap-4 rounded-xl border border-zinc-200 bg-white p-6 sm:grid-cols-2"
+            className="grid gap-4 rounded-xl border border-border bg-card shadow-sm p-6 sm:grid-cols-2"
           >
             <Input
               placeholder="Prénom"
@@ -129,9 +129,9 @@ export default function OwnerProfilesPage() {
           </div>
         )}
 
-        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
           <table className="min-w-full divide-y divide-zinc-200">
-            <thead className="bg-zinc-50">
+            <thead className="bg-muted/50">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium">Nom</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Contact</th>
@@ -144,7 +144,7 @@ export default function OwnerProfilesPage() {
                   <td className="px-4 py-3 font-medium">
                     {profile.first_name} {profile.last_name}
                   </td>
-                  <td className="px-4 py-3 text-zinc-600">
+                  <td className="px-4 py-3 text-muted-foreground">
                     {profile.phone ?? "—"} · {profile.email ?? "—"}
                   </td>
                   <td className="px-4 py-3">

@@ -36,14 +36,14 @@ export default function PaymentDetailPage() {
       <AppHeader />
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-10">
         {!payment ? (
-          <p className="text-zinc-500">{error ?? "Chargement…"}</p>
+          <p className="text-muted-foreground">{error ?? "Chargement…"}</p>
         ) : (
           <>
             <div>
               <h1 className="text-3xl font-bold">
                 Paiement — {formatCurrency(payment.amount)}
               </h1>
-              <p className="mt-2 text-zinc-600">
+              <p className="mt-2 text-muted-foreground">
                 {payment.tenant_name} · {payment.unit_code}
               </p>
             </div>
@@ -62,7 +62,7 @@ export default function PaymentDetailPage() {
             </div>
 
             {payment.allocations.length > 0 && (
-              <div className="rounded-xl border border-zinc-200 bg-white p-4">
+              <div className="rounded-xl border border-border bg-card shadow-sm p-4">
                 <p className="font-medium">Allocations</p>
                 <ul className="mt-2 space-y-1 text-sm">
                   {payment.allocations.map((item) => (
@@ -97,8 +97,8 @@ export default function PaymentDetailPage() {
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4">
-      <p className="text-sm text-zinc-500">{label}</p>
+    <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+      <p className="text-sm text-muted-foreground">{label}</p>
       <p className="mt-1 font-medium">{value}</p>
     </div>
   );

@@ -50,16 +50,16 @@ export default function GenererRapportPage() {
 
         <div>
           <h1 className="text-3xl font-bold">Générer un rapport</h1>
-          <p className="mt-2 text-zinc-600">Export PDF et Excel.</p>
+          <p className="mt-2 text-muted-foreground">Export PDF et Excel.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-zinc-200 bg-white p-5">
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-border bg-card shadow-sm p-5">
           <div>
             <label className="mb-1 block text-sm font-medium">Type</label>
             <select
               value={reportType}
               onChange={(e) => setReportType(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-input px-3 py-2 text-sm"
             >
               <option value="daily">Journalier</option>
               <option value="weekly">Hebdomadaire</option>

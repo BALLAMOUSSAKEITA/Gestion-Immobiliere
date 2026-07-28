@@ -54,19 +54,19 @@ export function ExpenseForm({ categories, buildings, onSubmit }: ExpenseFormProp
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid gap-4 rounded-xl border border-zinc-200 bg-white p-6"
+      className="grid gap-4 rounded-xl border border-border bg-card shadow-sm p-6"
     >
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div>
-        <label htmlFor="category_id" className="mb-1 block text-sm text-zinc-600">
+        <label htmlFor="category_id" className="mb-1 block text-sm text-muted-foreground">
           Catégorie
         </label>
         <select
           id="category_id"
           value={form.category_id}
           onChange={(e) => setForm({ ...form, category_id: e.target.value })}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-input px-3 py-2 text-sm"
           required
         >
           {categories.map((category) => (
@@ -78,14 +78,14 @@ export function ExpenseForm({ categories, buildings, onSubmit }: ExpenseFormProp
       </div>
 
       <div>
-        <label htmlFor="building_id" className="mb-1 block text-sm text-zinc-600">
+        <label htmlFor="building_id" className="mb-1 block text-sm text-muted-foreground">
           Immeuble
         </label>
         <select
           id="building_id"
           value={form.building_id}
           onChange={(e) => setForm({ ...form, building_id: e.target.value })}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-input px-3 py-2 text-sm"
           required
         >
           {buildings.map((building) => (
@@ -97,7 +97,7 @@ export function ExpenseForm({ categories, buildings, onSubmit }: ExpenseFormProp
       </div>
 
       <div>
-        <label htmlFor="supplier_name" className="mb-1 block text-sm text-zinc-600">
+        <label htmlFor="supplier_name" className="mb-1 block text-sm text-muted-foreground">
           Fournisseur
         </label>
         <Input
@@ -108,7 +108,7 @@ export function ExpenseForm({ categories, buildings, onSubmit }: ExpenseFormProp
       </div>
 
       <div>
-        <label htmlFor="description" className="mb-1 block text-sm text-zinc-600">
+        <label htmlFor="description" className="mb-1 block text-sm text-muted-foreground">
           Description
         </label>
         <textarea
@@ -117,13 +117,13 @@ export function ExpenseForm({ categories, buildings, onSubmit }: ExpenseFormProp
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           rows={3}
           required
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-input px-3 py-2 text-sm"
         />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="amount" className="mb-1 block text-sm text-zinc-600">
+          <label htmlFor="amount" className="mb-1 block text-sm text-muted-foreground">
             Montant (FCFA)
           </label>
           <Input
@@ -137,7 +137,7 @@ export function ExpenseForm({ categories, buildings, onSubmit }: ExpenseFormProp
           />
         </div>
         <div>
-          <label htmlFor="expense_date" className="mb-1 block text-sm text-zinc-600">
+          <label htmlFor="expense_date" className="mb-1 block text-sm text-muted-foreground">
             Date
           </label>
           <Input
@@ -151,7 +151,7 @@ export function ExpenseForm({ categories, buildings, onSubmit }: ExpenseFormProp
       </div>
 
       <div>
-        <label htmlFor="payment_method" className="mb-1 block text-sm text-zinc-600">
+        <label htmlFor="payment_method" className="mb-1 block text-sm text-muted-foreground">
           Mode de paiement
         </label>
         <select
@@ -160,7 +160,7 @@ export function ExpenseForm({ categories, buildings, onSubmit }: ExpenseFormProp
           onChange={(e) =>
             setForm({ ...form, payment_method: e.target.value as PaymentMethod })
           }
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-input px-3 py-2 text-sm"
         >
           {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
             <option key={value} value={value}>

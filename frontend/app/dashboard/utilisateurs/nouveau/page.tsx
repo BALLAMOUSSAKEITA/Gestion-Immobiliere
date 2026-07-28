@@ -15,7 +15,7 @@ export default function NewUserPage() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Nouvel utilisateur</h1>
-            <p className="mt-2 text-zinc-600">
+            <p className="mt-2 text-muted-foreground">
               Créez un compte et assignez un rôle.
             </p>
           </div>

@@ -1,17 +1,12 @@
 "use client";
 
-import { AppHeader } from "@/components/layout/app-header";
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { DashboardShell } from "@/components/layout/dashboard-shell";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>
-      <AppHeader />
-      {children}
+      <DashboardShell>{children}</DashboardShell>
     </ProtectedRoute>
   );
 }

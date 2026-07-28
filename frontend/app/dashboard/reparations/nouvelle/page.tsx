@@ -32,7 +32,7 @@ export default function NewRepairPage() {
       <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10">
         <div>
           <h1 className="text-3xl font-bold">Nouvelle réparation</h1>
-          <p className="mt-2 text-zinc-600">Déclarer une intervention sur un logement.</p>
+          <p className="mt-2 text-muted-foreground">Déclarer une intervention sur un logement.</p>
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
         {units.length > 0 && (

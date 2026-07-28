@@ -46,7 +46,7 @@ export default function VisitRequestsPage() {
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10">
       <div>
         <h1 className="text-3xl font-bold">Demandes de visite</h1>
-        <p className="mt-2 text-zinc-600">
+        <p className="mt-2 text-muted-foreground">
           Gérez les demandes de visite reçues depuis le portail public.
         </p>
       </div>
@@ -55,16 +55,16 @@ export default function VisitRequestsPage() {
 
       <div className="space-y-3">
         {items.length === 0 ? (
-          <p className="rounded-xl border border-zinc-200 bg-white px-4 py-8 text-center text-zinc-500">
+          <p className="rounded-xl border border-border bg-card shadow-sm px-4 py-8 text-center text-muted-foreground">
             Aucune demande pour le moment.
           </p>
         ) : (
           items.map((item) => (
-            <div key={item.id} className="rounded-xl border border-zinc-200 bg-white p-4">
+            <div key={item.id} className="rounded-xl border border-border bg-card shadow-sm p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <p className="font-semibold">{item.visitor_name}</p>
-                  <p className="text-sm text-zinc-500">
+                  <p className="text-sm text-muted-foreground">
                     {item.unit_code} · {item.visitor_email} · {item.visitor_phone}
                   </p>
                   {item.preferred_date && (
@@ -73,13 +73,13 @@ export default function VisitRequestsPage() {
                       {item.preferred_time ? ` à ${item.preferred_time}` : ""}
                     </p>
                   )}
-                  {item.message && <p className="mt-2 text-sm text-zinc-700">{item.message}</p>}
-                  <p className="mt-2 text-xs text-zinc-400">
+                  {item.message && <p className="mt-2 text-sm text-foreground">{item.message}</p>}
+                  <p className="mt-2 text-xs text-muted-foreground">
                     {new Date(item.created_at).toLocaleString("fr-FR")}
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <span className="rounded-full bg-zinc-100 px-3 py-1 text-sm font-medium">
+                  <span className="rounded-full bg-muted px-3 py-1 text-sm font-medium">
                     {STATUS_LABELS[item.status] ?? item.status}
                   </span>
                   {item.status === "pending" && (

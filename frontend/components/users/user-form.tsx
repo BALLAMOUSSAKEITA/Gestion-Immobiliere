@@ -87,7 +87,7 @@ export function UserForm({ initialValues, submitLabel, onSubmit }: UserFormProps
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 rounded-xl border border-zinc-200 bg-white p-6">
+    <form onSubmit={handleSubmit} className="space-y-6 rounded-xl border border-border bg-card shadow-sm p-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="text-sm font-medium">Prénom</label>
@@ -132,7 +132,7 @@ export function UserForm({ initialValues, submitLabel, onSubmit }: UserFormProps
         <div>
           <label className="text-sm font-medium">Rôle</label>
           <select
-            className="mt-1 h-10 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm"
+            className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3 text-sm"
             value={form.role_code}
             onChange={(event) =>
               setForm((current) => ({ ...current, role_code: event.target.value }))
@@ -186,7 +186,7 @@ export function UserForm({ initialValues, submitLabel, onSubmit }: UserFormProps
         <div>
           <label className="text-sm font-medium">Profil propriétaire</label>
           <select
-            className="mt-1 h-10 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm"
+            className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3 text-sm"
             value={form.owner_profile_id ?? ""}
             onChange={(event) =>
               setForm((current) => ({

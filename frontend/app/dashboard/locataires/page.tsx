@@ -46,7 +46,7 @@ export default function TenantsPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Locataires</h1>
-            <p className="mt-2 text-zinc-600">Dossiers locataires et baux en cours.</p>
+            <p className="mt-2 text-muted-foreground">Dossiers locataires et baux en cours.</p>
           </div>
           {canManage && (
             <div className="flex gap-2">
@@ -68,9 +68,9 @@ export default function TenantsPage() {
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50">
+            <thead className="border-b border-border bg-muted/50">
               <tr>
                 <th className="px-4 py-3">Nom</th>
                 <th className="px-4 py-3">Téléphone</th>
@@ -81,7 +81,7 @@ export default function TenantsPage() {
             </thead>
             <tbody>
               {tenants.map((tenant) => (
-                <tr key={tenant.id} className="border-b border-zinc-100">
+                <tr key={tenant.id} className="border-b border-border">
                   <td className="px-4 py-3 font-medium">
                     {tenant.first_name} {tenant.last_name}
                   </td>
@@ -93,7 +93,7 @@ export default function TenantsPage() {
                         Bail actif
                       </span>
                     ) : (
-                      <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs">
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
                         Sans bail
                       </span>
                     )}
@@ -111,7 +111,7 @@ export default function TenantsPage() {
             </tbody>
           </table>
           {tenants.length === 0 && !error && (
-            <p className="p-6 text-center text-zinc-500">Aucun locataire.</p>
+            <p className="p-6 text-center text-muted-foreground">Aucun locataire.</p>
           )}
         </div>
       </main>

@@ -19,7 +19,7 @@ export default function NewTenantPage() {
       <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10">
         <div>
           <h1 className="text-3xl font-bold">Nouveau locataire</h1>
-          <p className="mt-2 text-zinc-600">Créer un dossier locataire complet.</p>
+          <p className="mt-2 text-muted-foreground">Créer un dossier locataire complet.</p>
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <TenantForm

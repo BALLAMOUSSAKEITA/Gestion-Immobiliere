@@ -92,42 +92,42 @@ export default function OverdueDetailPage() {
           <>
             <div>
               <h1 className="text-3xl font-bold">Détail impayé</h1>
-              <p className="mt-2 text-zinc-600">
+              <p className="mt-2 text-muted-foreground">
                 {item.tenant.full_name} — {item.unit_code} ({item.building_name})
               </p>
             </div>
 
-            <div className="grid gap-4 rounded-xl border border-zinc-200 bg-white p-6 sm:grid-cols-2">
+            <div className="grid gap-4 rounded-xl border border-border bg-card shadow-sm p-6 sm:grid-cols-2">
               <div>
-                <p className="text-sm text-zinc-500">Période</p>
+                <p className="text-sm text-muted-foreground">Période</p>
                 <p className="font-medium">{item.period}</p>
               </div>
               <div>
-                <p className="text-sm text-zinc-500">Jours de retard</p>
+                <p className="text-sm text-muted-foreground">Jours de retard</p>
                 <p className="font-medium text-red-600">{item.days_overdue} jours</p>
               </div>
               <div>
-                <p className="text-sm text-zinc-500">Montant dû</p>
+                <p className="text-sm text-muted-foreground">Montant dû</p>
                 <p className="font-medium">{formatCurrency(item.amount_due)}</p>
               </div>
               <div>
-                <p className="text-sm text-zinc-500">Montant payé</p>
+                <p className="text-sm text-muted-foreground">Montant payé</p>
                 <p className="font-medium">{formatCurrency(item.amount_paid)}</p>
               </div>
               <div>
-                <p className="text-sm text-zinc-500">Reste dû</p>
+                <p className="text-sm text-muted-foreground">Reste dû</p>
                 <p className="font-medium text-red-600">{formatCurrency(item.amount_remaining)}</p>
               </div>
               <div>
-                <p className="text-sm text-zinc-500">Total impayé locataire</p>
+                <p className="text-sm text-muted-foreground">Total impayé locataire</p>
                 <p className="font-medium">{formatCurrency(item.tenant_total_overdue)}</p>
               </div>
               <div>
-                <p className="text-sm text-zinc-500">Relances envoyées</p>
+                <p className="text-sm text-muted-foreground">Relances envoyées</p>
                 <p className="font-medium">{item.reminders_count}</p>
               </div>
               <div>
-                <p className="text-sm text-zinc-500">Statut</p>
+                <p className="text-sm text-muted-foreground">Statut</p>
                 <p className="font-medium">{item.status}</p>
               </div>
             </div>
@@ -135,18 +135,18 @@ export default function OverdueDetailPage() {
             {canSend && (
               <form
                 onSubmit={handleSend}
-                className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-6"
+                className="flex flex-col gap-4 rounded-xl border border-border bg-card shadow-sm p-6"
               >
                 <h2 className="text-lg font-semibold">Envoyer une relance</h2>
                 <div>
-                  <label htmlFor="channel" className="mb-1 block text-sm text-zinc-600">
+                  <label htmlFor="channel" className="mb-1 block text-sm text-muted-foreground">
                     Canal
                   </label>
                   <select
                     id="channel"
                     value={channel}
                     onChange={(e) => setChannel(e.target.value)}
-                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                    className="w-full rounded-md border border-input px-3 py-2 text-sm"
                   >
                     {Object.entries(REMINDER_CHANNEL_LABELS).map(([value, label]) => (
                       <option key={value} value={value}>
@@ -156,7 +156,7 @@ export default function OverdueDetailPage() {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="message" className="mb-1 block text-sm text-zinc-600">
+                  <label htmlFor="message" className="mb-1 block text-sm text-muted-foreground">
                     Message
                   </label>
                   <textarea
@@ -165,7 +165,7 @@ export default function OverdueDetailPage() {
                     onChange={(e) => setMessage(e.target.value)}
                     rows={4}
                     required
-                    className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                    className="w-full rounded-md border border-input px-3 py-2 text-sm"
                   />
                 </div>
                 <Button type="submit" disabled={sending}>

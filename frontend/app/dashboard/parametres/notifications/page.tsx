@@ -58,7 +58,7 @@ export default function NotificationPreferencesPage() {
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-10">
       <div>
         <h1 className="text-3xl font-bold">Préférences notifications</h1>
-        <p className="mt-2 text-zinc-600">Choisissez comment vous souhaitez être alerté.</p>
+        <p className="mt-2 text-muted-foreground">Choisissez comment vous souhaitez être alerté.</p>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -70,7 +70,7 @@ export default function NotificationPreferencesPage() {
 
       <div className="space-y-3">
         {items.map((item) => (
-          <div key={item.event_code} className="rounded-xl border border-zinc-200 bg-white p-4">
+          <div key={item.event_code} className="rounded-xl border border-border bg-card shadow-sm p-4">
             <p className="font-medium">{item.label}</p>
             <div className="mt-3 flex flex-wrap gap-4 text-sm">
               <label className="flex items-center gap-2">

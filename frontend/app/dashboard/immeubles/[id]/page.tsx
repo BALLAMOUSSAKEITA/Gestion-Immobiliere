@@ -60,7 +60,7 @@ export default function BuildingDetailPage() {
           {error ? (
             <p className="text-red-600">{error}</p>
           ) : (
-            <p className="text-zinc-500">Chargement…</p>
+            <p className="text-muted-foreground">Chargement…</p>
           )}
         </main>
       </ProtectedRoute>
@@ -73,9 +73,9 @@ export default function BuildingDetailPage() {
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-sm text-zinc-500">{building.code}</p>
+            <p className="text-sm text-muted-foreground">{building.code}</p>
             <h1 className="text-3xl font-bold">{building.name}</h1>
-            <p className="mt-2 text-zinc-600">
+            <p className="mt-2 text-muted-foreground">
               {building.address} · {building.commune}
               {building.quartier ? ` · ${building.quartier}` : ""}
             </p>
@@ -100,8 +100,8 @@ export default function BuildingDetailPage() {
           />
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-white p-4">
-          <p className="text-sm text-zinc-500">Loyers attendus / mois</p>
+        <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+          <p className="text-sm text-muted-foreground">Loyers attendus / mois</p>
           <p className="text-2xl font-bold">
             {formatCurrency(building.monthly_expected_rent)}
           </p>
@@ -134,9 +134,9 @@ export default function BuildingDetailPage() {
           />
         )}
 
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50">
+            <thead className="border-b border-border bg-muted/50">
               <tr>
                 <th className="px-4 py-3">Code</th>
                 <th className="px-4 py-3">Numéro</th>
@@ -147,7 +147,7 @@ export default function BuildingDetailPage() {
             </thead>
             <tbody>
               {units.map((unit) => (
-                <tr key={unit.id} className="border-b border-zinc-100">
+                <tr key={unit.id} className="border-b border-border">
                   <td className="px-4 py-3 font-medium">{unit.code}</td>
                   <td className="px-4 py-3">{unit.number}</td>
                   <td className="px-4 py-3">{formatCurrency(unit.rent_amount)}</td>
@@ -157,7 +157,7 @@ export default function BuildingDetailPage() {
                   <td className="px-4 py-3">
                     <Link
                       href={`/dashboard/logements/${unit.id}`}
-                      className="text-sm font-medium text-zinc-900 underline"
+                      className="text-sm font-medium text-foreground underline"
                     >
                       Voir
                     </Link>
@@ -167,7 +167,7 @@ export default function BuildingDetailPage() {
             </tbody>
           </table>
           {units.length === 0 && (
-            <p className="p-6 text-center text-zinc-500">Aucun logement.</p>
+            <p className="p-6 text-center text-muted-foreground">Aucun logement.</p>
           )}
         </div>
       </main>
@@ -177,8 +177,8 @@ export default function BuildingDetailPage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4">
-      <p className="text-sm text-zinc-500">{label}</p>
+    <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+      <p className="text-sm text-muted-foreground">{label}</p>
       <p className="text-2xl font-bold">{value}</p>
     </div>
   );

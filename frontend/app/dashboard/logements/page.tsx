@@ -40,7 +40,7 @@ export default function UnitsPage() {
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
         <div>
           <h1 className="text-3xl font-bold">Logements</h1>
-          <p className="mt-2 text-zinc-600">Vue globale du parc locatif.</p>
+          <p className="mt-2 text-muted-foreground">Vue globale du parc locatif.</p>
         </div>
 
         <Input
@@ -51,9 +51,9 @@ export default function UnitsPage() {
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50">
+            <thead className="border-b border-border bg-muted/50">
               <tr>
                 <th className="px-4 py-3">Code</th>
                 <th className="px-4 py-3">Immeuble</th>
@@ -65,7 +65,7 @@ export default function UnitsPage() {
             </thead>
             <tbody>
               {units.map((unit) => (
-                <tr key={unit.id} className="border-b border-zinc-100">
+                <tr key={unit.id} className="border-b border-border">
                   <td className="px-4 py-3 font-medium">{unit.code}</td>
                   <td className="px-4 py-3">{unit.building_name ?? "—"}</td>
                   <td className="px-4 py-3">{UNIT_TYPE_LABELS[unit.type]}</td>
@@ -86,7 +86,7 @@ export default function UnitsPage() {
             </tbody>
           </table>
           {units.length === 0 && !error && (
-            <p className="p-6 text-center text-zinc-500">Aucun logement.</p>
+            <p className="p-6 text-center text-muted-foreground">Aucun logement.</p>
           )}
         </div>
       </main>

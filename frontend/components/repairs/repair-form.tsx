@@ -43,20 +43,20 @@ export function RepairForm({ units = [], showUnitSelect = true, onSubmit }: Repa
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid gap-4 rounded-xl border border-zinc-200 bg-white p-6"
+      className="grid gap-4 rounded-xl border border-border bg-card shadow-sm p-6"
     >
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {showUnitSelect && units.length > 0 && (
         <div>
-          <label htmlFor="unit_id" className="mb-1 block text-sm text-zinc-600">
+          <label htmlFor="unit_id" className="mb-1 block text-sm text-muted-foreground">
             Logement
           </label>
           <select
             id="unit_id"
             value={form.unit_id}
             onChange={(e) => setForm({ ...form, unit_id: e.target.value })}
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-input px-3 py-2 text-sm"
             required
           >
             {units.map((unit) => (
@@ -69,7 +69,7 @@ export function RepairForm({ units = [], showUnitSelect = true, onSubmit }: Repa
       )}
 
       <div>
-        <label htmlFor="title" className="mb-1 block text-sm text-zinc-600">
+        <label htmlFor="title" className="mb-1 block text-sm text-muted-foreground">
           Titre
         </label>
         <Input
@@ -81,7 +81,7 @@ export function RepairForm({ units = [], showUnitSelect = true, onSubmit }: Repa
       </div>
 
       <div>
-        <label htmlFor="description" className="mb-1 block text-sm text-zinc-600">
+        <label htmlFor="description" className="mb-1 block text-sm text-muted-foreground">
           Description
         </label>
         <textarea
@@ -90,19 +90,19 @@ export function RepairForm({ units = [], showUnitSelect = true, onSubmit }: Repa
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           rows={4}
           required
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-input px-3 py-2 text-sm"
         />
       </div>
 
       <div>
-        <label htmlFor="urgency" className="mb-1 block text-sm text-zinc-600">
+        <label htmlFor="urgency" className="mb-1 block text-sm text-muted-foreground">
           Urgence
         </label>
         <select
           id="urgency"
           value={form.urgency}
           onChange={(e) => setForm({ ...form, urgency: e.target.value as UrgencyLevel })}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-input px-3 py-2 text-sm"
         >
           <option value="low">Faible</option>
           <option value="medium">Moyen</option>

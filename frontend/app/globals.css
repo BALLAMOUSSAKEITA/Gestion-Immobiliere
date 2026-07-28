@@ -1,26 +1,100 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f7fb;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --primary: #0c4a6e;
+  --primary-foreground: #f8fafc;
+  --secondary: #e0f2fe;
+  --secondary-foreground: #0c4a6e;
+  --accent: #0d9488;
+  --accent-foreground: #ffffff;
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+  --border: #dbe3ef;
+  --input: #dbe3ef;
+  --ring: #0ea5e9;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --success: #059669;
+  --success-foreground: #ffffff;
+  --warning: #d97706;
+  --warning-foreground: #ffffff;
+  --sidebar: #0f2744;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-accent: #1e3a5f;
+  --sidebar-active: #0d9488;
+  --radius: 0.75rem;
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.04);
+  --shadow-md: 0 8px 24px rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 20px 48px rgb(15 23 42 / 0.12);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-active: var(--sidebar-active);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 25%, white);
+}
+
+@layer utilities {
+  .glass-card {
+    @apply rounded-xl border border-border bg-card shadow-[var(--shadow-sm)];
+  }
+
+  .page-container {
+    @apply mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8;
+  }
+
+  .gradient-hero {
+    background:
+      radial-gradient(circle at top right, rgb(13 148 136 / 0.15), transparent 40%),
+      radial-gradient(circle at bottom left, rgb(12 74 110 / 0.12), transparent 45%),
+      linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
+  }
+
+  .gradient-auth {
+    background:
+      linear-gradient(135deg, #0f2744 0%, #0c4a6e 50%, #0d9488 100%);
+  }
 }

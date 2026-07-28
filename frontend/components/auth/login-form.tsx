@@ -5,8 +5,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/auth-context";
 import { ApiError } from "@/lib/api";
 
@@ -29,7 +31,7 @@ export function LoginForm() {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "admin@gestion-immo.local",
+      email: "",
       password: "",
     },
   });
@@ -48,39 +50,22 @@ export function LoginForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} className="flex w-full flex-col gap-4">
+    <form onSubmit={onSubmit} className="flex flex-col gap-5">
       <div className="space-y-2">
-        <label htmlFor="email" className="text-sm font-medium">
-          Email
-        </label>
-        <Input id="email" type="email" autoComplete="email" {...register("email")} />
-        {errors.email && (
-          <p className="text-sm text-red-600">{errors.email.message}</p>
-        )}
+        <Label htmlFor="email">Email</Label>
+        <Input id="email" type="email" autoComplete="email" placeholder="vous@exemple.com" {...register("email")} />
+        {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="password" className="text-sm font-medium">
-          Mot de passe
-        </label>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          {...register("password")}
-        />
-        {errors.password && (
-          <p className="text-sm text-red-600">{errors.password.message}</p>
-        )}
+        <Label htmlFor="password">Mot de passe</Label>
+        <Input id="password" type="password" autoComplete="current-password" {...register("password")} />
+        {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
       </div>
 
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
+      {error && <Alert variant="destructive">{error}</Alert>}
 
-      <Button type="submit" disabled={isSubmitting} className="w-full">
+      <Button type="submit" disabled={isSubmitting} variant="accent" className="w-full">
         {isSubmitting ? "Connexion..." : "Se connecter"}
       </Button>
     </form>

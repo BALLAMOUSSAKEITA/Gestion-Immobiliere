@@ -57,7 +57,7 @@ export default function LeasesPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Baux</h1>
-            <p className="mt-2 text-zinc-600">Contrats de location actifs et historiques.</p>
+            <p className="mt-2 text-muted-foreground">Contrats de location actifs et historiques.</p>
           </div>
           {canManage && (
             <Button asChild>
@@ -75,7 +75,7 @@ export default function LeasesPage() {
         )}
 
         <select
-          className="w-full max-w-xs rounded-md border border-zinc-200 px-3 py-2 text-sm"
+          className="w-full max-w-xs rounded-md border border-border px-3 py-2 text-sm"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
@@ -87,9 +87,9 @@ export default function LeasesPage() {
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50">
+            <thead className="border-b border-border bg-muted/50">
               <tr>
                 <th className="px-4 py-3">Locataire</th>
                 <th className="px-4 py-3">Logement</th>
@@ -101,7 +101,7 @@ export default function LeasesPage() {
             </thead>
             <tbody>
               {leases.map((lease) => (
-                <tr key={lease.id} className="border-b border-zinc-100">
+                <tr key={lease.id} className="border-b border-border">
                   <td className="px-4 py-3">{lease.tenant_name}</td>
                   <td className="px-4 py-3">
                     {lease.building_name} — {lease.unit_code}
@@ -127,7 +127,7 @@ export default function LeasesPage() {
             </tbody>
           </table>
           {leases.length === 0 && !error && (
-            <p className="p-6 text-center text-zinc-500">Aucun bail.</p>
+            <p className="p-6 text-center text-muted-foreground">Aucun bail.</p>
           )}
         </div>
       </main>

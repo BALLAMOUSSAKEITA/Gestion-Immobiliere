@@ -35,7 +35,7 @@ export default function SharedDocumentPage() {
   if (!doc) {
     return (
       <main className="mx-auto max-w-lg px-6 py-16 text-center">
-        <p className="text-zinc-500">Chargement…</p>
+        <p className="text-muted-foreground">Chargement…</p>
       </main>
     );
   }
@@ -45,7 +45,7 @@ export default function SharedDocumentPage() {
       <h1 className="text-2xl font-bold">{doc.title}</h1>
       <a
         href={`${API_BASE}${doc.download_url}`}
-        className="inline-flex w-fit rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
+        className="inline-flex w-fit rounded-md bg-primary px-4 py-2 text-sm font-medium text-white"
       >
         Télécharger {doc.file_name}
       </a>
@@ -53,7 +53,7 @@ export default function SharedDocumentPage() {
         <iframe
           src={`${API_BASE}${doc.download_url}`}
           title={doc.title}
-          className="h-[70vh] w-full rounded-xl border border-zinc-200"
+          className="h-[70vh] w-full rounded-xl border border-border"
         />
       )}
     </main>

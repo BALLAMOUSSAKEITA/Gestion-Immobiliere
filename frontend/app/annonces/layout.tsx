@@ -1,14 +1,5 @@
-import { PublicHeader } from "@/components/layout/public-header";
+import { PublicShell } from "@/components/layout/public-shell";
 
-export default function AnnoncesLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <>
-      <PublicHeader />
-      {children}
-    </>
-  );
+export default function AnnoncesLayout({ children }: { children: React.ReactNode }) {
+  return <PublicShell>{children}</PublicShell>;
 }

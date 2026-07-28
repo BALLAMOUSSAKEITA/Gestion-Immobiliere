@@ -34,14 +34,14 @@ export default function ReceiptsPage() {
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
         <div>
           <h1 className="text-3xl font-bold">Reçus</h1>
-          <p className="mt-2 text-zinc-600">Justificatifs de paiement générés.</p>
+          <p className="mt-2 text-muted-foreground">Justificatifs de paiement générés.</p>
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-zinc-200 bg-zinc-50">
+            <thead className="border-b border-border bg-muted/50">
               <tr>
                 <th className="px-4 py-3">Numéro</th>
                 <th className="px-4 py-3">Locataire</th>
@@ -53,7 +53,7 @@ export default function ReceiptsPage() {
             </thead>
             <tbody>
               {receipts.map((receipt) => (
-                <tr key={receipt.id} className="border-b border-zinc-100">
+                <tr key={receipt.id} className="border-b border-border">
                   <td className="px-4 py-3 font-medium">{receipt.receipt_number}</td>
                   <td className="px-4 py-3">{receipt.tenant_name}</td>
                   <td className="px-4 py-3">{receipt.unit_code}</td>
@@ -74,7 +74,7 @@ export default function ReceiptsPage() {
             </tbody>
           </table>
           {receipts.length === 0 && !error && (
-            <p className="p-6 text-center text-zinc-500">Aucun reçu.</p>
+            <p className="p-6 text-center text-muted-foreground">Aucun reçu.</p>
           )}
         </div>
 

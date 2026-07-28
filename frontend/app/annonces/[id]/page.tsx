@@ -73,13 +73,13 @@ export default function PublicUnitPage() {
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-16">
       {!unit ? (
-        <p className="text-center text-zinc-500">{error ?? "Chargement…"}</p>
+        <p className="text-center text-muted-foreground">{error ?? "Chargement…"}</p>
       ) : (
         <>
           <div>
-            <p className="text-sm text-zinc-500">{unit.code}</p>
+            <p className="text-sm text-muted-foreground">{unit.code}</p>
             <h1 className="text-3xl font-bold">{UNIT_TYPE_LABELS[unit.type]}</h1>
-            <p className="mt-2 text-zinc-600">
+            <p className="mt-2 text-muted-foreground">
               {unit.commune}
               {unit.quartier ? ` · ${unit.quartier}` : ""}
             </p>
@@ -88,7 +88,7 @@ export default function PublicUnitPage() {
           <p className="text-2xl font-bold">{formatCurrency(unit.rent_amount)} / mois</p>
 
           {unit.description && (
-            <p className="rounded-xl border border-zinc-200 bg-white p-4 text-zinc-700">
+            <p className="rounded-xl border border-border bg-card shadow-sm p-4 text-foreground">
               {unit.description}
             </p>
           )}
@@ -107,9 +107,9 @@ export default function PublicUnitPage() {
             </div>
           )}
 
-          <section className="rounded-xl border border-zinc-200 bg-white p-6">
+          <section className="rounded-xl border border-border bg-card shadow-sm p-6">
             <h2 className="text-xl font-bold">Demander une visite</h2>
-            <p className="mt-1 text-sm text-zinc-600">
+            <p className="mt-1 text-sm text-muted-foreground">
               Remplissez le formulaire et nous vous recontacterons.
             </p>
 
@@ -148,7 +148,7 @@ export default function PublicUnitPage() {
               <textarea
                 rows={3}
                 placeholder="Message (optionnel)"
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+                className="w-full rounded-md border border-input px-3 py-2 text-sm"
                 value={visitForm.message}
                 onChange={(e) => setVisitForm({ ...visitForm, message: e.target.value })}
               />

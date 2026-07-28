@@ -59,7 +59,7 @@ export function RequestApprovalModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
         <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="mt-2 text-sm text-zinc-600">
+        <p className="mt-2 text-sm text-muted-foreground">
           Cette action nécessite l&apos;approbation du super administrateur.
         </p>
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">

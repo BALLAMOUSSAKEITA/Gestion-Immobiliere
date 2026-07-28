@@ -78,7 +78,7 @@ export default function ExpenseValidationPage() {
 
         <div>
           <h1 className="text-3xl font-bold">Validation des dépenses</h1>
-          <p className="mt-2 text-zinc-600">
+          <p className="mt-2 text-muted-foreground">
             Dépenses importantes (≥ 500 000 FCFA) en attente de votre validation.
           </p>
         </div>
@@ -87,23 +87,23 @@ export default function ExpenseValidationPage() {
 
         <div className="space-y-4">
           {items.length === 0 ? (
-            <p className="rounded-xl border border-zinc-200 bg-white px-4 py-8 text-center text-zinc-500">
+            <p className="rounded-xl border border-border bg-card shadow-sm px-4 py-8 text-center text-muted-foreground">
               Aucune dépense en attente de validation.
             </p>
           ) : (
             items.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-4 rounded-xl border border-border bg-card shadow-sm p-5 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="font-semibold">{item.category_label}</p>
                     <ExpenseStatusBadge status={item.status} />
                   </div>
-                  <p className="mt-1 text-sm text-zinc-600">{item.description}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
                   <p className="mt-2 text-lg font-bold">{formatCurrency(item.amount)}</p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-muted-foreground">
                     {item.building_name ?? "Sans immeuble"} — {item.expense_date}
                   </p>
                 </div>

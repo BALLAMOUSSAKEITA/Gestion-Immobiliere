@@ -28,32 +28,32 @@ export default function TenantLeasePage() {
     <main className="flex flex-col gap-6 px-6 py-10">
       <div>
         <h1 className="text-3xl font-bold">Mon contrat</h1>
-        <p className="mt-2 text-zinc-600">Informations sur votre bail actif.</p>
+        <p className="mt-2 text-muted-foreground">Informations sur votre bail actif.</p>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {lease && (
-        <div className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6">
+        <div className="space-y-4 rounded-xl border border-border bg-card shadow-sm p-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <p className="text-sm text-zinc-500">Début</p>
+              <p className="text-sm text-muted-foreground">Début</p>
               <p className="font-medium">{lease.start_date}</p>
             </div>
             <div>
-              <p className="text-sm text-zinc-500">Fin</p>
+              <p className="text-sm text-muted-foreground">Fin</p>
               <p className="font-medium">{lease.end_date ?? "—"}</p>
             </div>
             <div>
-              <p className="text-sm text-zinc-500">Loyer</p>
+              <p className="text-sm text-muted-foreground">Loyer</p>
               <p className="font-medium">{formatCurrency(lease.rent_amount)}</p>
             </div>
             <div>
-              <p className="text-sm text-zinc-500">Caution</p>
+              <p className="text-sm text-muted-foreground">Caution</p>
               <p className="font-medium">{formatCurrency(lease.deposit_amount)}</p>
             </div>
             <div>
-              <p className="text-sm text-zinc-500">Statut</p>
+              <p className="text-sm text-muted-foreground">Statut</p>
               <p className="font-medium capitalize">{lease.status}</p>
             </div>
           </div>

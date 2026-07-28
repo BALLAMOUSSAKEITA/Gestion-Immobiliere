@@ -68,7 +68,7 @@ export default function LeaseDetailPage() {
       <ProtectedRoute>
         <AppHeader />
         <main className="mx-auto max-w-4xl px-6 py-10">
-          <p className="text-zinc-500">{error ?? "Chargement…"}</p>
+          <p className="text-muted-foreground">{error ?? "Chargement…"}</p>
         </main>
       </ProtectedRoute>
     );
@@ -98,7 +98,7 @@ export default function LeaseDetailPage() {
         {lease.status === "terminated" && (
           <div className="rounded-xl border border-red-200 bg-red-50 p-4">
             <p className="font-medium">Bail résilié le {lease.termination_date}</p>
-            <p className="mt-1 text-sm text-zinc-600">{lease.termination_reason}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{lease.termination_reason}</p>
           </div>
         )}
 
@@ -109,7 +109,7 @@ export default function LeaseDetailPage() {
                 Terminer le bail
               </Button>
             ) : (
-              <div className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4">
+              <div className="space-y-3 rounded-xl border border-border bg-card shadow-sm p-4">
                 <Input
                   type="date"
                   value={terminationDate}
@@ -157,8 +157,8 @@ export default function LeaseDetailPage() {
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4">
-      <p className="text-sm text-zinc-500">{label}</p>
+    <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+      <p className="text-sm text-muted-foreground">{label}</p>
       <p className="mt-1 font-medium">{value}</p>
     </div>
   );

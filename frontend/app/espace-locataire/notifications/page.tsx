@@ -34,7 +34,7 @@ export default function TenantNotificationsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Notifications</h1>
-          <p className="mt-2 text-zinc-600">Vos alertes et rappels.</p>
+          <p className="mt-2 text-muted-foreground">Vos alertes et rappels.</p>
         </div>
         <Button variant="outline" onClick={() => markAllNotificationsRead(getAccessToken()!).then(load)}>
           Tout marquer lu
@@ -45,17 +45,17 @@ export default function TenantNotificationsPage() {
 
       <div className="space-y-3">
         {items.length === 0 ? (
-          <p className="rounded-xl border border-zinc-200 bg-white px-4 py-8 text-center text-zinc-500">
+          <p className="rounded-xl border border-border bg-card shadow-sm px-4 py-8 text-center text-muted-foreground">
             Aucune notification.
           </p>
         ) : (
           items.map((item) => (
             <div
               key={item.id}
-              className={`rounded-xl border border-zinc-200 bg-white p-4 ${!item.is_read ? "border-blue-200 bg-blue-50/40" : ""}`}
+              className={`rounded-xl border border-border bg-card shadow-sm p-4 ${!item.is_read ? "border-blue-200 bg-blue-50/40" : ""}`}
             >
               <p className="font-semibold">{item.title}</p>
-              <p className="mt-1 text-sm text-zinc-600">{item.body}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{item.body}</p>
               {!item.is_read && (
                 <Button
                   variant="outline"

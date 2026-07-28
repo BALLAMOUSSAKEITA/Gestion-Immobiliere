@@ -123,7 +123,7 @@ export default function DocumentDetailPage() {
           <>
             <div>
               <h1 className="text-3xl font-bold">{document.title}</h1>
-              <p className="mt-2 text-zinc-600">
+              <p className="mt-2 text-muted-foreground">
                 {document.document_type_label} — {formatFileSize(document.file_size)}
               </p>
             </div>
@@ -192,7 +192,7 @@ export default function DocumentDetailPage() {
               <img
                 src={previewSrc}
                 alt={document.title}
-                className="max-h-[600px] rounded-xl border border-zinc-200"
+                className="max-h-[600px] rounded-xl border border-border"
               />
             )}
 
@@ -200,12 +200,12 @@ export default function DocumentDetailPage() {
               <iframe
                 src={previewSrc}
                 title={document.title}
-                className="h-[600px] w-full rounded-xl border border-zinc-200"
+                className="h-[600px] w-full rounded-xl border border-border"
               />
             )}
 
             {document.description && (
-              <p className="text-sm text-zinc-600">{document.description}</p>
+              <p className="text-sm text-muted-foreground">{document.description}</p>
             )}
           </>
         )}

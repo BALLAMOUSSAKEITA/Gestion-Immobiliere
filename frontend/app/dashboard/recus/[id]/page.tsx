@@ -62,12 +62,12 @@ export default function ReceiptDetailPage() {
       <AppHeader />
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-10">
         {!receipt ? (
-          <p className="text-zinc-500">{error ?? "Chargement…"}</p>
+          <p className="text-muted-foreground">{error ?? "Chargement…"}</p>
         ) : (
           <>
             <div>
               <h1 className="text-3xl font-bold">{receipt.receipt_number}</h1>
-              <p className="mt-2 text-zinc-600">
+              <p className="mt-2 text-muted-foreground">
                 {receipt.tenant_name} · {receipt.unit_code} —{" "}
                 {formatCurrency(receipt.amount)}
               </p>
@@ -77,7 +77,7 @@ export default function ReceiptDetailPage() {
               <iframe
                 src={pdfUrl}
                 title="Aperçu reçu"
-                className="h-[600px] w-full rounded-xl border border-zinc-200"
+                className="h-[600px] w-full rounded-xl border border-border"
               />
             )}
 

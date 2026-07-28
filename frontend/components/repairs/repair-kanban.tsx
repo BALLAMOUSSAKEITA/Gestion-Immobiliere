@@ -24,25 +24,25 @@ export function RepairKanban({ items }: RepairKanbanProps) {
       {KANBAN_COLUMNS.map((column) => {
         const columnItems = items.filter((item) => column.statuses.includes(item.status));
         return (
-          <div key={column.key} className="min-w-[220px] rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+          <div key={column.key} className="min-w-[220px] rounded-xl border border-border bg-muted/50 p-3">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-sm font-semibold">{column.label}</h3>
-              <span className="rounded-full bg-white px-2 py-0.5 text-xs text-zinc-600">
+              <span className="rounded-full bg-white px-2 py-0.5 text-xs text-muted-foreground">
                 {columnItems.length}
               </span>
             </div>
             <div className="space-y-3">
               {columnItems.length === 0 ? (
-                <p className="text-xs text-zinc-500">Aucune demande</p>
+                <p className="text-xs text-muted-foreground">Aucune demande</p>
               ) : (
                 columnItems.map((item) => (
                   <Link
                     key={item.id}
                     href={`/dashboard/reparations/${item.id}`}
-                    className="block rounded-lg border border-zinc-200 bg-white p-3 shadow-sm transition hover:border-zinc-300"
+                    className="block rounded-lg border border-border bg-card p-3 shadow-sm transition hover:border-input"
                   >
                     <p className="font-medium text-sm">{item.title}</p>
-                    <p className="mt-1 text-xs text-zinc-500">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {item.unit_code} — {item.building_name}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-1">

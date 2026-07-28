@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Bell } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -80,24 +81,24 @@ export function NotificationBell({
         type="button"
         aria-label="Notifications"
         onClick={() => setOpen((value) => !value)}
-        className="relative rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm hover:bg-zinc-50"
+        className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
       >
-        🔔
+        <Bell className="h-4 w-4" />
         {count > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-xs font-bold text-white">
+          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-xs font-bold text-white">
             {count > 99 ? "99+" : count}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl border border-zinc-200 bg-white shadow-lg">
-          <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <p className="font-semibold">Notifications</p>
             {count > 0 && (
               <button
                 type="button"
-                className="text-xs text-blue-600 hover:underline"
+                className="text-xs text-accent hover:underline"
                 onClick={handleMarkAllRead}
               >
                 Tout marquer lu
@@ -106,7 +107,7 @@ export function NotificationBell({
           </div>
           <div className="max-h-80 overflow-y-auto">
             {items.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-zinc-500">
+              <p className="px-4 py-6 text-center text-sm text-muted-foreground">
                 Aucune notification
               </p>
             ) : (
@@ -116,17 +117,17 @@ export function NotificationBell({
                   type="button"
                   onClick={() => handleMarkRead(item.id)}
                   className={cn(
-                    "block w-full border-b border-zinc-50 px-4 py-3 text-left hover:bg-zinc-50",
-                    !item.is_read && "bg-blue-50/50",
+                    "block w-full border-b border-border px-4 py-3 text-left transition-colors hover:bg-muted/50",
+                    !item.is_read && "bg-secondary/50",
                   )}
                 >
                   <p className="text-sm font-medium">{item.title}</p>
-                  <p className="mt-1 line-clamp-2 text-xs text-zinc-600">{item.body}</p>
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{item.body}</p>
                 </button>
               ))
             )}
           </div>
-          <div className="border-t border-zinc-100 px-4 py-3">
+          <div className="border-t border-border px-4 py-3">
             <Button asChild variant="outline" className="w-full">
               <Link href={notificationsPath} onClick={() => setOpen(false)}>
                 Voir tout

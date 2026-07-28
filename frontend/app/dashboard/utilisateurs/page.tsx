@@ -47,7 +47,7 @@ export default function UsersPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Utilisateurs</h1>
-            <p className="mt-2 text-zinc-600">
+            <p className="mt-2 text-muted-foreground">
               Gérez les comptes et les rôles de la plateforme.
             </p>
           </div>
@@ -63,7 +63,7 @@ export default function UsersPage() {
             onChange={(event) => setSearch(event.target.value)}
           />
           <select
-            className="h-10 rounded-md border border-zinc-200 bg-white px-3 text-sm"
+            className="h-10 rounded-md border border-border bg-white px-3 text-sm"
             value={role}
             onChange={(event) => setRole(event.target.value)}
           >
@@ -82,9 +82,9 @@ export default function UsersPage() {
           </div>
         )}
 
-        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
           <table className="min-w-full divide-y divide-zinc-200">
-            <thead className="bg-zinc-50">
+            <thead className="bg-muted/50">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium">Nom</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Email</th>
@@ -96,13 +96,13 @@ export default function UsersPage() {
             <tbody className="divide-y divide-zinc-200">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                     Chargement...
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-zinc-500">
+                  <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                     Aucun utilisateur trouvé
                   </td>
                 </tr>
@@ -112,7 +112,7 @@ export default function UsersPage() {
                     <td className="px-4 py-3 font-medium">
                       {user.first_name} {user.last_name}
                     </td>
-                    <td className="px-4 py-3 text-zinc-600">{user.email}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
                     <td className="px-4 py-3">
                       <RoleBadge code={user.role.code} label={user.role.label} />
                     </td>

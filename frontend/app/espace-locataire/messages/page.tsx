@@ -54,12 +54,12 @@ export default function TenantMessagesPage() {
     <main className="flex flex-col gap-6 px-6 py-10">
       <div>
         <h1 className="text-3xl font-bold">Messages</h1>
-        <p className="mt-2 text-zinc-600">Contactez votre gestionnaire.</p>
+        <p className="mt-2 text-muted-foreground">Contactez votre gestionnaire.</p>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <form onSubmit={handleSend} className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4">
+      <form onSubmit={handleSend} className="space-y-3 rounded-xl border border-border bg-card shadow-sm p-4">
         <Input
           required
           placeholder="Sujet"
@@ -70,7 +70,7 @@ export default function TenantMessagesPage() {
           required
           rows={4}
           placeholder="Votre message"
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-input px-3 py-2 text-sm"
           value={body}
           onChange={(e) => setBody(e.target.value)}
         />
@@ -81,12 +81,12 @@ export default function TenantMessagesPage() {
 
       <div className="space-y-3">
         {items.length === 0 ? (
-          <p className="rounded-xl border border-zinc-200 bg-white px-4 py-8 text-center text-zinc-500">
+          <p className="rounded-xl border border-border bg-card shadow-sm px-4 py-8 text-center text-muted-foreground">
             Aucun message pour le moment.
           </p>
         ) : (
           items.map((item) => (
-            <div key={item.id} className="rounded-xl border border-zinc-200 bg-white p-4">
+            <div key={item.id} className="rounded-xl border border-border bg-card shadow-sm p-4">
               <div className="flex items-start justify-between gap-2">
                 <p className="font-semibold">{item.subject}</p>
                 {!item.is_read && (
@@ -95,10 +95,10 @@ export default function TenantMessagesPage() {
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-sm text-zinc-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {item.sender_name} · {new Date(item.created_at).toLocaleDateString("fr-FR")}
               </p>
-              <p className="mt-2 text-zinc-700">{item.body}</p>
+              <p className="mt-2 text-foreground">{item.body}</p>
             </div>
           ))
         )}

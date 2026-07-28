@@ -74,7 +74,7 @@ export default function MesDemandesPage() {
       <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 py-10">
         <div>
           <h1 className="text-3xl font-bold">Mes demandes de validation</h1>
-          <p className="mt-2 text-zinc-600">
+          <p className="mt-2 text-muted-foreground">
             Suivi de vos actions sensibles en attente ou traitées.
           </p>
         </div>
@@ -83,26 +83,26 @@ export default function MesDemandesPage() {
 
         <div className="space-y-4">
           {items.length === 0 ? (
-            <p className="rounded-xl border border-zinc-200 bg-white px-4 py-8 text-center text-zinc-500">
+            <p className="rounded-xl border border-border bg-card shadow-sm px-4 py-8 text-center text-muted-foreground">
               Aucune demande soumise.
             </p>
           ) : (
             items.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-xl border border-border bg-card shadow-sm p-5 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <p className="font-semibold">
                     {APPROVAL_ACTION_LABELS[item.action_code] ?? item.action_code}
                   </p>
-                  <p className="mt-1 text-sm text-zinc-600">{item.reason}</p>
-                  <p className="mt-2 text-xs text-zinc-500">
+                  <p className="mt-1 text-sm text-muted-foreground">{item.reason}</p>
+                  <p className="mt-2 text-xs text-muted-foreground">
                     {APPROVAL_STATUS_LABELS[item.status]} —{" "}
                     {new Date(item.requested_at).toLocaleString("fr-FR")}
                   </p>
                   {item.review_comment && (
-                    <p className="mt-1 text-sm text-zinc-600">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       Réponse : {item.review_comment}
                     </p>
                   )}

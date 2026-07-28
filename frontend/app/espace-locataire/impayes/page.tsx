@@ -14,14 +14,14 @@ import { getAccessToken } from "@/lib/auth-storage";
 function SummaryCards({ summary }: { summary: OverdueSummary }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-sm text-zinc-500">Total impayé</p>
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+        <p className="text-sm text-muted-foreground">Total impayé</p>
         <p className="mt-1 text-2xl font-bold text-red-600">
           {formatCurrency(summary.total_overdue_amount)}
         </p>
       </div>
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <p className="text-sm text-zinc-500">Mois en retard</p>
+      <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+        <p className="text-sm text-muted-foreground">Mois en retard</p>
         <p className="mt-1 text-2xl font-bold">{summary.total_periods_overdue}</p>
       </div>
     </div>
@@ -51,15 +51,15 @@ export default function TenantOverduesPage() {
     <main className="flex flex-col gap-6 px-6 py-10">
       <div>
         <h1 className="text-3xl font-bold">Mes impayés</h1>
-        <p className="mt-2 text-zinc-600">Consultez vos loyers en retard.</p>
+        <p className="mt-2 text-muted-foreground">Consultez vos loyers en retard.</p>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
       {summary && <SummaryCards summary={summary} />}
 
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
         <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-zinc-200 bg-zinc-50">
+          <thead className="border-b border-border bg-muted/50">
             <tr>
               <th className="px-4 py-3">Logement</th>
               <th className="px-4 py-3">Période</th>
@@ -70,16 +70,16 @@ export default function TenantOverduesPage() {
           <tbody>
             {items.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-zinc-500">
+                <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
                   Aucun impayé. Merci !
                 </td>
               </tr>
             ) : (
               items.map((item) => (
-                <tr key={item.id} className="border-b border-zinc-100">
+                <tr key={item.id} className="border-b border-border">
                   <td className="px-4 py-3">
                     <div>{item.unit_code}</div>
-                    <div className="text-xs text-zinc-500">{item.building_name}</div>
+                    <div className="text-xs text-muted-foreground">{item.building_name}</div>
                   </td>
                   <td className="px-4 py-3">{item.period}</td>
                   <td className="px-4 py-3 font-medium text-red-600">

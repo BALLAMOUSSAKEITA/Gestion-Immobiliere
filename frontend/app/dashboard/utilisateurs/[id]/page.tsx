@@ -55,7 +55,7 @@ export default function UserDetailPage() {
     return (
       <SuperAdminRoute>
         <AppHeader />
-        <main className="px-6 py-16 text-center text-zinc-500">
+        <main className="px-6 py-16 text-center text-muted-foreground">
           {error ?? "Chargement..."}
         </main>
       </SuperAdminRoute>

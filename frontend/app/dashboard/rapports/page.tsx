@@ -33,7 +33,7 @@ export default function RapportsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Rapports</h1>
-            <p className="mt-2 text-zinc-600">Historique des rapports générés.</p>
+            <p className="mt-2 text-muted-foreground">Historique des rapports générés.</p>
           </div>
           <Button asChild>
             <Link href="/dashboard/rapports/generer">Générer un rapport</Link>
@@ -44,21 +44,21 @@ export default function RapportsPage() {
 
         <div className="space-y-3">
           {items.length === 0 ? (
-            <p className="rounded-xl border border-zinc-200 bg-white px-4 py-8 text-center text-zinc-500">
+            <p className="rounded-xl border border-border bg-card shadow-sm px-4 py-8 text-center text-muted-foreground">
               Aucun rapport généré.
             </p>
           ) : (
             items.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-2 rounded-xl border border-border bg-card shadow-sm p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <p className="font-semibold capitalize">{item.report_type}</p>
-                  <p className="text-sm text-zinc-600">
+                  <p className="text-sm text-muted-foreground">
                     {item.period_start} → {item.period_end}
                   </p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-muted-foreground">
                     {new Date(item.generated_at).toLocaleString("fr-FR")}
                     {item.generated_by_name ? ` — ${item.generated_by_name}` : ""}
                   </p>

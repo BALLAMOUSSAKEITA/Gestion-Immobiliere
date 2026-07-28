@@ -2,25 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Building2, Home, LogOut, User } from "lucide-react";
 
 import { RoleBadge } from "@/components/auth/role-badge";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
+import { TENANT_NAV } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-
-const NAV_ITEMS = [
-  { href: "/espace-locataire", label: "Tableau de bord" },
-  { href: "/espace-locataire/mon-logement", label: "Mon logement" },
-  { href: "/espace-locataire/mon-contrat", label: "Mon contrat" },
-  { href: "/espace-locataire/paiements", label: "Paiements" },
-  { href: "/espace-locataire/recus", label: "Reçus" },
-  { href: "/espace-locataire/impayes", label: "Impayés" },
-  { href: "/espace-locataire/reparations", label: "Réparations" },
-  { href: "/espace-locataire/documents", label: "Documents" },
-  { href: "/espace-locataire/messages", label: "Messages" },
-  { href: "/espace-locataire/notifications", label: "Notifications" },
-];
 
 export function TenantSidebar() {
   const pathname = usePathname();
@@ -29,27 +18,33 @@ export function TenantSidebar() {
   if (!user) return null;
 
   return (
-    <aside className="border-b border-zinc-200 bg-white lg:border-b-0 lg:border-r lg:min-w-56">
-      <div className="flex flex-col gap-4 p-4">
-        <div>
-          <p className="text-sm text-zinc-500">Espace locataire</p>
-          <p className="font-medium">
-            {user.first_name} {user.last_name}
-          </p>
+    <aside className="w-full border-b border-border bg-sidebar text-sidebar-foreground lg:w-64 lg:min-h-screen lg:border-b-0 lg:border-r">
+      <div className="flex h-full flex-col p-4">
+        <div className="mb-6 flex items-center gap-3 rounded-xl bg-sidebar-accent/60 p-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+            <Home className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs text-sidebar-foreground/70">Espace locataire</p>
+            <p className="font-semibold text-white">{user.first_name} {user.last_name}</p>
+          </div>
+        </div>
+
+        <div className="mb-4 flex items-center justify-between">
           <RoleBadge code={user.role.code} label={user.role.label} />
           <NotificationBell notificationsPath="/espace-locataire/notifications" />
         </div>
 
-        <nav className="flex flex-col gap-1">
-          {NAV_ITEMS.map((item) => (
+        <nav className="flex flex-1 flex-col gap-1 overflow-x-auto lg:overflow-visible">
+          {TENANT_NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                "whitespace-nowrap rounded-lg px-3 py-2.5 text-sm font-medium transition-colors lg:whitespace-normal",
                 pathname === item.href || pathname.startsWith(`${item.href}/`)
-                  ? "bg-zinc-900 text-white"
-                  : "text-zinc-700 hover:bg-zinc-100",
+                  ? "bg-sidebar-active text-white"
+                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-white",
               )}
             >
               {item.label}
@@ -57,15 +52,34 @@ export function TenantSidebar() {
           ))}
         </nav>
 
-        <div className="flex flex-col gap-2 pt-2">
-          <Button asChild variant="outline">
-            <Link href="/profil">Profil</Link>
+        <div className="mt-6 flex flex-col gap-2 border-t border-white/10 pt-4">
+          <Button asChild variant="ghost" className="justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-white">
+            <Link href="/profil">
+              <User className="mr-2 h-4 w-4" />
+              Profil
+            </Link>
           </Button>
-          <Button variant="outline" onClick={() => logout()}>
+          <Button
+            variant="ghost"
+            className="justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-white"
+            onClick={() => logout()}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
             Déconnexion
           </Button>
         </div>
       </div>
     </aside>
+  );
+}
+
+export function TenantShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto flex max-w-7xl flex-col lg:flex-row">
+        <TenantSidebar />
+        <main className="flex-1 page-container">{children}</main>
+      </div>
+    </div>
   );
 }

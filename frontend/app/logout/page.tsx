@@ -12,7 +12,7 @@ export default function LogoutPage() {
   }, [logout]);
 
   return (
-    <main className="flex flex-1 items-center justify-center py-16 text-zinc-500">
+    <main className="flex flex-1 items-center justify-center py-16 text-muted-foreground">
       Déconnexion en cours...
     </main>
   );

@@ -30,7 +30,7 @@ export default function TenantSpacePage() {
     <main className="flex flex-col gap-6 px-6 py-10">
       <div>
         <h1 className="text-3xl font-bold">Espace locataire</h1>
-        <p className="mt-2 text-zinc-600">
+        <p className="mt-2 text-muted-foreground">
           Bienvenue{dashboard ? `, ${dashboard.tenant.full_name}` : ""}.
         </p>
       </div>
@@ -40,24 +40,24 @@ export default function TenantSpacePage() {
       {dashboard && (
         <>
           {!dashboard.has_active_lease ? (
-            <p className="rounded-xl border border-zinc-200 bg-white p-4 text-zinc-600">
+            <p className="rounded-xl border border-border bg-card shadow-sm p-4 text-muted-foreground">
               Aucun bail actif associé à votre compte.
             </p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-xl border border-zinc-200 bg-white p-4">
-                <p className="text-sm text-zinc-500">Logement</p>
+              <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+                <p className="text-sm text-muted-foreground">Logement</p>
                 <p className="mt-1 text-xl font-bold">{dashboard.unit?.code}</p>
-                <p className="text-sm text-zinc-600">{dashboard.unit?.type}</p>
+                <p className="text-sm text-muted-foreground">{dashboard.unit?.type}</p>
               </div>
-              <div className="rounded-xl border border-zinc-200 bg-white p-4">
-                <p className="text-sm text-zinc-500">Loyer mensuel</p>
+              <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+                <p className="text-sm text-muted-foreground">Loyer mensuel</p>
                 <p className="mt-1 text-xl font-bold">
                   {dashboard.lease ? formatCurrency(dashboard.lease.rent_amount) : "—"}
                 </p>
               </div>
-              <div className="rounded-xl border border-zinc-200 bg-white p-4">
-                <p className="text-sm text-zinc-500">Mois en cours</p>
+              <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+                <p className="text-sm text-muted-foreground">Mois en cours</p>
                 <p
                   className={`mt-1 text-xl font-bold ${
                     dashboard.payment_status.current_month_paid
@@ -68,18 +68,18 @@ export default function TenantSpacePage() {
                   {dashboard.payment_status.current_month_paid ? "Payé" : "Non payé"}
                 </p>
               </div>
-              <div className="rounded-xl border border-zinc-200 bg-white p-4">
-                <p className="text-sm text-zinc-500">Total impayé</p>
+              <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+                <p className="text-sm text-muted-foreground">Total impayé</p>
                 <p className="mt-1 text-xl font-bold text-red-600">
                   {formatCurrency(dashboard.payment_status.total_unpaid)}
                 </p>
               </div>
-              <div className="rounded-xl border border-zinc-200 bg-white p-4">
-                <p className="text-sm text-zinc-500">Avis non lus</p>
+              <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+                <p className="text-sm text-muted-foreground">Avis non lus</p>
                 <p className="mt-1 text-xl font-bold">{dashboard.unread_notices}</p>
               </div>
-              <div className="rounded-xl border border-zinc-200 bg-white p-4">
-                <p className="text-sm text-zinc-500">Réparations actives</p>
+              <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+                <p className="text-sm text-muted-foreground">Réparations actives</p>
                 <p className="mt-1 text-xl font-bold">{dashboard.active_repairs}</p>
               </div>
             </div>

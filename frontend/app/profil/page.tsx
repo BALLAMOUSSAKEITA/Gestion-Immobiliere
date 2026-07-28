@@ -65,27 +65,27 @@ function ProfilContent() {
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-10">
       <div>
         <h1 className="text-3xl font-bold">Mon profil</h1>
-        <p className="mt-2 text-zinc-600">Informations de votre compte.</p>
+        <p className="mt-2 text-muted-foreground">Informations de votre compte.</p>
       </div>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-border bg-card shadow-sm p-6 shadow-sm">
         <dl className="grid gap-4 sm:grid-cols-2">
           <div>
-            <dt className="text-sm text-zinc-500">Nom complet</dt>
+            <dt className="text-sm text-muted-foreground">Nom complet</dt>
             <dd className="font-medium">
               {user.first_name} {user.last_name}
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-zinc-500">Email</dt>
+            <dt className="text-sm text-muted-foreground">Email</dt>
             <dd className="font-medium">{user.email}</dd>
           </div>
           <div>
-            <dt className="text-sm text-zinc-500">Téléphone</dt>
+            <dt className="text-sm text-muted-foreground">Téléphone</dt>
             <dd className="font-medium">{user.phone ?? "—"}</dd>
           </div>
           <div>
-            <dt className="text-sm text-zinc-500">Rôle</dt>
+            <dt className="text-sm text-muted-foreground">Rôle</dt>
             <dd className="mt-1">
               <RoleBadge code={user.role.code} label={user.role.label} />
             </dd>
@@ -93,7 +93,7 @@ function ProfilContent() {
         </dl>
       </section>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-border bg-card shadow-sm p-6 shadow-sm">
         <h2 className="text-lg font-semibold">Changer le mot de passe</h2>
         <form onSubmit={onSubmit} className="mt-4 space-y-4">
           <div>

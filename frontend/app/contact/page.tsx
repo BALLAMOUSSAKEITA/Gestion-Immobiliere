@@ -1,11 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import { Mail } from "lucide-react";
 
-import { PublicHeader } from "@/components/layout/public-header";
+import { PageHeader } from "@/components/layout/page-header";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { ApiError, createPublicContact } from "@/lib/api";
 
 export default function ContactPage() {
@@ -33,13 +37,7 @@ export default function ContactPage() {
         body: form.body,
       });
       setSuccess(true);
-      setForm({
-        sender_name: "",
-        sender_email: "",
-        sender_phone: "",
-        subject: "",
-        body: "",
-      });
+      setForm({ sender_name: "", sender_email: "", sender_phone: "", subject: "", body: "" });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Envoi impossible");
     } finally {
@@ -48,75 +46,54 @@ export default function ContactPage() {
   }
 
   return (
-    <>
-      <PublicHeader />
-      <main className="mx-auto flex max-w-xl flex-col gap-6 px-6 py-16">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold">Contact</h1>
-          <p className="mt-2 text-zinc-600">
-            Une question ? Écrivez-nous, nous vous répondrons rapidement.
-          </p>
-        </div>
+    <div className="page-container">
+      <PageHeader
+        title="Contact"
+        description="Une question sur un logement ou nos services ? Écrivez-nous."
+      />
 
+      <div className="mx-auto max-w-xl">
         {success && (
-          <p className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-            Message envoyé avec succès. Merci !
-          </p>
+          <Alert variant="success" className="mb-6">
+            Message envoyé avec succès. Nous vous répondrons rapidement.
+          </Alert>
         )}
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <Alert variant="destructive" className="mb-6">{error}</Alert>}
 
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6">
-          <div>
-            <label className="mb-1 block text-sm font-medium">Nom</label>
-            <Input
-              required
-              value={form.sender_name}
-              onChange={(e) => setForm({ ...form, sender_name: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium">Email</label>
-            <Input
-              required
-              type="email"
-              value={form.sender_email}
-              onChange={(e) => setForm({ ...form, sender_email: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium">Téléphone</label>
-            <Input
-              value={form.sender_phone}
-              onChange={(e) => setForm({ ...form, sender_phone: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium">Sujet</label>
-            <Input
-              required
-              value={form.subject}
-              onChange={(e) => setForm({ ...form, subject: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium">Message</label>
-            <textarea
-              required
-              rows={5}
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
-              value={form.body}
-              onChange={(e) => setForm({ ...form, body: e.target.value })}
-            />
-          </div>
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Envoi…" : "Envoyer"}
-          </Button>
-        </form>
-
-        <Button asChild variant="outline" className="self-center">
-          <Link href="/annonces">Retour aux annonces</Link>
-        </Button>
-      </main>
-    </>
+        <Card>
+          <CardContent className="p-6">
+            <div className="mb-6 flex items-center gap-3 text-primary">
+              <Mail className="h-5 w-5" />
+              <p className="font-medium">Formulaire de contact</p>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Nom</Label>
+                <Input required value={form.sender_name} onChange={(e) => setForm({ ...form, sender_name: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input required type="email" value={form.sender_email} onChange={(e) => setForm({ ...form, sender_email: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Téléphone</Label>
+                <Input value={form.sender_phone} onChange={(e) => setForm({ ...form, sender_phone: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Sujet</Label>
+                <Input required value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Message</Label>
+                <Textarea required rows={5} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} />
+              </div>
+              <Button type="submit" disabled={loading} variant="accent" className="w-full">
+                {loading ? "Envoi…" : "Envoyer le message"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }

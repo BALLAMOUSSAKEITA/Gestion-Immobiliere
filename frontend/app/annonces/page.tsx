@@ -1,15 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Search } from "lucide-react";
 
 import { PublicUnitCard } from "@/components/buildings/public-unit-card";
+import { PageHeader } from "@/components/layout/page-header";
+import { EmptyState } from "@/components/layout/empty-state";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import {
-  ApiError,
-  fetchPublicUnits,
-  type PublicUnitSummary,
-} from "@/lib/api";
+import { Alert } from "@/components/ui/alert";
+import { ApiError, fetchPublicUnits, type PublicUnitSummary } from "@/lib/api";
 
 export default function AnnoncesPage() {
   const [units, setUnits] = useState<PublicUnitSummary[]>([]);
@@ -24,36 +24,33 @@ export default function AnnoncesPage() {
   }, []);
 
   return (
-    <main className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-16">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">Annonces</h1>
-        <p className="mt-2 text-zinc-600">
-          Logements disponibles à la location.
-        </p>
-      </div>
+    <div className="page-container">
+      <PageHeader
+        title="Annonces immobilières"
+        description="Découvrez les logements disponibles à la location."
+        actions={
+          <Button asChild variant="outline">
+            <Link href="/contact">Nous contacter</Link>
+          </Button>
+        }
+      />
 
-      {error && <p className="text-center text-sm text-red-600">{error}</p>}
+      {error && <Alert variant="destructive" className="mb-6">{error}</Alert>}
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {units.map((unit) => (
-          <PublicUnitCard key={unit.id} unit={unit} />
-        ))}
-      </div>
-
-      {units.length === 0 && !error && (
-        <p className="text-center text-zinc-500">
-          Aucune annonce publique pour le moment.
-        </p>
+      {units.length === 0 && !error ? (
+        <EmptyState
+          title="Aucune annonce disponible"
+          description="Revenez bientôt pour découvrir de nouveaux logements."
+          actionLabel="Retour à l'accueil"
+          actionHref="/"
+        />
+      ) : (
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {units.map((unit) => (
+            <PublicUnitCard key={unit.id} unit={unit} />
+          ))}
+        </div>
       )}
-
-      <div className="flex justify-center gap-3">
-        <Button asChild variant="outline">
-          <Link href="/contact">Contact</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/">Retour à l&apos;accueil</Link>
-        </Button>
-      </div>
-    </main>
+    </div>
   );
 }

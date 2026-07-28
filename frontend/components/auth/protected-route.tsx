@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 
 import { useAuth } from "@/contexts/auth-context";
@@ -15,8 +16,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 items-center justify-center py-16 text-zinc-500">
-        Chargement...
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 py-24 text-muted-foreground">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        <p className="text-sm">Chargement…</p>
       </div>
     );
   }

@@ -59,7 +59,7 @@ export function BuildingForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="grid gap-4 rounded-xl border border-zinc-200 bg-white p-6 sm:grid-cols-2"
+      className="grid gap-4 rounded-xl border border-border bg-card shadow-sm p-6 sm:grid-cols-2"
     >
       <Input
         placeholder="Nom de l'immeuble"
@@ -94,7 +94,7 @@ export function BuildingForm({
         onChange={(e) => setForm({ ...form, floor_count: e.target.value })}
       />
       <select
-        className="rounded-md border border-zinc-200 px-3 py-2 text-sm"
+        className="rounded-md border border-border px-3 py-2 text-sm"
         value={form.owner_profile_id}
         onChange={(e) =>
           setForm({ ...form, owner_profile_id: e.target.value })
@@ -108,7 +108,7 @@ export function BuildingForm({
         ))}
       </select>
       <select
-        className="rounded-md border border-zinc-200 px-3 py-2 text-sm sm:col-span-2"
+        className="rounded-md border border-border px-3 py-2 text-sm sm:col-span-2"
         value={form.manager_user_id}
         onChange={(e) =>
           setForm({ ...form, manager_user_id: e.target.value })
@@ -125,7 +125,7 @@ export function BuildingForm({
         placeholder="Observations"
         value={form.observations}
         onChange={(e) => setForm({ ...form, observations: e.target.value })}
-        className="min-h-24 rounded-md border border-zinc-200 px-3 py-2 text-sm sm:col-span-2"
+        className="min-h-24 rounded-md border border-border px-3 py-2 text-sm sm:col-span-2"
       />
       {error && (
         <p className="text-sm text-red-600 sm:col-span-2">{error}</p>
