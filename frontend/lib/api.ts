@@ -527,6 +527,17 @@ export async function updateBuilding(
   );
 }
 
+export async function deleteBuilding(
+  accessToken: string,
+  buildingId: string,
+): Promise<void> {
+  await apiFetch<void>(
+    `/api/v1/buildings/${buildingId}`,
+    { method: "DELETE" },
+    accessToken,
+  );
+}
+
 export async function uploadBuildingPhoto(
   accessToken: string,
   buildingId: string,
@@ -631,6 +642,10 @@ export async function updateUnit(
     { method: "PATCH", body: JSON.stringify(payload) },
     accessToken,
   );
+}
+
+export async function deleteUnit(accessToken: string, unitId: string): Promise<void> {
+  await apiFetch<void>(`/api/v1/units/${unitId}`, { method: "DELETE" }, accessToken);
 }
 
 export async function fetchPublicUnits(

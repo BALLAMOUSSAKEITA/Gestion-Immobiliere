@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-import { DocumentLibrary } from "@/components/documents/document-library";
 import { UnitForm } from "@/components/buildings/unit-form";
 import { UnitStatusBadge } from "@/components/buildings/unit-status-badge";
 import { ImageUploadField } from "@/components/ui/image-upload-field";
@@ -12,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import {
   ApiError,
   createBuildingUnit,
+  deleteBuilding,
+  deleteUnit,
   fetchBuilding,
   fetchBuildingUnits,
   formatCurrency,
@@ -26,14 +27,17 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function BuildingDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const { user } = useAuth();
   const [building, setBuilding] = useState<BuildingDetail | null>(null);
   const [units, setUnits] = useState<UnitSummary[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const canManage =
     user?.role.code === "super_admin" || user?.role.code === "admin_familial";
+  const isSuperAdmin = user?.role.code === "super_admin";
 
   const loadData = useCallback(async () => {
     const token = getAccessToken();
@@ -75,15 +79,47 @@ export default function BuildingDetailPage() {
               {building.quartier ? ` · ${building.quartier}` : ""}
             </p>
           </div>
-          {building.photo_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={`${API_URL}${building.photo_url}`}
-              alt={building.name}
-              className="h-48 w-full max-w-sm rounded-xl border border-border object-cover"
-            />
-          )}
+          <div className="flex flex-col items-start gap-3">
+            {building.photo_url && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`${API_URL}${building.photo_url}`}
+                alt={building.name}
+                className="h-48 w-full max-w-sm rounded-xl border border-border object-cover"
+              />
+            )}
+            {isSuperAdmin && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={async () => {
+                  if (
+                    !window.confirm(
+                      `Supprimer l'immeuble « ${building.name} » ? Cette action est irréversible.`,
+                    )
+                  ) {
+                    return;
+                  }
+                  const token = getAccessToken();
+                  if (!token) return;
+                  setActionError(null);
+                  try {
+                    await deleteBuilding(token, building.id);
+                    router.push("/dashboard/immeubles");
+                  } catch (err) {
+                    setActionError(
+                      err instanceof ApiError ? err.message : "Suppression impossible",
+                    );
+                  }
+                }}
+              >
+                Supprimer l&apos;immeuble
+              </Button>
+            )}
+          </div>
         </div>
+
+        {actionError && <p className="text-sm text-red-600">{actionError}</p>}
 
         {canManage && (
           <ImageUploadField
@@ -115,12 +151,6 @@ export default function BuildingDetailPage() {
           </p>
         </div>
 
-        <DocumentLibrary
-          entityType="building"
-          entityId={building.id}
-          canUpload={canManage}
-        />
-
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Logements</h2>
           {canManage && (
@@ -150,7 +180,7 @@ export default function BuildingDetailPage() {
                 <th className="px-4 py-3">Numéro</th>
                 <th className="px-4 py-3">Loyer</th>
                 <th className="px-4 py-3">Statut</th>
-                <th className="px-4 py-3"></th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -163,12 +193,44 @@ export default function BuildingDetailPage() {
                     <UnitStatusBadge status={unit.status} />
                   </td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/dashboard/logements/${unit.id}`}
-                      className="text-sm font-medium text-foreground underline"
-                    >
-                      Voir
-                    </Link>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/dashboard/logements/${unit.id}`}
+                        className="text-sm font-medium text-foreground underline"
+                      >
+                        Voir
+                      </Link>
+                      {isSuperAdmin && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={async () => {
+                            if (
+                              !window.confirm(
+                                `Supprimer le logement ${unit.code} ? Cette action est irréversible.`,
+                              )
+                            ) {
+                              return;
+                            }
+                            const token = getAccessToken();
+                            if (!token) return;
+                            setActionError(null);
+                            try {
+                              await deleteUnit(token, unit.id);
+                              await loadData();
+                            } catch (err) {
+                              setActionError(
+                                err instanceof ApiError
+                                  ? err.message
+                                  : "Suppression impossible",
+                              );
+                            }
+                          }}
+                        >
+                          Supprimer
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
