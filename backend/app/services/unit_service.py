@@ -20,11 +20,14 @@ from app.schemas.unit import (
     UnitHistoryItem,
     UnitListResponse,
     UnitPhotoResponse,
+    UnitRelease,
     UnitSummary,
     UnitUpdate,
 )
+from app.schemas.lease import LeaseDetail
 from app.services.building_service import BuildingAccessService, BuildingService
 from app.services.code_generator_service import CodeGeneratorService
+from app.services.lease_service import LeaseService
 from app.services.user_service import PermissionService
 
 
@@ -166,6 +169,11 @@ class UnitService:
         unit.is_active = False
         self.db.commit()
         BuildingService(self.db).recalculate_unit_counts(unit.building_id)
+
+    def release_unit(self, actor: User, unit_id: UUID, payload: UnitRelease) -> LeaseDetail:
+        unit = self._get_or_404(unit_id)
+        BuildingAccessService.ensure_building_access(self.db, actor, unit.building_id)
+        return LeaseService(self.db).release_unit(actor, unit_id, payload.termination_reason)
 
     def get_history(self, actor: User, unit_id: UUID) -> list[UnitHistoryItem]:
         self._ensure_read_access(actor)

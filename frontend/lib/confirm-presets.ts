@@ -16,3 +16,16 @@ export function modifyConfirm(description: string, confirmLabel = "Confirmer"): 
     confirmLabel,
   };
 }
+
+export function dangerConfirm(
+  title: string,
+  description: string,
+  confirmLabel = "Confirmer",
+): ConfirmOptions {
+  return {
+    title,
+    description,
+    confirmLabel,
+    variant: "destructive",
+  };
+}

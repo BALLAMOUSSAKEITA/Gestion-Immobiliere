@@ -26,6 +26,14 @@ class UnitUpdate(BaseModel):
     is_active: bool | None = None
 
 
+class UnitRelease(BaseModel):
+    termination_reason: str = Field(
+        default="Libération du logement",
+        min_length=1,
+        max_length=500,
+    )
+
+
 class UnitPhotoResponse(BaseModel):
     id: str
     url: str

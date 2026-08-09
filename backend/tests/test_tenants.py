@@ -95,6 +95,12 @@ def super_admin_headers(client: TestClient) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
+@pytest.fixture()
+def admin_headers(client: TestClient) -> dict[str, str]:
+    token = _login(client, "gestionnaire@gestion-immo.local", "Agent123!")
+    return {"Authorization": f"Bearer {token}"}
+
+
 def test_create_tenant(client: TestClient, super_admin_headers: dict[str, str]) -> None:
     response = client.post(
         "/api/v1/tenants",
@@ -168,6 +174,47 @@ def test_terminate_lease_frees_unit(
     )
     assert terminate_response.status_code == 200
     assert terminate_response.json()["status"] == "terminated"
+
+    unit_response = client.get(
+        f"/api/v1/units/{free_unit.id}",
+        headers=super_admin_headers,
+    )
+    assert unit_response.json()["status"] == "free"
+
+
+def test_release_unit_terminates_lease_and_frees_unit(
+    client: TestClient,
+    super_admin_headers: dict[str, str],
+    admin_headers: dict[str, str],
+    sample_tenant: Tenant,
+    free_unit: Unit,
+) -> None:
+    create_response = client.post(
+        "/api/v1/leases",
+        headers=super_admin_headers,
+        json={
+            "tenant_id": str(sample_tenant.id),
+            "unit_id": str(free_unit.id),
+            "start_date": "2026-08-01",
+            "rent_amount": "250000.00",
+        },
+    )
+    assert create_response.status_code == 201
+
+    forbidden = client.post(
+        f"/api/v1/units/{free_unit.id}/release",
+        headers=admin_headers,
+        json={"termination_reason": "Libération"},
+    )
+    assert forbidden.status_code == 403
+
+    release_response = client.post(
+        f"/api/v1/units/{free_unit.id}/release",
+        headers=super_admin_headers,
+        json={"termination_reason": "Libération du logement"},
+    )
+    assert release_response.status_code == 200
+    assert release_response.json()["status"] == "terminated"
 
     unit_response = client.get(
         f"/api/v1/units/{free_unit.id}",

@@ -219,6 +219,49 @@ class LeaseService:
         self.db.commit()
         return self._to_detail(self._get_or_404(lease_id))
 
+    def release_unit(
+        self, actor: User, unit_id: UUID, termination_reason: str
+    ) -> LeaseDetail:
+        if actor.role.code != "super_admin":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Accès non autorisé",
+            )
+
+        unit = (
+            self.db.query(Unit)
+            .filter(Unit.id == unit_id, Unit.is_active.is_(True))
+            .first()
+        )
+        if unit is None:
+            raise HTTPException(status_code=404, detail="Logement introuvable")
+
+        if unit.status not in (UnitStatus.occupied, UnitStatus.reserved):
+            raise HTTPException(
+                status_code=400,
+                detail="Seul un logement occupé ou réservé peut être libéré",
+            )
+
+        lease = (
+            self.db.query(Lease)
+            .filter(Lease.unit_id == unit_id, Lease.status == LeaseStatus.active)
+            .first()
+        )
+        if lease is None:
+            raise HTTPException(
+                status_code=400,
+                detail="Aucun bail actif n'est associé à ce logement",
+            )
+
+        return self.terminate_lease(
+            actor,
+            lease.id,
+            LeaseTerminate(
+                termination_date=date.today(),
+                termination_reason=termination_reason.strip(),
+            ),
+        )
+
     def update_rent(
         self, actor: User, lease_id: UUID, payload: LeaseRentUpdate
     ) -> LeaseDetail:

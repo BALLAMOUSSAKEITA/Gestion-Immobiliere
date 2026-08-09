@@ -8,11 +8,13 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.models.enums import UnitStatus, UnitType
 from app.models.user import User
+from app.schemas.lease import LeaseDetail
 from app.schemas.unit import (
     UnitDetail,
     UnitHistoryItem,
     UnitListResponse,
     UnitPhotoResponse,
+    UnitRelease,
     UnitUpdate,
 )
 from app.services.unit_service import UnitService
@@ -70,6 +72,16 @@ def delete_unit(
     db: Annotated[Session, Depends(get_db)],
 ) -> None:
     UnitService(db).deactivate_unit(current_user, unit_id)
+
+
+@router.post("/{unit_id}/release", response_model=LeaseDetail)
+def release_unit(
+    unit_id: UUID,
+    payload: UnitRelease,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> LeaseDetail:
+    return UnitService(db).release_unit(current_user, unit_id, payload)
 
 
 @router.post("/{unit_id}/photos", response_model=UnitPhotoResponse)

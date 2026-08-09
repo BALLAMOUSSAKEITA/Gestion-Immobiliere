@@ -14,6 +14,7 @@ import {
   fetchUnit,
   fetchUnitHistory,
   formatCurrency,
+  releaseUnit,
   uploadUnitPhoto,
   UNIT_TYPE_LABELS,
   type UnitDetail,
@@ -22,7 +23,7 @@ import {
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
 import { useConfirm } from "@/contexts/confirm-context";
-import { deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
+import { dangerConfirm, deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -38,12 +39,18 @@ export default function UnitDetailPage() {
     user?.role.code === "super_admin" ||
     user?.role.code === "admin_familial" ||
     user?.role.code === "gestionnaire";
+  const isSuperAdmin = user?.role.code === "super_admin";
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const reloadUnit = async () => {
     const token = getAccessToken();
     if (!token || !params.id) return;
-    const data = await fetchUnit(token, params.id);
+    const [data, historyData] = await Promise.all([
+      fetchUnit(token, params.id),
+      fetchUnitHistory(token, params.id).catch(() => []),
+    ]);
     setUnit(data);
+    setHistory(historyData);
   };
 
   useEffect(() => {
@@ -85,7 +92,42 @@ export default function UnitDetailPage() {
                   Annonce publique
                 </span>
               )}
+              {isSuperAdmin &&
+                (unit.status === "occupied" || unit.status === "reserved") && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={async () => {
+                      if (
+                        !(await confirm(
+                          dangerConfirm(
+                            "Libérer le logement",
+                            `Cette action résilie immédiatement le bail actif et libère le logement ${unit.code}. Cette opération est irréversible.`,
+                            "Libérer le logement",
+                          ),
+                        ))
+                      ) {
+                        return;
+                      }
+                      const token = getAccessToken();
+                      if (!token) return;
+                      setActionError(null);
+                      try {
+                        await releaseUnit(token, unit.id);
+                        await reloadUnit();
+                      } catch (err) {
+                        setActionError(
+                          err instanceof ApiError ? err.message : "Libération impossible",
+                        );
+                      }
+                    }}
+                  >
+                    Libérer le logement
+                  </Button>
+                )}
             </div>
+
+            {actionError && <p className="text-sm text-red-600">{actionError}</p>}
 
             {unit.description && (
               <p className="rounded-xl border border-border bg-card shadow-sm p-4 text-foreground">

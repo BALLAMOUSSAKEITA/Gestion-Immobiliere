@@ -16,6 +16,7 @@ import {
   fetchBuilding,
   fetchBuildingUnits,
   formatCurrency,
+  releaseUnit,
   uploadBuildingPhoto,
   type BuildingDetail,
   type UnitSummary,
@@ -23,7 +24,7 @@ import {
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
 import { useConfirm } from "@/contexts/confirm-context";
-import { deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
+import { deleteConfirm, dangerConfirm, modifyConfirm } from "@/lib/confirm-presets";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -202,6 +203,41 @@ export default function BuildingDetailPage() {
                       >
                         Voir
                       </Link>
+                      {isSuperAdmin &&
+                        (unit.status === "occupied" || unit.status === "reserved") && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={async () => {
+                              if (
+                                !(await confirm(
+                                  dangerConfirm(
+                                    "Libérer le logement",
+                                    `Cette action résilie immédiatement le bail actif et libère le logement ${unit.code}. Cette opération est irréversible.`,
+                                    "Libérer le logement",
+                                  ),
+                                ))
+                              ) {
+                                return;
+                              }
+                              const token = getAccessToken();
+                              if (!token) return;
+                              setActionError(null);
+                              try {
+                                await releaseUnit(token, unit.id);
+                                await loadData();
+                              } catch (err) {
+                                setActionError(
+                                  err instanceof ApiError
+                                    ? err.message
+                                    : "Libération impossible",
+                                );
+                              }
+                            }}
+                          >
+                            Libérer
+                          </Button>
+                        )}
                       {isSuperAdmin && (
                         <Button
                           variant="destructive"

@@ -648,6 +648,18 @@ export async function deleteUnit(accessToken: string, unitId: string): Promise<v
   await apiFetch<void>(`/api/v1/units/${unitId}`, { method: "DELETE" }, accessToken);
 }
 
+export async function releaseUnit(
+  accessToken: string,
+  unitId: string,
+  payload: { termination_reason?: string } = {},
+): Promise<LeaseDetail> {
+  return apiFetch<LeaseDetail>(
+    `/api/v1/units/${unitId}/release`,
+    { method: "POST", body: JSON.stringify(payload) },
+    accessToken,
+  );
+}
+
 export async function fetchPublicUnits(
   params: Record<string, string | number | undefined> = {},
 ): Promise<PublicUnitListResponse> {
