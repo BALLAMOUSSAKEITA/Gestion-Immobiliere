@@ -17,10 +17,13 @@ import {
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 export default function LeaseDetailPage() {
   const params = useParams<{ id: string }>();
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [lease, setLease] = useState<LeaseDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showTerminate, setShowTerminate] = useState(false);
@@ -48,6 +51,7 @@ export default function LeaseDetailPage() {
   const handleTerminate = async () => {
     const token = getAccessToken();
     if (!token || !lease) return;
+    if (!(await confirm(modifyConfirm("Terminer ce bail ?")))) return;
     setError(null);
     try {
       await terminateLease(token, lease.id, {

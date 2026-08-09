@@ -10,6 +10,8 @@ import {
   type VisitRequestSummary,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "En attente",
@@ -19,6 +21,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function VisitRequestsPage() {
+  const confirm = useConfirm();
   const [items, setItems] = useState<VisitRequestSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,6 +41,13 @@ export default function VisitRequestsPage() {
   async function handleStatusChange(id: string, status: string) {
     const token = getAccessToken();
     if (!token) return;
+    const label =
+      status === "confirmed"
+        ? "Confirmer cette demande de visite ?"
+        : status === "cancelled"
+          ? "Annuler cette demande de visite ?"
+          : "Marquer cette visite comme terminée ?";
+    if (!(await confirm(modifyConfirm(label)))) return;
     await updateVisitRequest(token, id, { status });
     await load();
   }

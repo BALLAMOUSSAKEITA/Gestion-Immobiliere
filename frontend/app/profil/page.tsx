@@ -9,7 +9,9 @@ import { RoleBadge } from "@/components/auth/role-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
 import { ApiError } from "@/lib/api";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 const passwordSchema = z
   .object({
@@ -30,6 +32,7 @@ type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 function ProfilContent() {
   const { user, changePassword } = useAuth();
+  const confirm = useConfirm();
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const {
@@ -46,6 +49,7 @@ function ProfilContent() {
   const onSubmit = handleSubmit(async (values) => {
     setMessage(null);
     setError(null);
+    if (!(await confirm(modifyConfirm("Modifier votre mot de passe ?")))) return;
     try {
       await changePassword(values.current_password, values.new_password);
       setMessage("Mot de passe modifié. Veuillez vous reconnecter.");

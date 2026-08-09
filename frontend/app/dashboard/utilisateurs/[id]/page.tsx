@@ -17,10 +17,13 @@ import {
   type UserDetail,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useConfirm } from "@/contexts/confirm-context";
+import { deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
 
 export default function UserDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const confirm = useConfirm();
   const [user, setUser] = useState<UserDetail | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +41,7 @@ export default function UserDetailPage() {
   const handleDeactivate = async () => {
     const token = getAccessToken();
     if (!token || !user) return;
-    if (!confirm("Désactiver cet utilisateur ?")) return;
+    if (!(await confirm(deleteConfirm("cet utilisateur")))) return;
     await deactivateUser(token, user.id);
     router.push("/dashboard/utilisateurs");
   };
@@ -46,6 +49,16 @@ export default function UserDetailPage() {
   const handleResetPassword = async () => {
     const token = getAccessToken();
     if (!token || !user) return;
+    if (
+      !(await confirm(
+        modifyConfirm(
+          `Réinitialiser le mot de passe de ${user.first_name} ${user.last_name} ?`,
+          "Réinitialiser",
+        ),
+      ))
+    ) {
+      return;
+    }
     const result = await resetUserPassword(token, user.id);
     setMessage(`Mot de passe temporaire : ${result.temporary_password}`);
   };
@@ -98,6 +111,13 @@ export default function UserDetailPage() {
           onSubmit={async (payload) => {
             const token = getAccessToken();
             if (!token) return;
+            if (
+              !(await confirm(
+                modifyConfirm("Enregistrer les modifications de cet utilisateur ?"),
+              ))
+            ) {
+              return;
+            }
             const updated = await updateUser(token, user.id, payload);
             setUser(updated);
             setMessage("Utilisateur mis à jour");

@@ -15,6 +15,8 @@ import {
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { cn } from "@/lib/utils";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 type NotificationBellProps = {
   notificationsPath?: string;
@@ -23,6 +25,7 @@ type NotificationBellProps = {
 export function NotificationBell({
   notificationsPath = "/dashboard/notifications",
 }: NotificationBellProps) {
+  const confirm = useConfirm();
   const [count, setCount] = useState(0);
   const [items, setItems] = useState<NotificationSummary[]>([]);
   const [open, setOpen] = useState(false);
@@ -60,6 +63,7 @@ export function NotificationBell({
   async function handleMarkRead(id: string) {
     const token = getAccessToken();
     if (!token) return;
+    if (!(await confirm(modifyConfirm("Marquer cette notification comme lue ?")))) return;
     try {
       await markNotificationRead(token, id);
       await load();
@@ -71,6 +75,7 @@ export function NotificationBell({
   async function handleMarkAllRead() {
     const token = getAccessToken();
     if (!token) return;
+    if (!(await confirm(modifyConfirm("Marquer toutes les notifications comme lues ?")))) return;
     await markAllNotificationsRead(token);
     await load();
   }

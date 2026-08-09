@@ -18,10 +18,13 @@ import {
   type ApprovalRequestDetail,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 export default function ValidationDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const confirm = useConfirm();
   const [request, setRequest] = useState<ApprovalRequestDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [comment, setComment] = useState("");
@@ -42,6 +45,7 @@ export default function ValidationDetailPage() {
   async function handleApprove() {
     const token = getAccessToken();
     if (!token || !params.id) return;
+    if (!(await confirm(modifyConfirm("Approuver et exécuter cette demande ?")))) return;
     setProcessing(true);
     setError(null);
     try {
@@ -60,6 +64,7 @@ export default function ValidationDetailPage() {
       setError("Un commentaire est obligatoire pour rejeter.");
       return;
     }
+    if (!(await confirm(modifyConfirm("Rejeter cette demande de validation ?")))) return;
     setProcessing(true);
     setError(null);
     try {

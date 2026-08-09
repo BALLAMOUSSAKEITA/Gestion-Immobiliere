@@ -16,6 +16,8 @@ import {
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
+import { deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -23,6 +25,7 @@ export default function DocumentDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [document, setDocument] = useState<DocumentDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
@@ -83,6 +86,7 @@ export default function DocumentDetailPage() {
   async function handleShare() {
     const token = getAccessToken();
     if (!token || !params.id) return;
+    if (!(await confirm(modifyConfirm("Créer un lien de partage pour ce document ?")))) return;
     const share = await shareDocument(token, params.id);
     setShareUrl(`${window.location.origin}${share.share_url}`);
   }
@@ -90,7 +94,7 @@ export default function DocumentDetailPage() {
   async function handleDirectDelete() {
     const token = getAccessToken();
     if (!token || !params.id) return;
-    if (!window.confirm("Supprimer définitivement ce document ?")) return;
+    if (!(await confirm(deleteConfirm("ce document")))) return;
     setError(null);
     try {
       await deleteDocumentWithApproval(token, params.id);

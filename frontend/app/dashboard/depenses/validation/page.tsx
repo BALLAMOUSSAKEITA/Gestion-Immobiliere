@@ -14,8 +14,11 @@ import {
   type ExpenseSummary,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useConfirm } from "@/contexts/confirm-context";
+import { deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
 
 export default function ExpenseValidationPage() {
+  const confirm = useConfirm();
   const [items, setItems] = useState<ExpenseSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -39,6 +42,7 @@ export default function ExpenseValidationPage() {
   async function handleValidate(expenseId: string) {
     const token = getAccessToken();
     if (!token) return;
+    if (!(await confirm(modifyConfirm("Valider cette dépense ?")))) return;
     setProcessingId(expenseId);
     setError(null);
     try {
@@ -54,6 +58,7 @@ export default function ExpenseValidationPage() {
   async function handleReject(expenseId: string) {
     const token = getAccessToken();
     if (!token) return;
+    if (!(await confirm(modifyConfirm("Rejeter cette dépense ?")))) return;
     setProcessingId(expenseId);
     setError(null);
     try {

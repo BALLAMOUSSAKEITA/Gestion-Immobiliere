@@ -18,10 +18,13 @@ import {
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 export default function TenantDetailPage() {
   const params = useParams<{ id: string }>();
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [tenant, setTenant] = useState<TenantDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [accountEmail, setAccountEmail] = useState("");
@@ -45,6 +48,9 @@ export default function TenantDetailPage() {
   const handleCreateAccount = async () => {
     const token = getAccessToken();
     if (!token || !tenant) return;
+    if (!(await confirm(modifyConfirm("Créer le compte espace locataire pour ce locataire ?")))) {
+      return;
+    }
     setError(null);
     try {
       const result = await createTenantAccount(token, tenant.id, accountEmail);

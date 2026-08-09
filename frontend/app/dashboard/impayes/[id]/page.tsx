@@ -15,10 +15,13 @@ import {
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 export default function OverdueDetailPage() {
   const params = useParams<{ id: string }>();
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [item, setItem] = useState<OverdueItem | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState("");
@@ -52,6 +55,7 @@ export default function OverdueDetailPage() {
     if (!item) return;
     const token = getAccessToken();
     if (!token) return;
+    if (!(await confirm(modifyConfirm("Envoyer cette relance au locataire ?")))) return;
     setSending(true);
     setError(null);
     try {

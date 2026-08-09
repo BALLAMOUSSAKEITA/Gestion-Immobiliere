@@ -10,8 +10,11 @@ import {
   type NotificationPreferenceItem,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 export default function NotificationPreferencesPage() {
+  const confirm = useConfirm();
   const [items, setItems] = useState<NotificationPreferenceItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -29,6 +32,7 @@ export default function NotificationPreferencesPage() {
   async function handleSave() {
     const token = getAccessToken();
     if (!token) return;
+    if (!(await confirm(modifyConfirm("Enregistrer vos préférences de notification ?")))) return;
     setSaved(false);
     const data = await updateNotificationPreferences(
       token,

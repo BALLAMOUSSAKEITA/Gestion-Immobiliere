@@ -23,6 +23,8 @@ import {
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
+import { deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
 
 const NEXT_STATUS: Partial<Record<RepairStatus, RepairStatus>> = {
   new: "under_review",
@@ -34,6 +36,7 @@ const NEXT_STATUS: Partial<Record<RepairStatus, RepairStatus>> = {
 export default function RepairDetailPage() {
   const params = useParams<{ id: string }>();
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [repair, setRepair] = useState<RepairDetail | null>(null);
   const [history, setHistory] = useState<RepairHistoryItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -69,6 +72,11 @@ export default function RepairDetailPage() {
     if (!next) return;
     const token = getAccessToken();
     if (!token) return;
+    const label =
+      next === "completed"
+        ? "Clôturer cette réparation ?"
+        : `Passer la réparation au statut « ${REPAIR_STATUS_LABELS[next]} » ?`;
+    if (!(await confirm(modifyConfirm(label)))) return;
     setProcessing(true);
     try {
       if (next === "completed") {
@@ -96,6 +104,7 @@ export default function RepairDetailPage() {
     if (!repair || !cancelReason.trim()) return;
     const token = getAccessToken();
     if (!token) return;
+    if (!(await confirm(deleteConfirm("cette réparation")))) return;
     setProcessing(true);
     try {
       await cancelRepair(token, repair.id, cancelReason.trim());
@@ -110,6 +119,7 @@ export default function RepairDetailPage() {
   async function handleUpload(file: File) {
     const token = getAccessToken();
     if (!token || !params.id) return;
+    if (!(await confirm(modifyConfirm("Ajouter une pièce jointe à cette réparation ?")))) return;
     setProcessing(true);
     try {
       const updated = await uploadRepairAttachment(token, params.id, file);

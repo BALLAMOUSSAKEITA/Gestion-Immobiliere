@@ -21,12 +21,15 @@ import {
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
+import { deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function UnitDetailPage() {
   const params = useParams<{ id: string }>();
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [unit, setUnit] = useState<UnitDetail | null>(null);
   const [history, setHistory] = useState<UnitHistoryItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -111,6 +114,7 @@ export default function UnitDetailPage() {
                           onClick={async () => {
                             const token = getAccessToken();
                             if (!token) return;
+                            if (!(await confirm(deleteConfirm("cette photo")))) return;
                             await deleteUnitPhoto(token, unit.id, photo.id);
                             await reloadUnit();
                           }}
@@ -136,6 +140,17 @@ export default function UnitDetailPage() {
                   onUpload={async (files) => {
                     const token = getAccessToken();
                     if (!token) return;
+                    if (
+                      !(await confirm(
+                        modifyConfirm(
+                          files.length > 1
+                            ? `Ajouter ${files.length} photos au logement ?`
+                            : "Ajouter une photo au logement ?",
+                        ),
+                      ))
+                    ) {
+                      return;
+                    }
                     for (const file of files) {
                       await uploadUnitPhoto(token, unit.id, file);
                     }

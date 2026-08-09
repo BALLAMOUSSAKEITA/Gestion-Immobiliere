@@ -14,10 +14,13 @@ import {
   type ReceiptDetail,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function ReceiptDetailPage() {
+  const confirm = useConfirm();
   const params = useParams<{ id: string }>();
   const [receipt, setReceipt] = useState<ReceiptDetail | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -48,6 +51,7 @@ export default function ReceiptDetailPage() {
   const handleSendEmail = async () => {
     const token = getAccessToken();
     if (!token || !receipt) return;
+    if (!(await confirm(modifyConfirm("Envoyer ce reçu par email ?")))) return;
     try {
       const result = await sendReceiptEmail(token, receipt.id);
       setMessage(result.message);
@@ -59,6 +63,7 @@ export default function ReceiptDetailPage() {
   const handleSendWhatsApp = async () => {
     const token = getAccessToken();
     if (!token || !receipt) return;
+    if (!(await confirm(modifyConfirm("Ouvrir WhatsApp pour envoyer ce reçu ?")))) return;
     try {
       const result = await getReceiptWhatsAppLink(token, receipt.id);
       window.open(result.url, "_blank", "noopener,noreferrer");

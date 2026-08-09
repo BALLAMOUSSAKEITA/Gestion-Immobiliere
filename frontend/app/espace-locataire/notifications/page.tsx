@@ -11,8 +11,11 @@ import {
   type NotificationSummary,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 export default function TenantNotificationsPage() {
+  const confirm = useConfirm();
   const [items, setItems] = useState<NotificationSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +39,18 @@ export default function TenantNotificationsPage() {
           <h1 className="text-3xl font-bold">Notifications</h1>
           <p className="mt-2 text-muted-foreground">Vos alertes et rappels.</p>
         </div>
-        <Button variant="outline" onClick={() => markAllNotificationsRead(getAccessToken()!).then(load)}>
+        <Button
+          variant="outline"
+          onClick={async () => {
+            const token = getAccessToken();
+            if (!token) return;
+            if (!(await confirm(modifyConfirm("Marquer toutes les notifications comme lues ?")))) {
+              return;
+            }
+            await markAllNotificationsRead(token);
+            await load();
+          }}
+        >
           Tout marquer lu
         </Button>
       </div>
@@ -60,10 +74,14 @@ export default function TenantNotificationsPage() {
                 <Button
                   variant="outline"
                   className="mt-3"
-                  onClick={() => {
+                  onClick={async () => {
                     const token = getAccessToken();
                     if (!token) return;
-                    markNotificationRead(token, item.id).then(load);
+                    if (!(await confirm(modifyConfirm("Marquer cette notification comme lue ?")))) {
+                      return;
+                    }
+                    await markNotificationRead(token, item.id);
+                    await load();
                   }}
                 >
                   Marquer lu

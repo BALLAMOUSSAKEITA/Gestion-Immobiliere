@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ApiError, createApprovalRequest } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 type RequestApprovalModalProps = {
   open: boolean;
@@ -26,6 +28,7 @@ export function RequestApprovalModal({
   entityId,
   title = "Demander une validation",
 }: RequestApprovalModalProps) {
+  const confirm = useConfirm();
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -36,6 +39,7 @@ export function RequestApprovalModal({
     event.preventDefault();
     const token = getAccessToken();
     if (!token || !reason.trim()) return;
+    if (!(await confirm(modifyConfirm("Soumettre cette demande de validation ?")))) return;
     setSubmitting(true);
     setError(null);
     try {

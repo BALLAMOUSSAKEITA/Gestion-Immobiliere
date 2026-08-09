@@ -16,6 +16,8 @@ import {
   type DocumentTypeItem,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 type DocumentLibraryProps = {
   entityType: DocumentEntityType;
@@ -30,6 +32,7 @@ export function DocumentLibrary({
   canUpload = false,
   title = "Documents",
 }: DocumentLibraryProps) {
+  const confirm = useConfirm();
   const [items, setItems] = useState<DocumentSummary[]>([]);
   const [types, setTypes] = useState<DocumentTypeItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +69,7 @@ export function DocumentLibrary({
     event.preventDefault();
     const token = getAccessToken();
     if (!token || !file || !typeId || !uploadTitle.trim()) return;
+    if (!(await confirm(modifyConfirm("Ajouter ce document ?")))) return;
     setUploading(true);
     setError(null);
     try {

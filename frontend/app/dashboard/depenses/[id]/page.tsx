@@ -16,10 +16,13 @@ import {
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 export default function ExpenseDetailPage() {
   const params = useParams<{ id: string }>();
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [expense, setExpense] = useState<ExpenseDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -44,6 +47,7 @@ export default function ExpenseDetailPage() {
   async function handleUpload(file: File) {
     const token = getAccessToken();
     if (!token || !params.id) return;
+    if (!(await confirm(modifyConfirm("Joindre ce justificatif à la dépense ?")))) return;
     setUploading(true);
     setError(null);
     try {

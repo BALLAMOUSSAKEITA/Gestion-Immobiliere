@@ -14,9 +14,12 @@ import {
   type PermissionItem,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 export default function UserPermissionsPage() {
   const params = useParams<{ id: string }>();
+  const confirm = useConfirm();
   const [permissions, setPermissions] = useState<PermissionItem[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +47,7 @@ export default function UserPermissionsPage() {
   const handleSave = async () => {
     const token = getAccessToken();
     if (!token || !params.id) return;
+    if (!(await confirm(modifyConfirm("Enregistrer les permissions modifiées ?")))) return;
     setError(null);
     try {
       const updated = await updateUserPermissions(

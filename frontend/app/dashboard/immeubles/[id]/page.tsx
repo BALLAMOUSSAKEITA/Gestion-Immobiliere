@@ -22,6 +22,8 @@ import {
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
+import { deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -29,6 +31,7 @@ export default function BuildingDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [building, setBuilding] = useState<BuildingDetail | null>(null);
   const [units, setUnits] = useState<UnitSummary[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -93,11 +96,7 @@ export default function BuildingDetailPage() {
                 variant="destructive"
                 size="sm"
                 onClick={async () => {
-                  if (
-                    !window.confirm(
-                      `Supprimer l'immeuble « ${building.name} » ? Cette action est irréversible.`,
-                    )
-                  ) {
+                  if (!(await confirm(deleteConfirm(`l'immeuble « ${building.name} »`)))) {
                     return;
                   }
                   const token = getAccessToken();
@@ -128,6 +127,9 @@ export default function BuildingDetailPage() {
             onUpload={async (files) => {
               const token = getAccessToken();
               if (!token || !files[0]) return;
+              if (!(await confirm(modifyConfirm("Mettre à jour la photo de l'immeuble ?")))) {
+                return;
+              }
               const updated = await uploadBuildingPhoto(token, building.id, files[0]);
               setBuilding(updated);
             }}
@@ -205,11 +207,7 @@ export default function BuildingDetailPage() {
                           variant="destructive"
                           size="sm"
                           onClick={async () => {
-                            if (
-                              !window.confirm(
-                                `Supprimer le logement ${unit.code} ? Cette action est irréversible.`,
-                              )
-                            ) {
+                            if (!(await confirm(deleteConfirm(`le logement ${unit.code}`)))) {
                               return;
                             }
                             const token = getAccessToken();

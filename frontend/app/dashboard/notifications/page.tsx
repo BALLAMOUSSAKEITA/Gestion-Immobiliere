@@ -11,8 +11,11 @@ import {
   type NotificationSummary,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useConfirm } from "@/contexts/confirm-context";
+import { modifyConfirm } from "@/lib/confirm-presets";
 
 export default function NotificationsPage() {
+  const confirm = useConfirm();
   const [items, setItems] = useState<NotificationSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,6 +35,7 @@ export default function NotificationsPage() {
   async function handleMarkRead(id: string) {
     const token = getAccessToken();
     if (!token) return;
+    if (!(await confirm(modifyConfirm("Marquer cette notification comme lue ?")))) return;
     await markNotificationRead(token, id);
     await load();
   }
@@ -39,6 +43,7 @@ export default function NotificationsPage() {
   async function handleMarkAll() {
     const token = getAccessToken();
     if (!token) return;
+    if (!(await confirm(modifyConfirm("Marquer toutes les notifications comme lues ?")))) return;
     await markAllNotificationsRead(token);
     await load();
   }
