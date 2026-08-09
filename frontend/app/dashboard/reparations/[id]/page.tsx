@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { RepairStatusBadge } from "@/components/repairs/repair-status-badge";
 import { UrgencyBadge } from "@/components/repairs/urgency-badge";
 import { Button } from "@/components/ui/button";
+import { FileInput } from "@/components/ui/file-input";
 import {
   ApiError,
   cancelRepair,
@@ -43,6 +44,7 @@ export default function RepairDetailPage() {
   const [finalCost, setFinalCost] = useState("");
   const [cancelReason, setCancelReason] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [fileInputKey, setFileInputKey] = useState(0);
 
   const canManage =
     user?.role.code === "super_admin" ||
@@ -124,6 +126,7 @@ export default function RepairDetailPage() {
     try {
       const updated = await uploadRepairAttachment(token, params.id, file);
       setRepair(updated);
+      setFileInputKey((key) => key + 1);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Upload impossible");
     } finally {
@@ -251,15 +254,17 @@ export default function RepairDetailPage() {
               {(canManage || user?.role.code === "locataire") &&
                 repair.status !== "completed" &&
                 repair.status !== "cancelled" && (
-                  <input
-                    type="file"
+                  <FileInput
+                    key={fileInputKey}
+                    className="mt-4"
                     accept=".pdf,.jpg,.jpeg,.png,.webp,.mp4,.mov"
                     disabled={processing}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
+                    hint="PDF, image ou vidéo — max. 10 Mo"
+                    label={processing ? "Envoi en cours…" : "Ajouter une pièce jointe"}
+                    onChange={(files) => {
+                      const file = files[0];
                       if (file) void handleUpload(file);
                     }}
-                    className="mt-4 text-sm"
                   />
                 )}
             </div>

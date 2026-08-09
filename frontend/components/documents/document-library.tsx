@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { FileInput } from "@/components/ui/file-input";
 import { Input } from "@/components/ui/input";
 import {
   ApiError,
@@ -116,14 +117,16 @@ export function DocumentLibrary({
               required
             />
           </div>
-          <input
-            type="file"
+          <FileInput
             accept=".pdf,.jpg,.jpeg,.png,.webp,.mp4"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             required
-            className="text-sm"
+            disabled={uploading}
+            value={file}
+            hint="PDF, images ou vidéo — max. 10 Mo"
+            label="Choisir un document"
+            onChange={(files) => setFile(files[0] ?? null)}
           />
-          <Button type="submit" disabled={uploading}>
+          <Button type="submit" disabled={uploading || !file}>
             {uploading ? "Envoi…" : "Ajouter le document"}
           </Button>
         </form>

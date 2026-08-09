@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { ExpenseStatusBadge } from "@/components/expenses/expense-status-badge";
 import { Button } from "@/components/ui/button";
+import { FileInput } from "@/components/ui/file-input";
 import {
   ApiError,
   fetchExpense,
@@ -131,16 +132,16 @@ export default function ExpenseDetailPage() {
               </div>
             ) : canManage && expense.status !== "validated" && expense.status !== "rejected" ? (
               <div className="rounded-xl border border-border bg-card shadow-sm p-6">
-                <p className="mb-3 text-sm font-medium">Joindre un justificatif (PDF ou image)</p>
-                <input
-                  type="file"
+                <p className="mb-3 text-sm font-medium">Joindre un justificatif</p>
+                <FileInput
                   accept=".pdf,.jpg,.jpeg,.png,.webp"
                   disabled={uploading}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
+                  hint="PDF ou image — max. 10 Mo"
+                  label={uploading ? "Envoi en cours…" : "Choisir un justificatif"}
+                  onChange={(files) => {
+                    const file = files[0];
                     if (file) void handleUpload(file);
                   }}
-                  className="text-sm"
                 />
               </div>
             ) : null}

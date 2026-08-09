@@ -34,14 +34,18 @@ export function ImageUploadField({
   const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = Array.from(event.target.files ?? []);
+  const applyFiles = (selected: File[]) => {
     if (!selected.length) return;
     setError(null);
     setFiles(selected);
     setPreviews(selected.map((file) => URL.createObjectURL(file)));
     onFileSelect?.(selected);
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    applyFiles(Array.from(event.target.files ?? []));
   };
 
   const handleUpload = async () => {
@@ -72,10 +76,30 @@ export function ImageUploadField({
 
       <label
         htmlFor={`image-upload-${label}`}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          if (!disabled) setDragOver(true);
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!disabled) setDragOver(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          if (disabled) return;
+          applyFiles(Array.from(e.dataTransfer.files ?? []));
+        }}
         className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 transition-colors ${
           disabled
             ? "cursor-not-allowed border-border bg-muted/30 opacity-60"
-            : "border-primary/40 bg-primary/5 hover:border-primary hover:bg-primary/10"
+            : dragOver
+              ? "border-primary bg-primary/15"
+              : "border-primary/40 bg-primary/5 hover:border-primary hover:bg-primary/10"
         }`}
       >
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-background shadow-sm">
