@@ -178,7 +178,10 @@ class TenantService:
         if active_lease:
             raise HTTPException(
                 status_code=400,
-                detail="Impossible de supprimer un locataire avec un bail actif",
+                detail=(
+                    "Désolé, si le locataire a déjà un bail actif, "
+                    "il faut d'abord résilier le bail."
+                ),
             )
         tenant.is_active = False
         self.db.commit()

@@ -265,3 +265,51 @@ def test_cannot_create_lease_on_occupied_unit(
         },
     )
     assert response.status_code == 400
+
+
+def test_delete_tenant_blocked_when_active_lease(
+    client: TestClient,
+    super_admin_headers: dict[str, str],
+    admin_headers: dict[str, str],
+    sample_tenant: Tenant,
+    free_unit: Unit,
+) -> None:
+    create_response = client.post(
+        "/api/v1/leases",
+        headers=super_admin_headers,
+        json={
+            "tenant_id": str(sample_tenant.id),
+            "unit_id": str(free_unit.id),
+            "start_date": "2026-08-01",
+            "rent_amount": "250000.00",
+        },
+    )
+    assert create_response.status_code == 201
+    lease_id = create_response.json()["id"]
+
+    forbidden = client.delete(
+        f"/api/v1/tenants/{sample_tenant.id}",
+        headers=admin_headers,
+    )
+    assert forbidden.status_code in (202, 403)
+
+    blocked = client.delete(
+        f"/api/v1/tenants/{sample_tenant.id}",
+        headers=super_admin_headers,
+    )
+    assert blocked.status_code == 400
+    assert "bail actif" in blocked.json()["detail"]
+    assert "résilier" in blocked.json()["detail"]
+
+    terminate = client.post(
+        f"/api/v1/leases/{lease_id}/terminate",
+        headers=super_admin_headers,
+        json={"termination_date": "2026-08-09", "termination_reason": "Fin de bail"},
+    )
+    assert terminate.status_code == 200
+
+    deleted = client.delete(
+        f"/api/v1/tenants/{sample_tenant.id}",
+        headers=super_admin_headers,
+    )
+    assert deleted.status_code == 204

@@ -832,6 +832,17 @@ export async function createTenant(
   );
 }
 
+export async function deleteTenant(
+  accessToken: string,
+  tenantId: string,
+): Promise<void> {
+  await apiFetch<void>(
+    `/api/v1/tenants/${tenantId}`,
+    { method: "DELETE" },
+    accessToken,
+  );
+}
+
 export async function fetchLeases(
   accessToken: string,
   params: Record<string, string | number | boolean | undefined> = {},

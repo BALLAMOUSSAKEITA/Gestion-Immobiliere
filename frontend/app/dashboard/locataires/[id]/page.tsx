@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { DocumentLibrary } from "@/components/documents/document-library";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import {
   ApiError,
   createTenantAccount,
+  deleteTenant,
   fetchTenant,
   formatCurrency,
   ID_DOCUMENT_LABELS,
@@ -19,10 +20,11 @@ import {
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
 import { useConfirm } from "@/contexts/confirm-context";
-import { modifyConfirm } from "@/lib/confirm-presets";
+import { deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
 
 export default function TenantDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const { user } = useAuth();
   const confirm = useConfirm();
   const [tenant, setTenant] = useState<TenantDetail | null>(null);
@@ -34,6 +36,7 @@ export default function TenantDetailPage() {
     user?.role.code === "super_admin" ||
     user?.role.code === "admin_familial" ||
     user?.role.code === "gestionnaire";
+  const isSuperAdmin = user?.role.code === "super_admin";
 
   useEffect(() => {
     const token = getAccessToken();
@@ -64,6 +67,26 @@ export default function TenantDetailPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!tenant) return;
+    if (
+      !(await confirm(
+        deleteConfirm(`le locataire « ${tenant.first_name} ${tenant.last_name} »`),
+      ))
+    ) {
+      return;
+    }
+    const token = getAccessToken();
+    if (!token) return;
+    setError(null);
+    try {
+      await deleteTenant(token, tenant.id);
+      router.push("/dashboard/locataires");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Suppression impossible");
+    }
+  };
+
   if (!tenant) {
     return (
         <div className="flex flex-col gap-6">
@@ -74,12 +97,21 @@ export default function TenantDetailPage() {
 
   return (
       <div className="flex flex-col gap-6">
-        <div>
-          <h1 className="text-3xl font-bold">
-            {tenant.first_name} {tenant.last_name}
-          </h1>
-          <p className="mt-2 text-muted-foreground">{tenant.phone_primary}</p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">
+              {tenant.first_name} {tenant.last_name}
+            </h1>
+            <p className="mt-2 text-muted-foreground">{tenant.phone_primary}</p>
+          </div>
+          {isSuperAdmin && (
+            <Button variant="destructive" size="sm" onClick={handleDelete}>
+              Supprimer le locataire
+            </Button>
+          )}
         </div>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Info label="Profession" value={tenant.profession ?? "—"} />
@@ -143,8 +175,6 @@ export default function TenantDetailPage() {
             )}
           </section>
         )}
-
-        {error && <p className="text-sm text-red-600">{error}</p>}
 
         {tenant && (
           <DocumentLibrary

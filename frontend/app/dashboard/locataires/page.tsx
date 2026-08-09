@@ -7,14 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   ApiError,
+  deleteTenant,
   fetchTenants,
   type TenantSummary,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
+import { deleteConfirm } from "@/lib/confirm-presets";
 
 export default function TenantsPage() {
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [tenants, setTenants] = useState<TenantSummary[]>([]);
   const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +27,7 @@ export default function TenantsPage() {
     user?.role.code === "super_admin" ||
     user?.role.code === "admin_familial" ||
     user?.role.code === "gestionnaire";
+  const isSuperAdmin = user?.role.code === "super_admin";
 
   const loadTenants = useCallback(async () => {
     const token = getAccessToken();
@@ -95,12 +100,46 @@ export default function TenantsPage() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/dashboard/locataires/${tenant.id}`}
-                      className="font-medium underline"
-                    >
-                      Voir
-                    </Link>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/dashboard/locataires/${tenant.id}`}
+                        className="font-medium underline"
+                      >
+                        Voir
+                      </Link>
+                      {isSuperAdmin && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={async () => {
+                            if (
+                              !(await confirm(
+                                deleteConfirm(
+                                  `le locataire « ${tenant.first_name} ${tenant.last_name} »`,
+                                ),
+                              ))
+                            ) {
+                              return;
+                            }
+                            const token = getAccessToken();
+                            if (!token) return;
+                            setError(null);
+                            try {
+                              await deleteTenant(token, tenant.id);
+                              await loadTenants();
+                            } catch (err) {
+                              setError(
+                                err instanceof ApiError
+                                  ? err.message
+                                  : "Suppression impossible",
+                              );
+                            }
+                          }}
+                        >
+                          Supprimer
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
