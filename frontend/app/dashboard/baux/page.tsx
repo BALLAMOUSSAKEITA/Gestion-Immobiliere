@@ -10,13 +10,21 @@ import {
   fetchExpiringLeases,
   fetchLeases,
   formatCurrency,
+  terminateLease,
   type LeaseSummary,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
+import { dangerConfirm } from "@/lib/confirm-presets";
+
+function todayISO(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 
 export default function LeasesPage() {
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [leases, setLeases] = useState<LeaseSummary[]>([]);
   const [expiring, setExpiring] = useState<LeaseSummary[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("active");
@@ -26,6 +34,7 @@ export default function LeasesPage() {
     user?.role.code === "super_admin" ||
     user?.role.code === "admin_familial" ||
     user?.role.code === "gestionnaire";
+  const isSuperAdmin = user?.role.code === "super_admin";
 
   const loadLeases = useCallback(async () => {
     const token = getAccessToken();
@@ -111,12 +120,51 @@ export default function LeasesPage() {
                     <LeaseStatusBadge status={lease.status} />
                   </td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/dashboard/baux/${lease.id}`}
-                      className="font-medium underline"
-                    >
-                      Détail
-                    </Link>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/dashboard/baux/${lease.id}`}
+                        className="font-medium underline"
+                      >
+                        Détail
+                      </Link>
+                      {isSuperAdmin && lease.status === "active" && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={async () => {
+                            if (
+                              !(await confirm(
+                                dangerConfirm(
+                                  "Résilier le bail",
+                                  `Cette action résilie le bail de ${lease.tenant_name} (${lease.unit_code}) et libère automatiquement le logement. Cette opération est irréversible.`,
+                                  "Résilier le bail",
+                                ),
+                              ))
+                            ) {
+                              return;
+                            }
+                            const token = getAccessToken();
+                            if (!token) return;
+                            setError(null);
+                            try {
+                              await terminateLease(token, lease.id, {
+                                termination_date: todayISO(),
+                                termination_reason: "Résiliation du bail",
+                              });
+                              await loadLeases();
+                            } catch (err) {
+                              setError(
+                                err instanceof ApiError
+                                  ? err.message
+                                  : "Résiliation impossible",
+                              );
+                            }
+                          }}
+                        >
+                          Résilier
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

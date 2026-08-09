@@ -278,12 +278,29 @@ class TenantService:
         )
         return [row[0] for row in rows]
 
-    def _get_active_lease(self, tenant_id: UUID) -> Lease | None:
+    def _get_active_leases(self, tenant_id: UUID) -> list[Lease]:
         return (
             self.db.query(Lease)
             .options(joinedload(Lease.unit).joinedload(Unit.building))
             .filter(Lease.tenant_id == tenant_id, Lease.status == LeaseStatus.active)
-            .first()
+            .order_by(Lease.start_date.desc())
+            .all()
+        )
+
+    def _get_active_lease(self, tenant_id: UUID) -> Lease | None:
+        leases = self._get_active_leases(tenant_id)
+        return leases[0] if leases else None
+
+    def _lease_to_current_summary(self, lease: Lease) -> CurrentLeaseSummary | None:
+        if not lease.unit:
+            return None
+        return CurrentLeaseSummary(
+            id=str(lease.id),
+            unit_code=lease.unit.code,
+            building_name=lease.unit.building.name,
+            rent_amount=lease.rent_amount,
+            start_date=lease.start_date,
+            status=lease.status.value,
         )
 
     def _ensure_read_access(self, actor: User) -> None:
@@ -295,7 +312,8 @@ class TenantService:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Accès non autorisé")
 
     def _to_summary(self, tenant: Tenant) -> TenantSummary:
-        active_lease = self._get_active_lease(tenant.id)
+        active_leases = self._get_active_leases(tenant.id)
+        unit_codes = [lease.unit.code for lease in active_leases if lease.unit]
         return TenantSummary(
             id=str(tenant.id),
             first_name=tenant.first_name,
@@ -303,23 +321,17 @@ class TenantService:
             phone_primary=tenant.phone_primary,
             profession=tenant.profession,
             is_active=tenant.is_active,
-            has_active_lease=active_lease is not None,
-            current_unit_code=active_lease.unit.code if active_lease else None,
+            has_active_lease=len(active_leases) > 0,
+            current_unit_code=", ".join(unit_codes) if unit_codes else None,
             created_at=tenant.created_at,
         )
 
     def _to_detail(self, tenant: Tenant, actor: User) -> TenantDetail:
-        active_lease = self._get_active_lease(tenant.id)
-        current_lease = None
-        if active_lease and active_lease.unit:
-            current_lease = CurrentLeaseSummary(
-                id=str(active_lease.id),
-                unit_code=active_lease.unit.code,
-                building_name=active_lease.unit.building.name,
-                rent_amount=active_lease.rent_amount,
-                start_date=active_lease.start_date,
-                status=active_lease.status.value,
-            )
+        active_lease_summaries = [
+            summary
+            for lease in self._get_active_leases(tenant.id)
+            if (summary := self._lease_to_current_summary(lease)) is not None
+        ]
 
         id_number = tenant.id_document_number
         if actor.role.code == "proprietaire":
@@ -339,7 +351,8 @@ class TenantService:
             payment_method=tenant.payment_method,
             observations=tenant.observations,
             user_id=str(tenant.user_id) if tenant.user_id else None,
-            current_lease=current_lease,
+            current_lease=active_lease_summaries[0] if active_lease_summaries else None,
+            active_leases=active_lease_summaries,
             payment_summary=self._payment_summary(tenant.id),
             updated_at=tenant.updated_at,
         )

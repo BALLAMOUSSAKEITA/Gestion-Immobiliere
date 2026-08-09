@@ -146,6 +146,59 @@ def test_create_lease_occupies_unit(
     assert unit_response.json()["status"] == "occupied"
 
 
+def test_tenant_can_have_multiple_active_leases(
+    client: TestClient,
+    super_admin_headers: dict[str, str],
+    db_session: Session,
+    sample_tenant: Tenant,
+    sample_building: Building,
+    free_unit: Unit,
+) -> None:
+    second_unit = Unit(
+        id=uuid.UUID("00000000-0000-4000-8000-000000000051"),
+        building_id=sample_building.id,
+        code="KM001-A102",
+        type=UnitType.apartment,
+        number="02",
+        floor=1,
+        rent_amount=Decimal("180000"),
+        status=UnitStatus.free,
+    )
+    db_session.add(second_unit)
+    db_session.commit()
+
+    first = client.post(
+        "/api/v1/leases",
+        headers=super_admin_headers,
+        json={
+            "tenant_id": str(sample_tenant.id),
+            "unit_id": str(free_unit.id),
+            "start_date": "2026-08-01",
+            "rent_amount": "250000.00",
+        },
+    )
+    assert first.status_code == 201
+
+    second = client.post(
+        "/api/v1/leases",
+        headers=super_admin_headers,
+        json={
+            "tenant_id": str(sample_tenant.id),
+            "unit_id": str(second_unit.id),
+            "start_date": "2026-08-01",
+            "rent_amount": "180000.00",
+        },
+    )
+    assert second.status_code == 201
+
+    detail = client.get(
+        f"/api/v1/tenants/{sample_tenant.id}",
+        headers=super_admin_headers,
+    )
+    assert detail.status_code == 200
+    assert len(detail.json()["active_leases"]) == 2
+
+
 def test_terminate_lease_frees_unit(
     client: TestClient,
     super_admin_headers: dict[str, str],

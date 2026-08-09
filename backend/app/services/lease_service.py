@@ -127,17 +127,6 @@ class LeaseService:
         if active_on_unit:
             raise HTTPException(status_code=400, detail="Ce logement a déjà un bail actif")
 
-        active_for_tenant = (
-            self.db.query(Lease)
-            .filter(Lease.tenant_id == tenant_id, Lease.status == LeaseStatus.active)
-            .first()
-        )
-        if active_for_tenant:
-            raise HTTPException(
-                status_code=400,
-                detail="Ce locataire a déjà un bail actif",
-            )
-
         lease = Lease(
             tenant_id=tenant_id,
             unit_id=unit_id,

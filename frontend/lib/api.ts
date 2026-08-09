@@ -714,6 +714,15 @@ export type TenantSummary = {
   created_at: string;
 };
 
+export type TenantCurrentLease = {
+  id: string;
+  unit_code: string;
+  building_name: string;
+  rent_amount: string;
+  start_date: string;
+  status: string;
+};
+
 export type TenantDetail = TenantSummary & {
   phone_secondary: string | null;
   previous_address: string | null;
@@ -726,14 +735,8 @@ export type TenantDetail = TenantSummary & {
   payment_method: PaymentMethod | null;
   observations: string | null;
   user_id: string | null;
-  current_lease: {
-    id: string;
-    unit_code: string;
-    building_name: string;
-    rent_amount: string;
-    start_date: string;
-    status: string;
-  } | null;
+  current_lease: TenantCurrentLease | null;
+  active_leases?: TenantCurrentLease[];
   payment_summary: { total_paid: string; total_unpaid: string };
   updated_at: string;
 };

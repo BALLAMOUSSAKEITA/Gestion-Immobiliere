@@ -137,24 +137,37 @@ export default function TenantDetailPage() {
           />
         </div>
 
-        {tenant.current_lease && (
+        {(tenant.active_leases?.length ?? (tenant.current_lease ? 1 : 0)) > 0 && (
           <section className="rounded-xl border border-border bg-card shadow-sm p-6">
-            <h2 className="text-lg font-semibold">Bail actuel</h2>
-            <p className="mt-2 text-muted-foreground">
-              {tenant.current_lease.building_name} — {tenant.current_lease.unit_code}
-            </p>
-            <p className="mt-1 font-medium">
-              {formatCurrency(tenant.current_lease.rent_amount)} / mois
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Depuis le {tenant.current_lease.start_date}
-            </p>
-            <Link
-              href={`/dashboard/baux/${tenant.current_lease.id}`}
-              className="mt-3 inline-block text-sm font-medium underline"
-            >
-              Voir le bail
-            </Link>
+            <h2 className="text-lg font-semibold">
+              {(tenant.active_leases?.length ?? 1) > 1 ? "Baux actifs" : "Bail actuel"}
+            </h2>
+            <div className="mt-3 space-y-4">
+              {(tenant.active_leases?.length
+                ? tenant.active_leases
+                : tenant.current_lease
+                  ? [tenant.current_lease]
+                  : []
+              ).map((lease) => (
+                <div key={lease.id} className="border-t border-border pt-3 first:border-t-0 first:pt-0">
+                  <p className="text-muted-foreground">
+                    {lease.building_name} — {lease.unit_code}
+                  </p>
+                  <p className="mt-1 font-medium">
+                    {formatCurrency(lease.rent_amount)} / mois
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Depuis le {lease.start_date}
+                  </p>
+                  <Link
+                    href={`/dashboard/baux/${lease.id}`}
+                    className="mt-2 inline-block text-sm font-medium underline"
+                  >
+                    Voir le bail
+                  </Link>
+                </div>
+              ))}
+            </div>
           </section>
         )}
 

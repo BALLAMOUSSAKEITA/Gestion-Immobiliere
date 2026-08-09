@@ -18,7 +18,11 @@ import {
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
 import { useConfirm } from "@/contexts/confirm-context";
-import { modifyConfirm } from "@/lib/confirm-presets";
+import { dangerConfirm } from "@/lib/confirm-presets";
+
+function todayISO(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 
 export default function LeaseDetailPage() {
   const params = useParams<{ id: string }>();
@@ -27,13 +31,16 @@ export default function LeaseDetailPage() {
   const [lease, setLease] = useState<LeaseDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showTerminate, setShowTerminate] = useState(false);
-  const [terminationDate, setTerminationDate] = useState("");
-  const [terminationReason, setTerminationReason] = useState("");
+  const [terminationDate, setTerminationDate] = useState(todayISO);
+  const [terminationReason, setTerminationReason] = useState("Résiliation du bail");
+  const [submitting, setSubmitting] = useState(false);
 
   const canManage =
     user?.role.code === "super_admin" ||
     user?.role.code === "admin_familial" ||
     user?.role.code === "gestionnaire";
+  const isSuperAdmin = user?.role.code === "super_admin";
+  const canTerminate = isSuperAdmin && lease?.status === "active";
 
   const loadLease = async () => {
     const token = getAccessToken();
@@ -46,108 +53,141 @@ export default function LeaseDetailPage() {
     loadLease().catch((err) =>
       setError(err instanceof ApiError ? err.message : "Chargement impossible"),
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   const handleTerminate = async () => {
     const token = getAccessToken();
     if (!token || !lease) return;
-    if (!(await confirm(modifyConfirm("Terminer ce bail ?")))) return;
+    if (!terminationDate || !terminationReason.trim()) {
+      setError("Indiquez une date et un motif de résiliation.");
+      return;
+    }
+    if (
+      !(await confirm(
+        dangerConfirm(
+          "Résilier le bail",
+          `Cette action résilie le bail de ${lease.tenant_name} (${lease.unit_code}) et libère automatiquement le logement. Cette opération est irréversible.`,
+          "Résilier le bail",
+        ),
+      ))
+    ) {
+      return;
+    }
     setError(null);
+    setSubmitting(true);
     try {
       await terminateLease(token, lease.id, {
         termination_date: terminationDate,
-        termination_reason: terminationReason,
+        termination_reason: terminationReason.trim(),
       });
       setShowTerminate(false);
       await loadLease();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Résiliation impossible");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   if (!lease) {
     return (
-        <div className="flex flex-col gap-6">
-          <p className="text-muted-foreground">{error ?? "Chargement…"}</p>
-        </div>
+      <div className="flex flex-col gap-6">
+        <p className="text-muted-foreground">{error ?? "Chargement…"}</p>
+      </div>
     );
   }
 
   return (
-      <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-3xl font-bold">Bail — {lease.unit_code}</h1>
           <LeaseStatusBadge status={lease.status} />
         </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Info label="Locataire" value={lease.tenant_name} />
-          <Info label="Immeuble" value={lease.building_name} />
-          <Info label="Loyer" value={`${formatCurrency(lease.rent_amount)} / mois`} />
-          <Info
-            label="Caution"
-            value={`${formatCurrency(lease.deposit_amount)}${lease.deposit_paid ? " (payée)" : ""}`}
-          />
-          <Info label="Début" value={lease.start_date} />
-          <Info label="Fin prévue" value={lease.end_date ?? "—"} />
-        </div>
-
-        {lease.status === "terminated" && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-            <p className="font-medium">Bail résilié le {lease.termination_date}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{lease.termination_reason}</p>
-          </div>
+        {canTerminate && !showTerminate && (
+          <Button variant="destructive" size="sm" onClick={() => setShowTerminate(true)}>
+            Résilier le bail
+          </Button>
         )}
-
-        {canManage && lease.status === "active" && (
-          <div>
-            {!showTerminate ? (
-              <Button variant="outline" onClick={() => setShowTerminate(true)}>
-                Terminer le bail
-              </Button>
-            ) : (
-              <div className="space-y-3 rounded-xl border border-border bg-card shadow-sm p-4">
-                <Input
-                  type="date"
-                  value={terminationDate}
-                  onChange={(e) => setTerminationDate(e.target.value)}
-                />
-                <Input
-                  placeholder="Motif de résiliation"
-                  value={terminationReason}
-                  onChange={(e) => setTerminationReason(e.target.value)}
-                />
-                <div className="flex gap-2">
-                  <Button onClick={handleTerminate}>Confirmer</Button>
-                  <Button variant="outline" onClick={() => setShowTerminate(false)}>
-                    Annuler
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {error && <p className="text-sm text-red-600">{error}</p>}
-
-        <DocumentLibrary
-          entityType="lease"
-          entityId={lease.id}
-          canUpload={canManage}
-        />
-
-        <div className="flex gap-4">
-          <Link
-            href={`/dashboard/locataires/${lease.tenant_id}`}
-            className="text-sm font-medium underline"
-          >
-            Voir le locataire
-          </Link>
-          <Link href="/dashboard/baux" className="text-sm font-medium underline">
-            Retour aux baux
-          </Link>
-        </div>
       </div>
+
+      {error && <p className="text-sm text-red-600">{error}</p>}
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Info label="Locataire" value={lease.tenant_name} />
+        <Info label="Immeuble" value={lease.building_name} />
+        <Info label="Loyer" value={`${formatCurrency(lease.rent_amount)} / mois`} />
+        <Info
+          label="Caution"
+          value={`${formatCurrency(lease.deposit_amount)}${lease.deposit_paid ? " (payée)" : ""}`}
+        />
+        <Info label="Début" value={lease.start_date} />
+        <Info label="Fin prévue" value={lease.end_date ?? "—"} />
+      </div>
+
+      {lease.status === "terminated" && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+          <p className="font-medium">Bail résilié le {lease.termination_date}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{lease.termination_reason}</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Le logement {lease.unit_code} a été libéré automatiquement.
+          </p>
+        </div>
+      )}
+
+      {canTerminate && showTerminate && (
+        <div className="space-y-3 rounded-xl border border-destructive/30 bg-card p-4 shadow-sm">
+          <div>
+            <h2 className="text-lg font-semibold">Résilier le bail</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Le logement sera automatiquement remis en statut libre et l&apos;historique
+              locataire sera clôturé.
+            </p>
+          </div>
+          <Input
+            type="date"
+            value={terminationDate}
+            onChange={(e) => setTerminationDate(e.target.value)}
+          />
+          <Input
+            placeholder="Motif de résiliation"
+            value={terminationReason}
+            onChange={(e) => setTerminationReason(e.target.value)}
+          />
+          <div className="flex gap-2">
+            <Button variant="destructive" onClick={handleTerminate} disabled={submitting}>
+              {submitting ? "Résiliation…" : "Confirmer la résiliation"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowTerminate(false)}
+              disabled={submitting}
+            >
+              Annuler
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <DocumentLibrary
+        entityType="lease"
+        entityId={lease.id}
+        canUpload={canManage}
+      />
+
+      <div className="flex gap-4">
+        <Link
+          href={`/dashboard/locataires/${lease.tenant_id}`}
+          className="text-sm font-medium underline"
+        >
+          Voir le locataire
+        </Link>
+        <Link href="/dashboard/baux" className="text-sm font-medium underline">
+          Retour aux baux
+        </Link>
+      </div>
+    </div>
   );
 }
 

@@ -76,6 +76,7 @@ class TenantDetail(TenantSummary):
     observations: str | None
     user_id: str | None
     current_lease: CurrentLeaseSummary | None = None
+    active_leases: list[CurrentLeaseSummary] = []
     payment_summary: PaymentSummary
     updated_at: datetime
 
