@@ -58,7 +58,6 @@ export const DASHBOARD_NAV: NavGroup[] = [
       { href: "/dashboard/utilisateurs", label: "Utilisateurs", roles: ["super_admin"] },
       { href: "/dashboard/proprietaires", label: "Propriétaires", roles: ["super_admin", "admin_familial"] },
       { href: "/dashboard/notifications", label: "Notifications", roles: STAFF_ROLES },
-      { href: "/dashboard/parametres/notifications", label: "Préférences", roles: STAFF_ROLES },
     ],
   },
 ];

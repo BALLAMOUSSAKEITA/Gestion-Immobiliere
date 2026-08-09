@@ -179,9 +179,7 @@ class NotificationService:
         return pref
 
     def _get_or_404(self, notification_id: UUID) -> Notification:
-        notification = (
-            self.db.query(Notification).filter(Notification.id == notification_id).first()
-        )
+        notification = self.db.query(Notification).filter(Notification.id == notification_id).first()
         if notification is None:
             raise HTTPException(status_code=404, detail="Notification introuvable")
         return notification

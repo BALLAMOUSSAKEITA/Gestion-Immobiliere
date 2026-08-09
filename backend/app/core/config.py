@@ -1,7 +1,12 @@
 from functools import lru_cache
+from pathlib import Path
 
+from dotenv import load_dotenv
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Priorise backend/.env sur une variable DATABASE_URL système (ex. localhost).
+load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env", override=True)
 
 
 class Settings(BaseSettings):
