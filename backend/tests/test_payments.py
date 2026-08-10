@@ -166,3 +166,53 @@ def test_download_receipt_pdf(
     )
     assert pdf_response.status_code == 200
     assert pdf_response.headers["content-type"] == "application/pdf"
+
+
+def test_delete_payment_removes_receipt_and_restores_period(
+    client: TestClient,
+    super_admin_headers: dict[str, str],
+    active_lease: Lease,
+    db_session: Session,
+) -> None:
+    create = client.post(
+        "/api/v1/payments",
+        headers=super_admin_headers,
+        json={
+            "lease_id": str(active_lease.id),
+            "amount": "250000.00",
+            "payment_method": "cash",
+            "payment_date": "2026-07-26",
+            "allocations": [{"period_year": 2026, "period_month": 7, "amount": "250000.00"}],
+        },
+    )
+    assert create.status_code == 201
+    payment_id = create.json()["id"]
+    receipt_id = create.json()["receipt_id"]
+
+    deleted = client.delete(
+        f"/api/v1/payments/{payment_id}",
+        headers=super_admin_headers,
+    )
+    assert deleted.status_code == 204
+
+    assert (
+        client.get(f"/api/v1/payments/{payment_id}", headers=super_admin_headers).status_code
+        == 404
+    )
+    assert (
+        client.get(f"/api/v1/receipts/{receipt_id}", headers=super_admin_headers).status_code
+        == 404
+    )
+
+    db_session.expire_all()
+    period = (
+        db_session.query(RentPeriod)
+        .filter(
+            RentPeriod.lease_id == active_lease.id,
+            RentPeriod.period_month == 7,
+            RentPeriod.period_year == 2026,
+        )
+        .first()
+    )
+    assert period is not None
+    assert period.paid_amount == Decimal("0")

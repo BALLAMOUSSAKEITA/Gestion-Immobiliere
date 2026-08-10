@@ -1032,6 +1032,17 @@ export async function createPayment(
   );
 }
 
+export async function deletePayment(
+  accessToken: string,
+  paymentId: string,
+): Promise<void> {
+  await apiFetch<void>(
+    `/api/v1/payments/${paymentId}`,
+    { method: "DELETE" },
+    accessToken,
+  );
+}
+
 export async function fetchReceipts(
   accessToken: string,
   params: Record<string, string | number | undefined> = {},

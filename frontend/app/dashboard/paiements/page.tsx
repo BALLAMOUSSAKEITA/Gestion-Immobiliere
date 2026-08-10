@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ApiError,
+  deletePayment,
   fetchPayments,
   formatCurrency,
   PAYMENT_METHOD_LABELS,
@@ -13,9 +14,12 @@ import {
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
+import { dangerConfirm } from "@/lib/confirm-presets";
 
 export default function PaymentsPage() {
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [payments, setPayments] = useState<PaymentSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,6 +27,7 @@ export default function PaymentsPage() {
     user?.role.code === "super_admin" ||
     user?.role.code === "admin_familial" ||
     user?.role.code === "gestionnaire";
+  const isSuperAdmin = user?.role.code === "super_admin";
 
   const load = useCallback(async () => {
     const token = getAccessToken();
@@ -78,12 +83,48 @@ export default function PaymentsPage() {
                   </td>
                   <td className="px-4 py-3">{payment.recorded_by_name}</td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/dashboard/paiements/${payment.id}`}
-                      className="font-medium underline"
-                    >
-                      Détail
-                    </Link>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/dashboard/paiements/${payment.id}`}
+                        className="font-medium underline"
+                      >
+                        Détail
+                      </Link>
+                      {isSuperAdmin && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={async () => {
+                            if (
+                              !(await confirm(
+                                dangerConfirm(
+                                  "Supprimer le paiement",
+                                  `Cette action supprime définitivement le paiement de ${payment.tenant_name} et le reçu associé. Cette opération est irréversible.`,
+                                  "Supprimer le paiement",
+                                ),
+                              ))
+                            ) {
+                              return;
+                            }
+                            const token = getAccessToken();
+                            if (!token) return;
+                            setError(null);
+                            try {
+                              await deletePayment(token, payment.id);
+                              await load();
+                            } catch (err) {
+                              setError(
+                                err instanceof ApiError
+                                  ? err.message
+                                  : "Suppression impossible",
+                              );
+                            }
+                          }}
+                        >
+                          Supprimer
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

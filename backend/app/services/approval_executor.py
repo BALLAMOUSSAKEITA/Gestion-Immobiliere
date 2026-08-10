@@ -68,24 +68,11 @@ class ApprovalExecutor:
         return result
 
     def _payment_delete(self, request: ApprovalRequest, reviewer: User) -> dict:
+        from app.services.payment_service import PaymentService
+
         payment = self._get_payment(request.entity_id)
         old = {"amount": str(payment.amount), "status": payment.status.value}
-        if payment.status == PaymentRecordStatus.cancelled:
-            raise HTTPException(status_code=400, detail="Paiement déjà annulé")
-
-        period_service = RentPeriodService(self.db)
-        for allocation in list(payment.allocations):
-            period = allocation.rent_period
-            period.paid_amount = max(
-                period.paid_amount - allocation.allocated_amount, Decimal("0")
-            )
-            period_service.refresh_period_status(period, payment.payment_date)
-
-        payment.status = PaymentRecordStatus.cancelled
-        if payment.receipt:
-            payment.receipt.status = ReceiptStatus.cancelled
-
-        self.db.flush()
+        PaymentService(self.db).delete_payment(reviewer, payment.id)
         return old
 
     def _payment_update_amount(self, request: ApprovalRequest, reviewer: User) -> dict:

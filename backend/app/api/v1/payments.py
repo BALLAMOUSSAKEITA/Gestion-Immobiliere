@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Query, Response, UploadFile
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
@@ -79,3 +79,13 @@ def validate_payment(
     db: Annotated[Session, Depends(get_db)],
 ) -> PaymentDetail:
     return PaymentService(db).validate_payment(current_user, payment_id)
+
+
+@router.delete("/{payment_id}", status_code=204)
+def delete_payment(
+    payment_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> Response:
+    PaymentService(db).delete_payment(current_user, payment_id)
+    return Response(status_code=204)

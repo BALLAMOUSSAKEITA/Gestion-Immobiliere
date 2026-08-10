@@ -282,6 +282,50 @@ class PaymentService:
         self.db.commit()
         return self._to_detail(self._get_or_404(payment_id))
 
+    def delete_payment(self, actor: User, payment_id: UUID) -> None:
+        if actor.role.code != "super_admin":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Accès non autorisé",
+            )
+        payment = self._get_or_404(payment_id)
+        payment_date = payment.payment_date
+        period_service = RentPeriodService(self.db)
+        period_ids: list[UUID] = []
+
+        for allocation in list(payment.allocations):
+            period = allocation.rent_period
+            period.paid_amount = max(
+                period.paid_amount - allocation.allocated_amount, Decimal("0")
+            )
+            period_service.refresh_period_status(period, payment_date)
+            period_ids.append(period.id)
+
+        receipt = payment.receipt
+        if receipt is not None:
+            relative = receipt.pdf_url.removeprefix("/uploads/")
+            pdf_path = self.upload_dir / relative
+            if pdf_path.exists():
+                pdf_path.unlink()
+            self.db.delete(receipt)
+
+        if payment.proof_url:
+            proof_relative = payment.proof_url.removeprefix("/uploads/")
+            proof_path = self.upload_dir / proof_relative
+            if proof_path.exists():
+                proof_path.unlink()
+
+        self.db.delete(payment)
+        self.db.flush()
+
+        from app.services.overdue_detection_service import OverdueDetectionService
+
+        detector = OverdueDetectionService(self.db)
+        for period_id in period_ids:
+            detector.sync_period(period_id, payment_date)
+
+        self.db.commit()
+
     def _auto_allocate(
         self, lease_id: UUID, amount: Decimal
     ) -> list[PeriodAllocationInput]:

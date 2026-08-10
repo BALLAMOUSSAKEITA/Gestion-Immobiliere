@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     document_share_expiry_days: int = 7
     document_share_max_access: int = 10
     agency_name: str = "Gestion Immobilière"
-    agency_address: str = "Abidjan, Côte d'Ivoire"
+    agency_address: str = "République de Guinée"
     smtp_host: str | None = None
     smtp_port: int = 587
     smtp_username: str | None = None
