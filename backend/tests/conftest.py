@@ -37,7 +37,6 @@ from app.models import (  # noqa: F401
     PaymentAllocation,
     Receipt,
     RefreshToken,
-    Reminder,
     Repair,
     RepairAttachment,
     RepairStatusHistory,

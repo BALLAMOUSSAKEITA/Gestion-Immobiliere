@@ -149,30 +149,3 @@ def test_overdues_by_tenant(
     assert items[0]["total_overdue_amount"] == "250000.00"
     assert items[0]["overdue_months_count"] == 1
 
-
-def test_send_manual_reminder(
-    client: TestClient,
-    super_admin_headers: dict[str, str],
-    active_lease: Lease,
-    db_session: Session,
-) -> None:
-    _make_overdue(db_session, active_lease, days_overdue=9)
-    overdue_id = client.get("/api/v1/overdues", headers=super_admin_headers).json()["items"][0]["id"]
-
-    response = client.post(
-        "/api/v1/reminders",
-        headers=super_admin_headers,
-        json={
-            "tenant_id": str(active_lease.tenant_id),
-            "overdue_record_ids": [overdue_id],
-            "reminder_type": "manual",
-            "channel": "email",
-            "message": "Merci de régulariser votre loyer de juillet.",
-        },
-    )
-    assert response.status_code == 201
-    assert response.json()["reminder_type"] == "manual"
-
-    list_response = client.get("/api/v1/reminders", headers=super_admin_headers)
-    assert list_response.status_code == 200
-    assert list_response.json()["total"] >= 1

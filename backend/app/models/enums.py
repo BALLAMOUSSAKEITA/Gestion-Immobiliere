@@ -59,26 +59,6 @@ class OverdueStatus(str, enum.Enum):
     resolved = "resolved"
 
 
-class ReminderType(str, enum.Enum):
-    before_due = "before_due"
-    after_due = "after_due"
-    manual = "manual"
-    final_notice = "final_notice"
-
-
-class ReminderChannel(str, enum.Enum):
-    in_app = "in_app"
-    email = "email"
-    sms = "sms"
-    whatsapp = "whatsapp"
-
-
-class ReminderStatus(str, enum.Enum):
-    sent = "sent"
-    failed = "failed"
-    pending = "pending"
-
-
 class ExpenseStatus(str, enum.Enum):
     recorded = "recorded"
     pending_validation = "pending_validation"

@@ -19,9 +19,6 @@ from app.models.enums import (
     PaymentMethod,
     PaymentRecordStatus,
     ReceiptStatus,
-    ReminderChannel,
-    ReminderStatus,
-    ReminderType,
     RentPeriodStatus,
     UrgencyLevel,
     UnitStatus,
@@ -38,7 +35,7 @@ from app.models.refresh_token import RefreshToken
 from app.models.role import Role
 from app.models.document import Document, DocumentShare, DocumentType
 from app.models.expense import Expense, ExpenseCategory
-from app.models.overdue import OverdueRecord, Reminder
+from app.models.overdue import OverdueRecord
 from app.models.payment import Payment, PaymentAllocation, Receipt, RentPeriod
 from app.models.tenant import Lease, LeaseRentHistory, Tenant
 from app.models.user import User
@@ -72,12 +69,8 @@ __all__ = [
     "PaymentAllocation",
     "Receipt",
     "OverdueStatus",
-    "ReminderType",
-    "ReminderChannel",
-    "ReminderStatus",
     "ExpenseStatus",
     "OverdueRecord",
-    "Reminder",
     "ExpenseCategory",
     "Expense",
     "RepairStatus",

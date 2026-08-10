@@ -24,7 +24,6 @@ const ICONS: Record<string, LucideIcon> = {
   "/dashboard/baux": FileText,
   "/dashboard/paiements": CreditCard,
   "/dashboard/impayes": Wallet,
-  "/dashboard/relances": Bell,
   "/dashboard/recus": Receipt,
   "/dashboard/depenses": Wallet,
   "/dashboard/reparations": Wrench,

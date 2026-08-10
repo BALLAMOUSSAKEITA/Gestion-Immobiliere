@@ -1,10 +1,8 @@
-from datetime import date, datetime
 from decimal import Decimal
-from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-from app.models.enums import OverdueStatus, ReminderChannel, ReminderType
+from app.models.enums import OverdueStatus
 
 
 class TenantBrief(BaseModel):
@@ -26,8 +24,6 @@ class OverdueItem(BaseModel):
     amount_remaining: Decimal
     days_overdue: int
     status: OverdueStatus
-    reminders_count: int
-    last_reminder_at: datetime | None
     tenant_total_overdue: Decimal
 
 
@@ -53,37 +49,7 @@ class TenantOverdueSummary(BaseModel):
     total_overdue_amount: Decimal
     overdue_months_count: int
     oldest_overdue_days: int
-    last_reminder_at: datetime | None
 
 
 class TenantOverdueListResponse(BaseModel):
     items: list[TenantOverdueSummary]
-
-
-class ReminderCreate(BaseModel):
-    tenant_id: str
-    overdue_record_ids: list[str] = Field(default_factory=list)
-    reminder_type: ReminderType = ReminderType.manual
-    channel: ReminderChannel = ReminderChannel.email
-    message: str = Field(min_length=1)
-
-
-class ReminderResponse(BaseModel):
-    id: str
-    tenant_id: str
-    tenant_name: str
-    overdue_record_id: str | None
-    reminder_type: ReminderType
-    channel: ReminderChannel
-    message: str
-    sent_at: datetime
-    sent_by_name: str | None
-    status: str
-
-
-class ReminderListResponse(BaseModel):
-    items: list[ReminderResponse]
-    total: int
-    page: int
-    page_size: int
-    pages: int

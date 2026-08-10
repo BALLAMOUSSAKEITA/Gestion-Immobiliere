@@ -1071,8 +1071,6 @@ export type OverdueItem = {
   amount_remaining: string;
   days_overdue: number;
   status: "open" | "partially_paid" | "resolved";
-  reminders_count: number;
-  last_reminder_at: string | null;
   tenant_total_overdue: string;
 };
 
@@ -1098,42 +1096,6 @@ export type TenantOverdueSummary = {
   total_overdue_amount: string;
   overdue_months_count: number;
   oldest_overdue_days: number;
-  last_reminder_at: string | null;
-};
-
-export type ReminderItem = {
-  id: string;
-  tenant_id: string;
-  tenant_name: string;
-  overdue_record_id: string | null;
-  reminder_type: "before_due" | "after_due" | "manual" | "final_notice";
-  channel: "in_app" | "email" | "sms" | "whatsapp";
-  message: string;
-  sent_at: string;
-  sent_by_name: string | null;
-  status: string;
-};
-
-export type ReminderListResponse = {
-  items: ReminderItem[];
-  total: number;
-  page: number;
-  page_size: number;
-  pages: number;
-};
-
-export const REMINDER_TYPE_LABELS: Record<ReminderItem["reminder_type"], string> = {
-  before_due: "Avant échéance",
-  after_due: "Après échéance",
-  manual: "Manuelle",
-  final_notice: "Mise en demeure",
-};
-
-export const REMINDER_CHANNEL_LABELS: Record<ReminderItem["channel"], string> = {
-  in_app: "Application",
-  email: "E-mail",
-  sms: "SMS",
-  whatsapp: "WhatsApp",
 };
 
 export async function fetchOverdues(
@@ -1163,35 +1125,6 @@ export async function fetchOverduesByTenant(
   accessToken: string,
 ): Promise<{ items: TenantOverdueSummary[] }> {
   return apiFetch<{ items: TenantOverdueSummary[] }>("/api/v1/overdues/by-tenant", {}, accessToken);
-}
-
-export async function fetchReminders(
-  accessToken: string,
-  params: Record<string, string | number | undefined> = {},
-): Promise<ReminderListResponse> {
-  const query = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") query.set(key, String(value));
-  });
-  const suffix = query.toString() ? `?${query.toString()}` : "";
-  return apiFetch<ReminderListResponse>(`/api/v1/reminders${suffix}`, {}, accessToken);
-}
-
-export async function sendReminder(
-  accessToken: string,
-  payload: {
-    tenant_id: string;
-    overdue_record_ids?: string[];
-    reminder_type?: string;
-    channel?: string;
-    message: string;
-  },
-): Promise<ReminderItem> {
-  return apiFetch<ReminderItem>(
-    "/api/v1/reminders",
-    { method: "POST", body: JSON.stringify(payload) },
-    accessToken,
-  );
 }
 
 export type ExpenseCategory = {

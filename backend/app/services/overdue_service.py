@@ -1,4 +1,3 @@
-import logging
 from datetime import UTC, datetime
 from decimal import Decimal
 from math import ceil
@@ -9,17 +8,14 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.models.building import Unit
-from app.models.enums import OverdueStatus, ReminderStatus, ReminderType
-from app.models.overdue import OverdueRecord, Reminder
-from app.models.tenant import Lease, Tenant
+from app.models.enums import OverdueStatus
+from app.models.overdue import OverdueRecord
+from app.models.tenant import Tenant
 from app.models.user import User
 from app.schemas.overdue import (
     OverdueItem,
     OverdueListResponse,
     OverdueSummary,
-    ReminderCreate,
-    ReminderListResponse,
-    ReminderResponse,
     TenantBrief,
     TenantOverdueListResponse,
     TenantOverdueSummary,
@@ -27,9 +23,6 @@ from app.schemas.overdue import (
 from app.services.building_service import BuildingAccessService
 from app.services.overdue_detection_service import OverdueDetectionService
 from app.services.tenant_access_service import TenantAccessService
-from app.services.user_service import PermissionService
-
-logger = logging.getLogger(__name__)
 
 
 class OverdueService:
@@ -53,10 +46,7 @@ class OverdueService:
         query = (
             self.db.query(OverdueRecord)
             .join(Unit, OverdueRecord.unit_id == Unit.id)
-            .options(
-                joinedload(OverdueRecord.tenant),
-                joinedload(OverdueRecord.reminders),
-            )
+            .options(joinedload(OverdueRecord.tenant))
             .filter(OverdueRecord.status != OverdueStatus.resolved)
         )
 
@@ -132,11 +122,6 @@ class OverdueService:
             tenant = self.db.query(Tenant).filter(Tenant.id == tenant_id).first()
             if tenant is None:
                 continue
-            last_reminder = (
-                self.db.query(func.max(Reminder.sent_at))
-                .filter(Reminder.tenant_id == tenant_id)
-                .scalar()
-            )
             items.append(
                 TenantOverdueSummary(
                     tenant_id=str(tenant_id),
@@ -145,7 +130,6 @@ class OverdueService:
                     total_overdue_amount=total_amount or Decimal("0"),
                     overdue_months_count=count or 0,
                     oldest_overdue_days=max_days or 0,
-                    last_reminder_at=last_reminder,
                 )
             )
         items.sort(key=lambda item: item.total_overdue_amount, reverse=True)
@@ -213,10 +197,13 @@ class OverdueService:
     def _to_item(
         self, record: OverdueRecord, tenant_totals: dict[UUID, Decimal]
     ) -> OverdueItem:
-        unit = self.db.query(Unit).options(joinedload(Unit.building)).filter(Unit.id == record.unit_id).first()
+        unit = (
+            self.db.query(Unit)
+            .options(joinedload(Unit.building))
+            .filter(Unit.id == record.unit_id)
+            .first()
+        )
         tenant = record.tenant
-        reminders = record.reminders or []
-        last_reminder = max((r.sent_at for r in reminders), default=None)
         return OverdueItem(
             id=str(record.id),
             tenant=TenantBrief(
@@ -234,15 +221,13 @@ class OverdueService:
             amount_remaining=record.amount_remaining,
             days_overdue=record.days_overdue,
             status=record.status,
-            reminders_count=len(reminders),
-            last_reminder_at=last_reminder,
             tenant_total_overdue=tenant_totals.get(record.tenant_id, record.amount_remaining),
         )
 
     def _get_or_404(self, overdue_id: UUID) -> OverdueRecord:
         record = (
             self.db.query(OverdueRecord)
-            .options(joinedload(OverdueRecord.tenant), joinedload(OverdueRecord.reminders))
+            .options(joinedload(OverdueRecord.tenant))
             .filter(OverdueRecord.id == overdue_id)
             .first()
         )
@@ -267,100 +252,3 @@ class OverdueService:
             "locataire",
         ):
             raise HTTPException(status_code=403, detail="Accès non autorisé")
-
-
-class ReminderService:
-    def __init__(self, db: Session) -> None:
-        self.db = db
-
-    def list_reminders(
-        self,
-        actor: User,
-        page: int = 1,
-        page_size: int = 20,
-        tenant_id: UUID | None = None,
-    ) -> ReminderListResponse:
-        if actor.role.code not in ("super_admin", "admin_familial", "gestionnaire", "locataire"):
-            raise HTTPException(status_code=403, detail="Accès non autorisé")
-
-        query = self.db.query(Reminder).options(joinedload(Reminder.tenant), joinedload(Reminder.sender))
-
-        if actor.role.code == "locataire":
-            if actor.tenant_profile is None:
-                query = query.filter(Reminder.id.is_(None))
-            else:
-                query = query.filter(Reminder.tenant_id == actor.tenant_profile.id)
-        elif tenant_id:
-            TenantAccessService.ensure_tenant_access(self.db, actor, tenant_id)
-            query = query.filter(Reminder.tenant_id == tenant_id)
-
-        total = query.count()
-        reminders = (
-            query.order_by(Reminder.sent_at.desc())
-            .offset((page - 1) * page_size)
-            .limit(page_size)
-            .all()
-        )
-        pages = ceil(total / page_size) if total else 0
-        return ReminderListResponse(
-            items=[self._to_response(item) for item in reminders],
-            total=total,
-            page=page,
-            page_size=page_size,
-            pages=pages,
-        )
-
-    def send_reminder(self, actor: User, payload: ReminderCreate) -> ReminderResponse:
-        if actor.role.code not in ("super_admin", "admin_familial", "gestionnaire"):
-            raise HTTPException(status_code=403, detail="Accès non autorisé")
-
-        tenant_id = UUID(payload.tenant_id)
-        TenantAccessService.ensure_tenant_access(self.db, actor, tenant_id)
-
-        overdue_id = UUID(payload.overdue_record_ids[0]) if payload.overdue_record_ids else None
-        reminder = Reminder(
-            tenant_id=tenant_id,
-            overdue_record_id=overdue_id,
-            reminder_type=payload.reminder_type,
-            channel=payload.channel,
-            message=payload.message.strip(),
-            sent_by=actor.id,
-            status=ReminderStatus.sent,
-        )
-        self.db.add(reminder)
-        self.db.commit()
-        self.db.refresh(reminder)
-        logger.info("Relance manuelle envoyée à locataire %s via %s", tenant_id, payload.channel.value)
-        loaded = self._load(reminder.id)
-        if loaded is None:
-            raise HTTPException(status_code=500, detail="Relance introuvable après création")
-        return self._to_response(loaded)
-
-    def list_tenant_reminders(self, actor: User, tenant_id: UUID) -> ReminderListResponse:
-        return self.list_reminders(actor, tenant_id=tenant_id, page_size=100)
-
-    def _load(self, reminder_id: UUID) -> Reminder:
-        return (
-            self.db.query(Reminder)
-            .options(joinedload(Reminder.tenant), joinedload(Reminder.sender))
-            .filter(Reminder.id == reminder_id)
-            .first()
-        )
-
-    def _to_response(self, reminder: Reminder) -> ReminderResponse:
-        return ReminderResponse(
-            id=str(reminder.id),
-            tenant_id=str(reminder.tenant_id),
-            tenant_name=f"{reminder.tenant.first_name} {reminder.tenant.last_name}",
-            overdue_record_id=str(reminder.overdue_record_id) if reminder.overdue_record_id else None,
-            reminder_type=reminder.reminder_type,
-            channel=reminder.channel,
-            message=reminder.message,
-            sent_at=reminder.sent_at,
-            sent_by_name=(
-                f"{reminder.sender.first_name} {reminder.sender.last_name}"
-                if reminder.sender
-                else None
-            ),
-            status=reminder.status.value,
-        )
