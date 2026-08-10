@@ -84,7 +84,7 @@ def test_create_proprietaire_requires_profile(client, super_admin_headers) -> No
     assert create.json()["owner_profile_id"] == profile_id
 
 
-def test_deactivate_user_blocks_login(client, super_admin_headers) -> None:
+def test_delete_user_removes_account(client, super_admin_headers) -> None:
     create = client.post(
         "/api/v1/users",
         headers=super_admin_headers,
@@ -98,8 +98,13 @@ def test_deactivate_user_blocks_login(client, super_admin_headers) -> None:
     )
     user_id = create.json()["id"]
 
-    deactivate = client.delete(f"/api/v1/users/{user_id}", headers=super_admin_headers)
-    assert deactivate.status_code == 204
+    deleted = client.delete(f"/api/v1/users/{user_id}", headers=super_admin_headers)
+    assert deleted.status_code == 204
+
+    assert (
+        client.get(f"/api/v1/users/{user_id}", headers=super_admin_headers).status_code
+        == 404
+    )
 
     login = client.post(
         "/api/v1/auth/login",

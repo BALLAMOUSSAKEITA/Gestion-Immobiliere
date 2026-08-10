@@ -10,12 +10,23 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.core.permission_codes import ADMIN_FAMILIAL_PERMISSION_CODES
 from app.core.security import hash_password
+from app.models.audit import ApprovalRequest, AuditLog
+from app.models.building import Building
+from app.models.document import Document, DocumentShare
+from app.models.expense import Expense
+from app.models.notification import Notification, NotificationPreference
 from app.models.owner_profile import (
     OwnerProfile,
     UserBuildingAssignment,
     UserOwnerAssignment,
 )
+from app.models.payment import Payment, Receipt
+from app.models.portal import ContactMessage, TenantNotice, VisitRequest
+from app.models.refresh_token import RefreshToken
+from app.models.repair import Repair, RepairAttachment, RepairStatusHistory
+from app.models.report import ReportSnapshot
 from app.models.role import Role
+from app.models.tenant import Lease, LeaseRentHistory, Tenant
 from app.models.user import User
 from app.models.user_permission import UserPermission
 from app.schemas.user import (
@@ -185,15 +196,131 @@ class UserService:
         self.db.commit()
         return self._to_detail(self._get_user_or_404(user.id))
 
-    def deactivate_user(self, user_id: UUID, actor: User) -> None:
+    def delete_user(self, user_id: UUID, actor: User) -> None:
         user = self._get_user_or_404(user_id)
         if user.id == actor.id:
             raise HTTPException(
-                status_code=400, detail="Impossible de désactiver votre propre compte",
+                status_code=400,
+                detail="Impossible de supprimer votre propre compte",
             )
         self._ensure_not_last_super_admin(user)
-        user.is_active = False
+
+        # Données personnelles / sessions
+        self.db.query(RefreshToken).filter(RefreshToken.user_id == user_id).delete(
+            synchronize_session=False
+        )
+        self.db.query(Notification).filter(Notification.user_id == user_id).delete(
+            synchronize_session=False
+        )
+        self.db.query(NotificationPreference).filter(
+            NotificationPreference.user_id == user_id
+        ).delete(synchronize_session=False)
+        self.db.query(UserPermission).filter(UserPermission.user_id == user_id).delete(
+            synchronize_session=False
+        )
+        self.db.query(UserBuildingAssignment).filter(
+            UserBuildingAssignment.user_id == user_id
+        ).delete(synchronize_session=False)
+        self.db.query(UserOwnerAssignment).filter(
+            UserOwnerAssignment.user_id == user_id
+        ).delete(synchronize_session=False)
+        self.db.query(ContactMessage).filter(
+            (ContactMessage.sender_user_id == user_id)
+            | (ContactMessage.recipient_user_id == user_id)
+        ).delete(synchronize_session=False)
+
+        # Délier les profils
+        self.db.query(OwnerProfile).filter(OwnerProfile.user_id == user_id).update(
+            {OwnerProfile.user_id: None}, synchronize_session=False
+        )
+        self.db.query(Tenant).filter(Tenant.user_id == user_id).update(
+            {Tenant.user_id: None}, synchronize_session=False
+        )
+
+        # Réassigner / nullifier les références historiques
+        self.db.query(Building).filter(Building.manager_user_id == user_id).update(
+            {Building.manager_user_id: None}, synchronize_session=False
+        )
+        self.db.query(Building).filter(Building.created_by == user_id).update(
+            {Building.created_by: actor.id}, synchronize_session=False
+        )
+        self.db.query(UserBuildingAssignment).filter(
+            UserBuildingAssignment.assigned_by == user_id
+        ).update({UserBuildingAssignment.assigned_by: actor.id}, synchronize_session=False)
+
+        self.db.query(Tenant).filter(Tenant.created_by == user_id).update(
+            {Tenant.created_by: actor.id}, synchronize_session=False
+        )
+        self.db.query(Lease).filter(Lease.created_by == user_id).update(
+            {Lease.created_by: actor.id}, synchronize_session=False
+        )
+        self.db.query(LeaseRentHistory).filter(LeaseRentHistory.changed_by == user_id).update(
+            {LeaseRentHistory.changed_by: actor.id}, synchronize_session=False
+        )
+
+        self.db.query(Payment).filter(Payment.recorded_by == user_id).update(
+            {Payment.recorded_by: actor.id}, synchronize_session=False
+        )
+        self.db.query(Payment).filter(Payment.validated_by == user_id).update(
+            {Payment.validated_by: None}, synchronize_session=False
+        )
+        self.db.query(Receipt).filter(Receipt.issued_by == user_id).update(
+            {Receipt.issued_by: actor.id}, synchronize_session=False
+        )
+
+        self.db.query(Expense).filter(Expense.recorded_by == user_id).update(
+            {Expense.recorded_by: actor.id}, synchronize_session=False
+        )
+        self.db.query(Expense).filter(Expense.validated_by == user_id).update(
+            {Expense.validated_by: None}, synchronize_session=False
+        )
+
+        self.db.query(Repair).filter(Repair.reported_by == user_id).update(
+            {Repair.reported_by: actor.id}, synchronize_session=False
+        )
+        self.db.query(Repair).filter(Repair.assigned_to == user_id).update(
+            {Repair.assigned_to: None}, synchronize_session=False
+        )
+        self.db.query(RepairAttachment).filter(RepairAttachment.uploaded_by == user_id).update(
+            {RepairAttachment.uploaded_by: actor.id}, synchronize_session=False
+        )
+        self.db.query(RepairStatusHistory).filter(
+            RepairStatusHistory.changed_by == user_id
+        ).update({RepairStatusHistory.changed_by: actor.id}, synchronize_session=False)
+
+        self.db.query(Document).filter(Document.uploaded_by == user_id).update(
+            {Document.uploaded_by: actor.id}, synchronize_session=False
+        )
+        self.db.query(DocumentShare).filter(DocumentShare.created_by == user_id).update(
+            {DocumentShare.created_by: actor.id}, synchronize_session=False
+        )
+
+        self.db.query(ApprovalRequest).filter(ApprovalRequest.requested_by == user_id).update(
+            {ApprovalRequest.requested_by: actor.id}, synchronize_session=False
+        )
+        self.db.query(ApprovalRequest).filter(ApprovalRequest.reviewed_by == user_id).update(
+            {ApprovalRequest.reviewed_by: None}, synchronize_session=False
+        )
+        self.db.query(AuditLog).filter(AuditLog.user_id == user_id).update(
+            {AuditLog.user_id: actor.id}, synchronize_session=False
+        )
+
+        self.db.query(VisitRequest).filter(VisitRequest.assigned_to == user_id).update(
+            {VisitRequest.assigned_to: None}, synchronize_session=False
+        )
+        self.db.query(TenantNotice).filter(TenantNotice.published_by == user_id).update(
+            {TenantNotice.published_by: actor.id}, synchronize_session=False
+        )
+        self.db.query(ReportSnapshot).filter(ReportSnapshot.generated_by == user_id).update(
+            {ReportSnapshot.generated_by: None}, synchronize_session=False
+        )
+
+        self.db.delete(user)
         self.db.commit()
+
+    def deactivate_user(self, user_id: UUID, actor: User) -> None:
+        """Compatibilité : la suppression est désormais définitive."""
+        self.delete_user(user_id, actor)
 
     def reset_password(self, user_id: UUID) -> ResetPasswordResponse:
         user = self._get_user_or_404(user_id)
@@ -254,7 +381,7 @@ class UserService:
         if active_super_admins <= 1:
             raise HTTPException(
                 status_code=400,
-                detail="Impossible de désactiver le dernier super administrateur",
+                detail="Impossible de supprimer le dernier super administrateur",
             )
 
     def _replace_permissions(self, user: User, permissions: list[PermissionItem]) -> None:

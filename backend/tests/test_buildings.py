@@ -167,3 +167,23 @@ def test_cannot_delete_building_with_occupied_unit(
         headers=super_admin_headers,
     )
     assert response.status_code == 400
+
+
+def test_delete_owner_allowed_when_only_inactive_buildings(
+    client: TestClient,
+    super_admin_headers: dict[str, str],
+    db_session: Session,
+    sample_building: Building,
+    owner_profile: OwnerProfile,
+) -> None:
+    sample_building.is_active = False
+    db_session.commit()
+
+    response = client.delete(
+        f"/api/v1/owner-profiles/{owner_profile.id}",
+        headers=super_admin_headers,
+    )
+    assert response.status_code == 204
+
+    db_session.refresh(sample_building)
+    assert sample_building.owner_profile_id is None

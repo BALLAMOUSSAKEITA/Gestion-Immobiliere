@@ -62,12 +62,12 @@ def update_user(
 
 
 @router.delete("/{user_id}", status_code=204)
-def deactivate_user(
+def delete_user(
     user_id: UUID,
     current_user: Annotated[User, Depends(require_roles("super_admin"))],
     db: Annotated[Session, Depends(get_db)],
 ) -> None:
-    UserService(db).deactivate_user(user_id, current_user)
+    UserService(db).delete_user(user_id, current_user)
 
 
 @router.post("/{user_id}/reset-password", response_model=ResetPasswordResponse)

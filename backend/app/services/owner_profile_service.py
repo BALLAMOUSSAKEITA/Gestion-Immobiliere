@@ -61,12 +61,17 @@ class OwnerProfileService:
                 detail="Accès non autorisé",
             )
         profile = self._get_or_404(profile_id)
-        buildings_count = (
+        # Les immeubles « supprimés » restent en base (is_active=false) mais ne
+        # doivent pas bloquer la suppression du propriétaire.
+        active_buildings = (
             self.db.query(Building)
-            .filter(Building.owner_profile_id == profile_id)
+            .filter(
+                Building.owner_profile_id == profile_id,
+                Building.is_active.is_(True),
+            )
             .count()
         )
-        if buildings_count > 0:
+        if active_buildings > 0:
             raise HTTPException(
                 status_code=400,
                 detail=(
@@ -75,6 +80,10 @@ class OwnerProfileService:
                 ),
             )
 
+        self.db.query(Building).filter(Building.owner_profile_id == profile_id).update(
+            {Building.owner_profile_id: None},
+            synchronize_session=False,
+        )
         self.db.query(Expense).filter(Expense.owner_profile_id == profile_id).update(
             {Expense.owner_profile_id: None},
             synchronize_session=False,

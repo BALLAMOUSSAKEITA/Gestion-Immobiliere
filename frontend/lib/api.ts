@@ -256,7 +256,7 @@ export async function updateUser(
   );
 }
 
-export async function deactivateUser(
+export async function deleteUser(
   accessToken: string,
   userId: string,
 ): Promise<void> {
@@ -266,6 +266,9 @@ export async function deactivateUser(
     accessToken,
   );
 }
+
+/** @deprecated Utiliser deleteUser — suppression définitive */
+export const deactivateUser = deleteUser;
 
 export async function resetUserPassword(
   accessToken: string,

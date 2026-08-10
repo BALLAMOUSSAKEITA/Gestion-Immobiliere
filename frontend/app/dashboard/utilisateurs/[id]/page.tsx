@@ -10,7 +10,7 @@ import { UserForm } from "@/components/users/user-form";
 import { Button } from "@/components/ui/button";
 import {
   ApiError,
-  deactivateUser,
+  deleteUser,
   fetchUser,
   resetUserPassword,
   updateUser,
@@ -18,7 +18,7 @@ import {
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useConfirm } from "@/contexts/confirm-context";
-import { deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
+import { dangerConfirm, modifyConfirm } from "@/lib/confirm-presets";
 
 export default function UserDetailPage() {
   const params = useParams<{ id: string }>();
@@ -38,19 +38,23 @@ export default function UserDetailPage() {
       );
   }, [params.id]);
 
-  const handleDeactivate = async () => {
+  const handleDelete = async () => {
     const token = getAccessToken();
     if (!token || !user) return;
     if (
       !(await confirm(
-        deleteConfirm(`l'utilisateur « ${user.first_name} ${user.last_name} »`),
+        dangerConfirm(
+          "Supprimer l'utilisateur",
+          `Cette action supprime définitivement le compte de ${user.first_name} ${user.last_name}. Cette opération est irréversible.`,
+          "Supprimer définitivement",
+        ),
       ))
     ) {
       return;
     }
     setError(null);
     try {
-      await deactivateUser(token, user.id);
+      await deleteUser(token, user.id);
       router.push("/dashboard/utilisateurs");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Suppression impossible");
@@ -146,11 +150,9 @@ export default function UserDetailPage() {
           <Button variant="outline" onClick={handleResetPassword}>
             Réinitialiser le mot de passe
           </Button>
-          {user.is_active && (
-            <Button variant="destructive" onClick={handleDeactivate}>
-              Supprimer
-            </Button>
-          )}
+          <Button variant="destructive" onClick={handleDelete}>
+            Supprimer
+          </Button>
         </div>
       </div>
     </SuperAdminRoute>

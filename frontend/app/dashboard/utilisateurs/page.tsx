@@ -9,14 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   ApiError,
-  deactivateUser,
+  deleteUser,
   fetchUsers,
   ROLE_OPTIONS,
   type UserSummary,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useConfirm } from "@/contexts/confirm-context";
-import { deleteConfirm } from "@/lib/confirm-presets";
+import { dangerConfirm } from "@/lib/confirm-presets";
 
 export default function UsersPage() {
   const confirm = useConfirm();
@@ -141,38 +141,38 @@ export default function UsersPage() {
                             Voir
                           </Link>
                         </Button>
-                        {user.is_active && (
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={async () => {
-                              if (
-                                !(await confirm(
-                                  deleteConfirm(
-                                    `l'utilisateur « ${user.first_name} ${user.last_name} »`,
-                                  ),
-                                ))
-                              ) {
-                                return;
-                              }
-                              setError(null);
-                              try {
-                                const token = getAccessToken();
-                                if (!token) return;
-                                await deactivateUser(token, user.id);
-                                await loadUsers();
-                              } catch (err) {
-                                setError(
-                                  err instanceof ApiError
-                                    ? err.message
-                                    : "Suppression impossible",
-                                );
-                              }
-                            }}
-                          >
-                            Supprimer
-                          </Button>
-                        )}
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={async () => {
+                            if (
+                              !(await confirm(
+                                dangerConfirm(
+                                  "Supprimer l'utilisateur",
+                                  `Cette action supprime définitivement le compte de ${user.first_name} ${user.last_name}. Cette opération est irréversible.`,
+                                  "Supprimer définitivement",
+                                ),
+                              ))
+                            ) {
+                              return;
+                            }
+                            setError(null);
+                            try {
+                              const token = getAccessToken();
+                              if (!token) return;
+                              await deleteUser(token, user.id);
+                              await loadUsers();
+                            } catch (err) {
+                              setError(
+                                err instanceof ApiError
+                                  ? err.message
+                                  : "Suppression impossible",
+                              );
+                            }
+                          }}
+                        >
+                          Supprimer
+                        </Button>
                       </div>
                     </td>
                   </tr>
