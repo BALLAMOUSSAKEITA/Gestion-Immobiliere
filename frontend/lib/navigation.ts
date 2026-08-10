@@ -44,12 +44,8 @@ export const DASHBOARD_NAV: NavGroup[] = [
     title: "Administration",
     items: [
       { href: "/dashboard/validations", label: "Validations", roles: ["super_admin"] },
-      { href: "/dashboard/mes-demandes", label: "Mes demandes", roles: ["super_admin", "admin_familial", "gestionnaire"] },
-      { href: "/dashboard/historique", label: "Historique", roles: ["super_admin"] },
-      { href: "/dashboard/rapports", label: "Rapports", roles: ["super_admin", "admin_familial", "proprietaire"] },
       { href: "/dashboard/utilisateurs", label: "Utilisateurs", roles: ["super_admin"] },
       { href: "/dashboard/proprietaires", label: "Propriétaires", roles: ["super_admin", "admin_familial"] },
-      { href: "/dashboard/notifications", label: "Notifications", roles: STAFF_ROLES },
     ],
   },
 ];
