@@ -8,6 +8,7 @@ import { FileInput } from "@/components/ui/file-input";
 import { Input } from "@/components/ui/input";
 import {
   ApiError,
+  deleteDocumentWithApproval,
   fetchDocumentTypes,
   fetchDocuments,
   formatFileSize,
@@ -17,8 +18,9 @@ import {
   type DocumentTypeItem,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useAuth } from "@/contexts/auth-context";
 import { useConfirm } from "@/contexts/confirm-context";
-import { modifyConfirm } from "@/lib/confirm-presets";
+import { deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
 
 type DocumentLibraryProps = {
   entityType: DocumentEntityType;
@@ -33,6 +35,7 @@ export function DocumentLibrary({
   canUpload = false,
   title = "Documents",
 }: DocumentLibraryProps) {
+  const { user } = useAuth();
   const confirm = useConfirm();
   const [items, setItems] = useState<DocumentSummary[]>([]);
   const [types, setTypes] = useState<DocumentTypeItem[]>([]);
@@ -41,6 +44,7 @@ export function DocumentLibrary({
   const [typeId, setTypeId] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const isSuperAdmin = user?.role.code === "super_admin";
 
   const load = useCallback(async () => {
     const token = getAccessToken();
@@ -148,9 +152,39 @@ export function DocumentLibrary({
                   {new Date(item.uploaded_at).toLocaleDateString("fr-FR")}
                 </p>
               </div>
-              <Button asChild variant="outline">
-                <Link href={`/dashboard/documents/${item.id}`}>Ouvrir</Link>
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/dashboard/documents/${item.id}`}>Ouvrir</Link>
+                </Button>
+                {isSuperAdmin && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={async () => {
+                      if (
+                        !(await confirm(deleteConfirm(`le document « ${item.title} »`)))
+                      ) {
+                        return;
+                      }
+                      const token = getAccessToken();
+                      if (!token) return;
+                      setError(null);
+                      try {
+                        await deleteDocumentWithApproval(token, item.id);
+                        await load();
+                      } catch (err) {
+                        setError(
+                          err instanceof ApiError
+                            ? err.message
+                            : "Suppression impossible",
+                        );
+                      }
+                    }}
+                  >
+                    Supprimer
+                  </Button>
+                )}
+              </div>
             </div>
           ))
         )}

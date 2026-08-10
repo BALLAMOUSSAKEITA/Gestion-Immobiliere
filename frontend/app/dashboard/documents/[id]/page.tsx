@@ -158,8 +158,8 @@ export default function DocumentDetailPage() {
                   Partager
                 </Button>
               )}
-              {canManage && isSuperAdmin && (
-                <Button variant="outline" onClick={handleDirectDelete}>
+              {isSuperAdmin && (
+                <Button variant="destructive" onClick={handleDirectDelete}>
                   Supprimer
                 </Button>
               )}

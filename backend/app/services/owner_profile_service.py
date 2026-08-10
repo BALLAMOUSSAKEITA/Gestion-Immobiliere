@@ -1,9 +1,12 @@
 from uuid import UUID
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.models.owner_profile import OwnerProfile
+from app.models.building import Building
+from app.models.expense import Expense
+from app.models.owner_profile import OwnerProfile, UserOwnerAssignment
+from app.models.user import User
 from app.schemas.owner_profile import (
     OwnerProfileCreate,
     OwnerProfileListResponse,
@@ -50,6 +53,39 @@ class OwnerProfileService:
         self.db.commit()
         self.db.refresh(profile)
         return self._to_response(profile)
+
+    def delete_profile(self, actor: User, profile_id: UUID) -> None:
+        if actor.role.code != "super_admin":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Accès non autorisé",
+            )
+        profile = self._get_or_404(profile_id)
+        buildings_count = (
+            self.db.query(Building)
+            .filter(Building.owner_profile_id == profile_id)
+            .count()
+        )
+        if buildings_count > 0:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Impossible de supprimer ce propriétaire : des immeubles lui sont encore "
+                    "associés. Réassignez d'abord ces immeubles."
+                ),
+            )
+
+        self.db.query(Expense).filter(Expense.owner_profile_id == profile_id).update(
+            {Expense.owner_profile_id: None},
+            synchronize_session=False,
+        )
+        self.db.query(UserOwnerAssignment).filter(
+            UserOwnerAssignment.owner_profile_id == profile_id
+        ).delete(synchronize_session=False)
+
+        profile.user_id = None
+        self.db.delete(profile)
+        self.db.commit()
 
     def _get_or_404(self, profile_id: UUID) -> OwnerProfile:
         profile = self.db.query(OwnerProfile).filter(OwnerProfile.id == profile_id).first()

@@ -328,6 +328,17 @@ export async function createOwnerProfile(
   );
 }
 
+export async function deleteOwnerProfile(
+  accessToken: string,
+  profileId: string,
+): Promise<void> {
+  await apiFetch<void>(
+    `/api/v1/owner-profiles/${profileId}`,
+    { method: "DELETE" },
+    accessToken,
+  );
+}
+
 export const ROLE_OPTIONS = [
   { code: "super_admin", label: "Super Administrateur" },
   { code: "admin_familial", label: "Administrateur Familial" },

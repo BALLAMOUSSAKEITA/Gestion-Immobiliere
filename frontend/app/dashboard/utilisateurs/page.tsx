@@ -7,10 +7,19 @@ import { SuperAdminRoute } from "@/components/auth/super-admin-route";
 import { RoleBadge } from "@/components/auth/role-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ApiError, fetchUsers, ROLE_OPTIONS, type UserSummary } from "@/lib/api";
+import {
+  ApiError,
+  deactivateUser,
+  fetchUsers,
+  ROLE_OPTIONS,
+  type UserSummary,
+} from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
+import { useConfirm } from "@/contexts/confirm-context";
+import { deleteConfirm } from "@/lib/confirm-presets";
 
 export default function UsersPage() {
+  const confirm = useConfirm();
   const [users, setUsers] = useState<UserSummary[]>([]);
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("");
@@ -126,11 +135,45 @@ export default function UsersPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <Button asChild variant="outline" size="default">
-                        <Link href={`/dashboard/utilisateurs/${user.id}`}>
-                          Voir
-                        </Link>
-                      </Button>
+                      <div className="flex items-center justify-end gap-2">
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={`/dashboard/utilisateurs/${user.id}`}>
+                            Voir
+                          </Link>
+                        </Button>
+                        {user.is_active && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={async () => {
+                              if (
+                                !(await confirm(
+                                  deleteConfirm(
+                                    `l'utilisateur « ${user.first_name} ${user.last_name} »`,
+                                  ),
+                                ))
+                              ) {
+                                return;
+                              }
+                              setError(null);
+                              try {
+                                const token = getAccessToken();
+                                if (!token) return;
+                                await deactivateUser(token, user.id);
+                                await loadUsers();
+                              } catch (err) {
+                                setError(
+                                  err instanceof ApiError
+                                    ? err.message
+                                    : "Suppression impossible",
+                                );
+                              }
+                            }}
+                          >
+                            Supprimer
+                          </Button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))

@@ -175,6 +175,7 @@ class DocumentService:
         if actor.role.code != "super_admin":
             raise HTTPException(status_code=403, detail="Accès non autorisé")
         document = self._get_or_404(document_id)
+        self.storage.delete_file(document.file_url)
         self.db.delete(document)
         self.db.commit()
 

@@ -41,9 +41,20 @@ export default function UserDetailPage() {
   const handleDeactivate = async () => {
     const token = getAccessToken();
     if (!token || !user) return;
-    if (!(await confirm(deleteConfirm("cet utilisateur")))) return;
-    await deactivateUser(token, user.id);
-    router.push("/dashboard/utilisateurs");
+    if (
+      !(await confirm(
+        deleteConfirm(`l'utilisateur « ${user.first_name} ${user.last_name} »`),
+      ))
+    ) {
+      return;
+    }
+    setError(null);
+    try {
+      await deactivateUser(token, user.id);
+      router.push("/dashboard/utilisateurs");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Suppression impossible");
+    }
   };
 
   const handleResetPassword = async () => {
@@ -136,8 +147,8 @@ export default function UserDetailPage() {
             Réinitialiser le mot de passe
           </Button>
           {user.is_active && (
-            <Button variant="outline" onClick={handleDeactivate}>
-              Désactiver
+            <Button variant="destructive" onClick={handleDeactivate}>
+              Supprimer
             </Button>
           )}
         </div>
