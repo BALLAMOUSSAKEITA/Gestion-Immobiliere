@@ -37,14 +37,7 @@ export const DASHBOARD_NAV: NavGroup[] = [
       { href: "/dashboard/impayes", label: "Impayés", roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire"] },
       { href: "/dashboard/recus", label: "Reçus", roles: ["super_admin", "admin_familial", "gestionnaire"] },
       { href: "/dashboard/depenses", label: "Dépenses", roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire"] },
-    ],
-  },
-  {
-    title: "Opérations",
-    items: [
-      { href: "/dashboard/reparations", label: "Réparations", roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire"] },
       { href: "/dashboard/documents", label: "Documents", roles: ["super_admin", "admin_familial", "gestionnaire", "proprietaire"] },
-      { href: "/dashboard/demandes-visite", label: "Visites", roles: ["super_admin", "admin_familial", "gestionnaire"] },
     ],
   },
   {

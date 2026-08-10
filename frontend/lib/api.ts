@@ -1253,6 +1253,17 @@ export async function createExpense(
   );
 }
 
+export async function deleteExpense(
+  accessToken: string,
+  expenseId: string,
+): Promise<void> {
+  await apiFetch<void>(
+    `/api/v1/expenses/${expenseId}`,
+    { method: "DELETE" },
+    accessToken,
+  );
+}
+
 export async function validateExpense(
   accessToken: string,
   expenseId: string,

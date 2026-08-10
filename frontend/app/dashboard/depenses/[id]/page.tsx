@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { ExpenseStatusBadge } from "@/components/expenses/expense-status-badge";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { FileInput } from "@/components/ui/file-input";
 import {
   ApiError,
+  deleteExpense,
   fetchExpense,
   formatCurrency,
   PAYMENT_METHOD_LABELS,
@@ -18,10 +19,11 @@ import {
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
 import { useConfirm } from "@/contexts/confirm-context";
-import { modifyConfirm } from "@/lib/confirm-presets";
+import { deleteConfirm, modifyConfirm } from "@/lib/confirm-presets";
 
 export default function ExpenseDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const { user } = useAuth();
   const confirm = useConfirm();
   const [expense, setExpense] = useState<ExpenseDetail | null>(null);
@@ -32,6 +34,7 @@ export default function ExpenseDetailPage() {
     user?.role.code === "super_admin" ||
     user?.role.code === "admin_familial" ||
     user?.role.code === "gestionnaire";
+  const isSuperAdmin = user?.role.code === "super_admin";
 
   const load = useCallback(async () => {
     const token = getAccessToken();
@@ -76,7 +79,39 @@ export default function ExpenseDetailPage() {
                 <h1 className="text-3xl font-bold">Détail dépense</h1>
                 <p className="mt-2 text-muted-foreground">{expense.category_label}</p>
               </div>
-              <ExpenseStatusBadge status={expense.status} />
+              <div className="flex flex-wrap items-center gap-2">
+                <ExpenseStatusBadge status={expense.status} />
+                {isSuperAdmin && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={async () => {
+                      if (
+                        !(await confirm(
+                          deleteConfirm(`la dépense « ${expense.description} »`),
+                        ))
+                      ) {
+                        return;
+                      }
+                      const token = getAccessToken();
+                      if (!token) return;
+                      setError(null);
+                      try {
+                        await deleteExpense(token, expense.id);
+                        router.push("/dashboard/depenses");
+                      } catch (err) {
+                        setError(
+                          err instanceof ApiError
+                            ? err.message
+                            : "Suppression impossible",
+                        );
+                      }
+                    }}
+                  >
+                    Supprimer
+                  </Button>
+                )}
+              </div>
             </div>
 
             <div className="grid gap-4 rounded-xl border border-border bg-card shadow-sm p-6 sm:grid-cols-2">

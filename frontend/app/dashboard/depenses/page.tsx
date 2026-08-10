@@ -7,6 +7,7 @@ import { ExpenseStatusBadge } from "@/components/expenses/expense-status-badge";
 import { Button } from "@/components/ui/button";
 import {
   ApiError,
+  deleteExpense,
   fetchExpenses,
   fetchExpensesSummary,
   formatCurrency,
@@ -15,6 +16,8 @@ import {
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
 import { useAuth } from "@/contexts/auth-context";
+import { useConfirm } from "@/contexts/confirm-context";
+import { deleteConfirm } from "@/lib/confirm-presets";
 
 function SummaryCards({ summary }: { summary: ExpenseSummaryStats }) {
   return (
@@ -44,6 +47,7 @@ function SummaryCards({ summary }: { summary: ExpenseSummaryStats }) {
 
 export default function ExpensesPage() {
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [items, setItems] = useState<ExpenseSummary[]>([]);
   const [summary, setSummary] = useState<ExpenseSummaryStats | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +58,7 @@ export default function ExpensesPage() {
     user?.role.code === "super_admin" ||
     user?.role.code === "admin_familial" ||
     user?.role.code === "gestionnaire";
+  const isSuperAdmin = user?.role.code === "super_admin";
 
   const load = useCallback(async () => {
     const token = getAccessToken();
@@ -165,9 +170,43 @@ export default function ExpensesPage() {
                       <ExpenseStatusBadge status={item.status} />
                     </td>
                     <td className="px-4 py-3">
-                      <Button asChild variant="outline">
-                        <Link href={`/dashboard/depenses/${item.id}`}>Détail</Link>
-                      </Button>
+                      <div className="flex items-center justify-end gap-2">
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={`/dashboard/depenses/${item.id}`}>Détail</Link>
+                        </Button>
+                        {isSuperAdmin && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={async () => {
+                              if (
+                                !(await confirm(
+                                  deleteConfirm(
+                                    `la dépense « ${item.description} »`,
+                                  ),
+                                ))
+                              ) {
+                                return;
+                              }
+                              const token = getAccessToken();
+                              if (!token) return;
+                              setError(null);
+                              try {
+                                await deleteExpense(token, item.id);
+                                await load();
+                              } catch (err) {
+                                setError(
+                                  err instanceof ApiError
+                                    ? err.message
+                                    : "Suppression impossible",
+                                );
+                              }
+                            }}
+                          >
+                            Supprimer
+                          </Button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
