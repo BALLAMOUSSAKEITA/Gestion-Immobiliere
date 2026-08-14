@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { BuildingForm } from "@/components/buildings/building-form";
 import { UnitForm } from "@/components/buildings/unit-form";
 import { UnitStatusBadge } from "@/components/buildings/unit-status-badge";
 import { ImageUploadField } from "@/components/ui/image-upload-field";
@@ -15,10 +16,14 @@ import {
   deleteUnit,
   fetchBuilding,
   fetchBuildingUnits,
+  fetchOwnerProfiles,
+  fetchUsers,
   formatCurrency,
   releaseUnit,
+  updateBuilding,
   uploadBuildingPhoto,
   type BuildingDetail,
+  type OwnerProfile,
   type UnitSummary,
 } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-storage";
@@ -36,6 +41,9 @@ export default function BuildingDetailPage() {
   const [building, setBuilding] = useState<BuildingDetail | null>(null);
   const [units, setUnits] = useState<UnitSummary[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [ownerProfiles, setOwnerProfiles] = useState<{ id: string; label: string }[]>([]);
+  const [managers, setManagers] = useState<{ id: string; label: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -59,6 +67,33 @@ export default function BuildingDetailPage() {
       setError(err instanceof ApiError ? err.message : "Chargement impossible"),
     );
   }, [loadData]);
+
+  useEffect(() => {
+    if (!canManage) return;
+    const token = getAccessToken();
+    if (!token) return;
+    Promise.all([
+      fetchOwnerProfiles(token),
+      fetchUsers(token, { role: "gestionnaire", page_size: 100 }),
+    ])
+      .then(([profiles, users]) => {
+        setOwnerProfiles(
+          profiles.items.map((profile: OwnerProfile) => ({
+            id: profile.id,
+            label: `${profile.first_name} ${profile.last_name}`,
+          })),
+        );
+        setManagers(
+          users.items.map((userItem) => ({
+            id: userItem.id,
+            label: `${userItem.first_name} ${userItem.last_name}`,
+          })),
+        );
+      })
+      .catch(() => {
+        /* les listes déroulantes restent vides si chargement impossible */
+      });
+  }, [canManage]);
 
   if (!building) {
     return (
@@ -92,6 +127,18 @@ export default function BuildingDetailPage() {
                 className="h-48 w-full max-w-sm rounded-xl border border-border object-cover"
               />
             )}
+            {canManage && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setShowEdit((value) => !value);
+                  setActionError(null);
+                }}
+              >
+                {showEdit ? "Annuler" : "Modifier l'immeuble"}
+              </Button>
+            )}
             {isSuperAdmin && (
               <Button
                 variant="destructive"
@@ -120,6 +167,50 @@ export default function BuildingDetailPage() {
         </div>
 
         {actionError && <p className="text-sm text-red-600">{actionError}</p>}
+
+        {showEdit && canManage && (
+          <BuildingForm
+            key={building.updated_at}
+            ownerProfiles={ownerProfiles}
+            managers={managers}
+            submitLabel="Enregistrer les modifications"
+            initialValues={{
+              name: building.name,
+              address: building.address,
+              commune: building.commune,
+              quartier: building.quartier ?? undefined,
+              floor_count: building.floor_count,
+              owner_profile_id: building.owner_profile_id ?? undefined,
+              manager_user_id: building.manager_user_id ?? undefined,
+              observations: building.observations ?? undefined,
+            }}
+            onSubmit={async (values) => {
+              if (!(await confirm(modifyConfirm("Enregistrer les modifications de l'immeuble ?")))) {
+                return;
+              }
+              const token = getAccessToken();
+              if (!token) return;
+              setActionError(null);
+              try {
+                const updated = await updateBuilding(token, building.id, values);
+                setBuilding(updated);
+                setShowEdit(false);
+              } catch (err) {
+                setActionError(
+                  err instanceof ApiError ? err.message : "Modification impossible",
+                );
+                throw err;
+              }
+            }}
+          />
+        )}
+
+        {building.observations && !showEdit && (
+          <div className="rounded-xl border border-border bg-card shadow-sm p-4">
+            <p className="text-sm text-muted-foreground">Observations</p>
+            <p className="mt-1 whitespace-pre-wrap">{building.observations}</p>
+          </div>
+        )}
 
         {canManage && (
           <ImageUploadField
