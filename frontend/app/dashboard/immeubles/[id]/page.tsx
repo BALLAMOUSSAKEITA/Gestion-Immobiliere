@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { Pencil, Trash2 } from "lucide-react";
 
 import { BuildingForm } from "@/components/buildings/building-form";
 import { UnitForm } from "@/components/buildings/unit-form";
 import { UnitStatusBadge } from "@/components/buildings/unit-status-badge";
+import { PageHeader } from "@/components/layout/page-header";
 import { ImageUploadField } from "@/components/ui/image-upload-field";
 import { Button } from "@/components/ui/button";
 import {
@@ -107,64 +109,65 @@ export default function BuildingDetailPage() {
     );
   }
 
+  const locationLine = [building.address, building.commune, building.quartier]
+    .filter(Boolean)
+    .join(" · ");
+
+  const handleDeleteBuilding = async () => {
+    if (!(await confirm(deleteConfirm(`l'immeuble « ${building.name} »`)))) {
+      return;
+    }
+    const token = getAccessToken();
+    if (!token) return;
+    setActionError(null);
+    try {
+      await deleteBuilding(token, building.id);
+      router.push("/dashboard/immeubles");
+    } catch (err) {
+      setActionError(err instanceof ApiError ? err.message : "Suppression impossible");
+    }
+  };
+
   return (
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">{building.code}</p>
-            <h1 className="text-3xl font-bold">{building.name}</h1>
-            <p className="mt-2 text-muted-foreground">
-              {building.address} · {building.commune}
-              {building.quartier ? ` · ${building.quartier}` : ""}
-            </p>
-          </div>
-          <div className="flex flex-col items-start gap-3">
-            {building.photo_url && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={`${API_URL}${building.photo_url}`}
-                alt={building.name}
-                className="h-48 w-full max-w-sm rounded-xl border border-border object-cover"
-              />
-            )}
-            {canManage && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setShowEdit((value) => !value);
-                  setActionError(null);
-                }}
-              >
-                {showEdit ? "Annuler" : "Modifier l'immeuble"}
-              </Button>
-            )}
-            {isSuperAdmin && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={async () => {
-                  if (!(await confirm(deleteConfirm(`l'immeuble « ${building.name} »`)))) {
-                    return;
-                  }
-                  const token = getAccessToken();
-                  if (!token) return;
-                  setActionError(null);
-                  try {
-                    await deleteBuilding(token, building.id);
-                    router.push("/dashboard/immeubles");
-                  } catch (err) {
-                    setActionError(
-                      err instanceof ApiError ? err.message : "Suppression impossible",
-                    );
-                  }
-                }}
-              >
-                Supprimer l&apos;immeuble
-              </Button>
-            )}
-          </div>
-        </div>
+        <PageHeader
+          title={building.name}
+          description={`${building.code}${locationLine ? ` · ${locationLine}` : ""}`}
+          actions={
+            (canManage || isSuperAdmin) && (
+              <div className="flex flex-wrap gap-2">
+                {canManage && (
+                  <Button
+                    variant={showEdit ? "ghost" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setShowEdit((value) => !value);
+                      setActionError(null);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" strokeWidth={1.75} />
+                    {showEdit ? "Annuler" : "Modifier"}
+                  </Button>
+                )}
+                {isSuperAdmin && (
+                  <Button variant="destructive" size="sm" onClick={handleDeleteBuilding}>
+                    <Trash2 className="h-4 w-4" strokeWidth={1.75} />
+                    Supprimer
+                  </Button>
+                )}
+              </div>
+            )
+          }
+        />
+
+        {building.photo_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`${API_URL}${building.photo_url}`}
+            alt={building.name}
+            className="aspect-[16/9] w-full max-w-2xl rounded-xl border border-border object-cover"
+          />
+        )}
 
         {actionError && <p className="text-sm text-red-600">{actionError}</p>}
 
