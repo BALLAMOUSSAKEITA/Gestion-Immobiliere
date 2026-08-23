@@ -77,6 +77,8 @@ class Payment(Base, TimestampMixin):
         Enum(PaymentMethod, native_enum=False, length=20), nullable=False
     )
     payment_date: Mapped[date] = mapped_column(Date, nullable=False)
+    covered_from: Mapped[date | None] = mapped_column(Date, nullable=True)
+    covered_to: Mapped[date | None] = mapped_column(Date, nullable=True)
     reference: Mapped[str | None] = mapped_column(String(100), nullable=True)
     proof_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)

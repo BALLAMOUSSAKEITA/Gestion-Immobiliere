@@ -373,7 +373,7 @@ export const UNIT_TYPE_LABELS: Record<UnitType, string> = {
 };
 
 
-export { formatCurrency, CURRENCY_CODE } from "./currency";
+export { formatCurrency, formatCoveredPeriod, CURRENCY_CODE } from "./currency";
 
 export type BuildingSummary = {
   id: string;
@@ -947,6 +947,8 @@ export type PaymentSummary = {
   amount: string;
   payment_method: PaymentMethod;
   payment_date: string;
+  covered_from: string | null;
+  covered_to: string | null;
   reference: string | null;
   status: PaymentStatus;
   recorded_by_name: string;
@@ -974,9 +976,11 @@ export type PaymentListResponse = {
 
 export type PaymentCreatePayload = {
   lease_id: string;
-  amount: string;
+  amount?: string;
   payment_method: PaymentMethod;
   payment_date: string;
+  covered_from?: string;
+  covered_to?: string;
   reference?: string;
   notes?: string;
   allocations?: { period_year: number; period_month: number; amount: string }[];

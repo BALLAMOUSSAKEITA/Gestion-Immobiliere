@@ -8,6 +8,7 @@ import {
   ApiError,
   deletePayment,
   fetchPayments,
+  formatCoveredPeriod,
   formatCurrency,
   PAYMENT_METHOD_LABELS,
   type PaymentSummary,
@@ -63,6 +64,7 @@ export default function PaymentsPage() {
             <thead className="border-b border-border bg-muted/50">
               <tr>
                 <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Période</th>
                 <th className="px-4 py-3">Locataire</th>
                 <th className="px-4 py-3">Logement</th>
                 <th className="px-4 py-3">Montant</th>
@@ -75,6 +77,9 @@ export default function PaymentsPage() {
               {payments.map((payment) => (
                 <tr key={payment.id} className="border-b border-border">
                   <td className="px-4 py-3">{payment.payment_date}</td>
+                  <td className="px-4 py-3">
+                    {formatCoveredPeriod(payment.covered_from, payment.covered_to) ?? "—"}
+                  </td>
                   <td className="px-4 py-3">{payment.tenant_name}</td>
                   <td className="px-4 py-3">{payment.unit_code}</td>
                   <td className="px-4 py-3">{formatCurrency(payment.amount)}</td>

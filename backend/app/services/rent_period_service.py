@@ -76,6 +76,16 @@ class RentPeriodService:
             self.db.flush()
         return created
 
+    def ensure_covering(self, lease: Lease, until: date) -> list[RentPeriod]:
+        needed = (
+            (until.year - lease.start_date.year) * 12
+            + until.month
+            - lease.start_date.month
+            + 1
+        )
+        months = max(needed, 12)
+        return self.generate_for_lease(lease, months=months)
+
     def refresh_period_status(self, period: RentPeriod, today: date | None = None) -> None:
         from app.models.enums import RentPeriodStatus
 

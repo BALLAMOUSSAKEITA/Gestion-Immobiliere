@@ -32,15 +32,13 @@ export default function NewPaymentPage() {
         <div>
           <h1 className="text-3xl font-bold">Enregistrer un paiement</h1>
           <p className="mt-2 text-muted-foreground">
-            Le reçu PDF sera généré automatiquement.
+            Choisissez la période de loyer réglée : le montant est calculé automatiquement et
+            le reçu PDF est généré.
           </p>
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <PaymentForm
-          leases={leases.map((lease) => ({
-            id: lease.id,
-            label: `${lease.tenant_name} — ${lease.unit_code}`,
-          }))}
+          leases={leases}
           onSubmit={async (values) => {
             const token = getAccessToken();
             if (!token) return;

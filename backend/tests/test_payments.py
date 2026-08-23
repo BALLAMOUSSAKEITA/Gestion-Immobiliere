@@ -91,6 +91,66 @@ def test_record_single_month_payment(
     data = response.json()
     assert data["amount"] == "250000.00"
     assert data["receipt_number"] is not None
+    assert data["covered_from"] == "2026-07-01"
+    assert data["covered_to"] == "2026-07-31"
+
+
+def test_record_payment_by_covered_period_calculates_amount(
+    client: TestClient, super_admin_headers: dict[str, str], active_lease: Lease
+) -> None:
+    response = client.post(
+        "/api/v1/payments",
+        headers=super_admin_headers,
+        json={
+            "lease_id": str(active_lease.id),
+            "payment_method": "cash",
+            "payment_date": "2026-07-26",
+            "covered_from": "2026-07-01",
+            "covered_to": "2026-09-30",
+        },
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["amount"] == "750000.00"
+    assert data["covered_from"] == "2026-07-01"
+    assert data["covered_to"] == "2026-09-30"
+    assert len(data["allocations"]) == 3
+    months = {(item["period_year"], item["period_month"]) for item in data["allocations"]}
+    assert months == {(2026, 7), (2026, 8), (2026, 9)}
+
+
+def test_covered_period_skips_already_paid_months(
+    client: TestClient, super_admin_headers: dict[str, str], active_lease: Lease
+) -> None:
+    first = client.post(
+        "/api/v1/payments",
+        headers=super_admin_headers,
+        json={
+            "lease_id": str(active_lease.id),
+            "amount": "250000.00",
+            "payment_method": "cash",
+            "payment_date": "2026-07-26",
+            "allocations": [{"period_year": 2026, "period_month": 7, "amount": "250000.00"}],
+        },
+    )
+    assert first.status_code == 201
+
+    response = client.post(
+        "/api/v1/payments",
+        headers=super_admin_headers,
+        json={
+            "lease_id": str(active_lease.id),
+            "payment_method": "orange_money",
+            "payment_date": "2026-07-26",
+            "covered_from": "2026-07-01",
+            "covered_to": "2026-09-30",
+        },
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["amount"] == "500000.00"
+    months = {(item["period_year"], item["period_month"]) for item in data["allocations"]}
+    assert months == {(2026, 8), (2026, 9)}
 
 
 def test_record_multi_month_payment(

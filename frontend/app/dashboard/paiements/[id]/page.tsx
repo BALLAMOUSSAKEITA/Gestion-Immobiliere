@@ -9,6 +9,7 @@ import {
   ApiError,
   deletePayment,
   fetchPayment,
+  formatCoveredPeriod,
   formatCurrency,
   PAYMENT_METHOD_LABELS,
   type PaymentDetail,
@@ -89,6 +90,12 @@ export default function PaymentDetailPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <Info label="Date" value={payment.payment_date} />
             <Info
+              label="Période couverte"
+              value={
+                formatCoveredPeriod(payment.covered_from, payment.covered_to) ?? "—"
+              }
+            />
+            <Info
               label="Mode"
               value={PAYMENT_METHOD_LABELS[payment.payment_method]}
             />
@@ -101,12 +108,15 @@ export default function PaymentDetailPage() {
 
           {payment.allocations.length > 0 && (
             <div className="rounded-xl border border-border bg-card shadow-sm p-4">
-              <p className="font-medium">Allocations</p>
+              <p className="font-medium">Échéances réglées</p>
               <ul className="mt-2 space-y-1 text-sm">
                 {payment.allocations.map((item) => (
                   <li key={`${item.period_year}-${item.period_month}`}>
-                    {String(item.period_month).padStart(2, "0")}/{item.period_year} —{" "}
-                    {formatCurrency(item.allocated_amount)}
+                    {new Date(item.period_year, item.period_month - 1, 1).toLocaleDateString(
+                      "fr-FR",
+                      { month: "long", year: "numeric" },
+                    )}{" "}
+                    — {formatCurrency(item.allocated_amount)}
                   </li>
                 ))}
               </ul>

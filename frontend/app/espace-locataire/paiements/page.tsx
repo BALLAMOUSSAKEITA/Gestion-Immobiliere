@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import {
   ApiError,
   fetchTenantPayments,
+  formatCoveredPeriod,
   formatCurrency,
   PAYMENT_METHOD_LABELS,
   type PaymentSummary,
@@ -39,6 +40,7 @@ export default function TenantPaymentsPage() {
           <thead className="border-b border-border bg-muted/50">
             <tr>
               <th className="px-4 py-3">Date</th>
+              <th className="px-4 py-3">Période</th>
               <th className="px-4 py-3">Montant</th>
               <th className="px-4 py-3">Méthode</th>
               <th className="px-4 py-3">Statut</th>
@@ -47,7 +49,7 @@ export default function TenantPaymentsPage() {
           <tbody>
             {items.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                   Aucun paiement enregistré.
                 </td>
               </tr>
@@ -55,6 +57,9 @@ export default function TenantPaymentsPage() {
               items.map((item) => (
                 <tr key={item.id} className="border-b border-border">
                   <td className="px-4 py-3">{item.payment_date}</td>
+                  <td className="px-4 py-3">
+                    {formatCoveredPeriod(item.covered_from, item.covered_to) ?? "—"}
+                  </td>
                   <td className="px-4 py-3 font-medium">{formatCurrency(item.amount)}</td>
                   <td className="px-4 py-3">
                     {PAYMENT_METHOD_LABELS[item.payment_method] ?? item.payment_method}

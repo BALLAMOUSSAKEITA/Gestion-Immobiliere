@@ -17,6 +17,21 @@ from app.services.rent_period_service import ReceiptNumberService
 
 logger = logging.getLogger(__name__)
 
+MONTHS_FR = {
+    1: "janvier",
+    2: "février",
+    3: "mars",
+    4: "avril",
+    5: "mai",
+    6: "juin",
+    7: "juillet",
+    8: "août",
+    9: "septembre",
+    10: "octobre",
+    11: "novembre",
+    12: "décembre",
+}
+
 PAYMENT_METHOD_LABELS = {
     "cash": "Espèces",
     "orange_money": "Orange Money",
@@ -151,6 +166,17 @@ class ReceiptService:
             y,
             f"Émis le {payment.payment_date.strftime('%d/%m/%Y')}",
         )
+        if payment.covered_from and payment.covered_to:
+            y -= 0.45 * cm
+            c.drawString(
+                left,
+                y,
+                (
+                    "Période couverte : "
+                    f"{payment.covered_from.strftime('%d/%m/%Y')} "
+                    f"au {payment.covered_to.strftime('%d/%m/%Y')}"
+                ),
+            )
 
         # Bloc infos locataire
         y -= 1.1 * cm
@@ -196,7 +222,7 @@ class ReceiptService:
         c.setFont("Helvetica", 10)
         for index, allocation in enumerate(payment.allocations):
             period = allocation.rent_period
-            label = f"{period.period_month:02d}/{period.period_year}"
+            label = f"{MONTHS_FR.get(period.period_month, period.period_month)} {period.period_year}"
             amount = f"{allocation.allocated_amount:,.0f} FG".replace(",", " ")
             row_h = 0.65 * cm
             if index % 2 == 0:

@@ -1,3 +1,4 @@
+import calendar
 import shutil
 from datetime import date
 from decimal import Decimal
@@ -170,23 +171,51 @@ class PaymentService:
             period_service.generate_for_lease(lease)
             self.db.flush()
 
-        allocations = payload.allocations
-        if not allocations:
-            allocations = self._auto_allocate(lease_id, payload.amount)
+        if payload.covered_to:
+            period_service.ensure_covering(lease, payload.covered_to)
+            lease = self._get_lease_or_404(lease_id)
 
-        total_allocated = sum(item.amount for item in allocations)
-        if total_allocated != payload.amount:
+        allocations = list(payload.allocations)
+        if not allocations:
+            if payload.covered_from and payload.covered_to:
+                allocations = self._allocate_for_range(
+                    lease_id,
+                    payload.covered_from,
+                    payload.covered_to,
+                    payload.amount,
+                )
+            elif payload.amount is not None:
+                allocations = self._auto_allocate(lease_id, payload.amount)
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Indiquez un montant ou une période couverte par le paiement",
+                )
+
+        amount = payload.amount or sum((item.amount for item in allocations), Decimal("0"))
+        amount = amount.quantize(Decimal("0.01"))
+        total_allocated = sum((item.amount for item in allocations), Decimal("0")).quantize(
+            Decimal("0.01")
+        )
+        if total_allocated != amount:
             raise HTTPException(
                 status_code=400,
                 detail="Le total des allocations doit être égal au montant du paiement",
             )
 
+        covered_from = payload.covered_from
+        covered_to = payload.covered_to
+        if covered_from is None or covered_to is None:
+            covered_from, covered_to = self._range_from_allocations(allocations)
+
         payment = Payment(
             lease_id=lease_id,
             tenant_id=lease.tenant_id,
-            amount=payload.amount,
+            amount=amount,
             payment_method=payload.payment_method,
             payment_date=payload.payment_date,
+            covered_from=covered_from,
+            covered_to=covered_to,
             reference=payload.reference,
             notes=payload.notes,
             recorded_by=actor.id,
@@ -249,7 +278,7 @@ class PaymentService:
             if period:
                 detector.sync_period(period.id, payload.payment_date)
 
-        return self._to_detail(self._get_or_404(payment.id))
+        return self._to_detail(self._get_or_404(payment_id))
 
     def upload_proof(
         self, actor: User, payment_id: UUID, file: UploadFile
@@ -359,6 +388,79 @@ class PaymentService:
             )
         return allocations
 
+    def _allocate_for_range(
+        self,
+        lease_id: UUID,
+        covered_from: date,
+        covered_to: date,
+        amount: Decimal | None,
+    ) -> list[PeriodAllocationInput]:
+        start_key = (covered_from.year, covered_from.month)
+        end_key = (covered_to.year, covered_to.month)
+        periods = (
+            self.db.query(RentPeriod)
+            .filter(RentPeriod.lease_id == lease_id)
+            .order_by(RentPeriod.period_year, RentPeriod.period_month)
+            .all()
+        )
+        in_range = [
+            period
+            for period in periods
+            if start_key <= (period.period_year, period.period_month) <= end_key
+        ]
+        if not in_range:
+            raise HTTPException(
+                status_code=400,
+                detail="Aucune échéance de loyer sur la période sélectionnée",
+            )
+
+        remaining = amount
+        allocations: list[PeriodAllocationInput] = []
+        for period in in_range:
+            due = period.expected_amount - period.paid_amount
+            if due <= 0:
+                continue
+            if remaining is None:
+                alloc = due
+            else:
+                if remaining <= 0:
+                    break
+                alloc = min(due, remaining)
+                remaining -= alloc
+            if alloc <= 0:
+                continue
+            allocations.append(
+                PeriodAllocationInput(
+                    period_year=period.period_year,
+                    period_month=period.period_month,
+                    amount=alloc,
+                )
+            )
+
+        if not allocations:
+            raise HTTPException(
+                status_code=400,
+                detail="Cette période est déjà soldée",
+            )
+        if remaining is not None and remaining > 0:
+            raise HTTPException(
+                status_code=400,
+                detail="Montant supérieur au reste dû sur la période sélectionnée",
+            )
+        return allocations
+
+    @staticmethod
+    def _range_from_allocations(
+        allocations: list[PeriodAllocationInput],
+    ) -> tuple[date, date]:
+        first = min(allocations, key=lambda item: (item.period_year, item.period_month))
+        last = max(allocations, key=lambda item: (item.period_year, item.period_month))
+        last_day = calendar.monthrange(last.period_year, last.period_month)[1]
+        return (
+            date(first.period_year, first.period_month, 1),
+            date(last.period_year, last.period_month, last_day),
+        )
+
     def _get_lease_or_404(self, lease_id: UUID) -> Lease:
         lease = (
             self.db.query(Lease)
@@ -432,6 +534,8 @@ class PaymentService:
             amount=payment.amount,
             payment_method=payment.payment_method,
             payment_date=payment.payment_date,
+            covered_from=payment.covered_from,
+            covered_to=payment.covered_to,
             reference=payment.reference,
             status=payment.status,
             recorded_by_name=f"{payment.recorder.first_name} {payment.recorder.last_name}",
