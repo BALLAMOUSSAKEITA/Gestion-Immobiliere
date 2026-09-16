@@ -145,22 +145,7 @@ export function PaymentForm({ leases, onSubmit }: PaymentFormProps) {
   const breakdown = useMemo<BreakdownRow[]>(() => {
     if (!coveredFrom || !coveredTo || !selectedLease) return [];
     const rent = Number(selectedLease.rent_amount);
-    const start = new Date(`${selectedLease.start_date}T00:00:00`);
-    const startKey = start.getFullYear() * 12 + start.getMonth();
-    const endKey = selectedLease.end_date
-      ? (() => {
-          const end = new Date(`${selectedLease.end_date}T00:00:00`);
-          return end.getFullYear() * 12 + end.getMonth();
-        })()
-      : null;
-    return monthsInRange(coveredFrom, coveredTo)
-      .filter(({ year, month }) => {
-        const key = year * 12 + (month - 1);
-        if (key < startKey) return false;
-        if (endKey !== null && key > endKey) return false;
-        return true;
-      })
-      .map(({ year, month }) => {
+    return monthsInRange(coveredFrom, coveredTo).map(({ year, month }) => {
       const period = periods.find(
         (item) => item.period_year === year && item.period_month === month,
       );
@@ -285,8 +270,6 @@ export function PaymentForm({ leases, onSubmit }: PaymentFormProps) {
               id="covered_from"
               type="date"
               value={coveredFrom}
-              min={selectedLease?.start_date}
-              max={selectedLease?.end_date ?? undefined}
               onChange={(e) => setCoveredFrom(e.target.value)}
               required
               disabled={!leaseId}
@@ -300,8 +283,6 @@ export function PaymentForm({ leases, onSubmit }: PaymentFormProps) {
               id="covered_to"
               type="date"
               value={coveredTo}
-              min={coveredFrom || selectedLease?.start_date}
-              max={selectedLease?.end_date ?? undefined}
               onChange={(e) => setCoveredTo(e.target.value)}
               required
               disabled={!leaseId}

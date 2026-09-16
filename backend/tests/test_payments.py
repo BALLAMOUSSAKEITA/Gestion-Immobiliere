@@ -153,6 +153,48 @@ def test_covered_period_skips_already_paid_months(
     assert months == {(2026, 8), (2026, 9)}
 
 
+def test_covered_period_after_lease_end_is_allowed(
+    client: TestClient, super_admin_headers: dict[str, str], active_lease: Lease
+) -> None:
+    response = client.post(
+        "/api/v1/payments",
+        headers=super_admin_headers,
+        json={
+            "lease_id": str(active_lease.id),
+            "payment_method": "cash",
+            "payment_date": "2027-01-05",
+            "covered_from": "2027-01-01",
+            "covered_to": "2027-01-31",
+        },
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["amount"] == "250000.00"
+    assert data["covered_from"] == "2027-01-01"
+    assert data["covered_to"] == "2027-01-31"
+
+
+def test_covered_period_before_lease_start_is_allowed(
+    client: TestClient, super_admin_headers: dict[str, str], active_lease: Lease
+) -> None:
+    response = client.post(
+        "/api/v1/payments",
+        headers=super_admin_headers,
+        json={
+            "lease_id": str(active_lease.id),
+            "payment_method": "cash",
+            "payment_date": "2026-06-15",
+            "covered_from": "2026-06-01",
+            "covered_to": "2026-06-30",
+        },
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["amount"] == "250000.00"
+    assert data["covered_from"] == "2026-06-01"
+    assert data["covered_to"] == "2026-06-30"
+
+
 def test_record_multi_month_payment(
     client: TestClient, super_admin_headers: dict[str, str], active_lease: Lease
 ) -> None:

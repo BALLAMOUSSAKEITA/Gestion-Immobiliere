@@ -76,15 +76,45 @@ class RentPeriodService:
             self.db.flush()
         return created
 
+    def ensure_period(self, lease: Lease, year: int, month: int) -> RentPeriod:
+        existing = self.get_period(lease.id, year, month)
+        if existing:
+            return existing
+        due_day = min(lease.start_date.day, calendar.monthrange(year, month)[1])
+        period = RentPeriod(
+            lease_id=lease.id,
+            period_year=year,
+            period_month=month,
+            expected_amount=lease.rent_amount,
+            paid_amount=Decimal("0"),
+            due_date=date(year, month, due_day),
+        )
+        self.db.add(period)
+        self.db.flush()
+        return period
+
+    def ensure_range(self, lease: Lease, start: date, until: date) -> list[RentPeriod]:
+        if start > until:
+            start, until = until, start
+        periods: list[RentPeriod] = []
+        year, month = start.year, start.month
+        end_key = (until.year, until.month)
+        while (year, month) <= end_key:
+            periods.append(self.ensure_period(lease, year, month))
+            year, month = self._next_month(year, month)
+        return periods
+
     def ensure_covering(self, lease: Lease, until: date) -> list[RentPeriod]:
-        needed = (
+        start = min(lease.start_date, until)
+        needed_after_start = (
             (until.year - lease.start_date.year) * 12
             + until.month
             - lease.start_date.month
             + 1
         )
-        months = max(needed, 12)
-        return self.generate_for_lease(lease, months=months)
+        if needed_after_start > 12:
+            self.generate_for_lease(lease, months=needed_after_start)
+        return self.ensure_range(lease, start, until)
 
     def refresh_period_status(self, period: RentPeriod, today: date | None = None) -> None:
         from app.models.enums import RentPeriodStatus

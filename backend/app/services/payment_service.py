@@ -171,7 +171,10 @@ class PaymentService:
             period_service.generate_for_lease(lease)
             self.db.flush()
 
-        if payload.covered_to:
+        if payload.covered_from and payload.covered_to:
+            period_service.ensure_range(lease, payload.covered_from, payload.covered_to)
+            lease = self._get_lease_or_404(lease_id)
+        elif payload.covered_to:
             period_service.ensure_covering(lease, payload.covered_to)
             lease = self._get_lease_or_404(lease_id)
 
