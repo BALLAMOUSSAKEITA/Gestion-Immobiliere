@@ -11,7 +11,7 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.config import get_settings
-from app.core.security import hash_password
+from app.core.security import assign_password
 from decimal import Decimal
 
 from app.models.building import Unit
@@ -228,13 +228,13 @@ class TenantService:
         password = payload.password or self._generate_password()
         user = User(
             email=email,
-            password_hash=hash_password(password),
             first_name=tenant.first_name,
             last_name=tenant.last_name,
             phone=tenant.phone_primary,
             role_id=role.id,
             is_active=True,
         )
+        assign_password(user, password)
         self.db.add(user)
         self.db.flush()
         tenant.user_id = user.id

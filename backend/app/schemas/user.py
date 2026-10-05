@@ -52,6 +52,7 @@ class CreateUserRequest(BaseModel):
 
 class UpdateUserRequest(BaseModel):
     email: str | None = None
+    password: str | None = None
     first_name: str | None = Field(default=None, min_length=1, max_length=100)
     last_name: str | None = Field(default=None, min_length=1, max_length=100)
     phone: str | None = None
@@ -71,6 +72,18 @@ class UpdateUserRequest(BaseModel):
             raise ValueError("Email invalide")
         return email
 
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value: str | None) -> str | None:
+        if value is None:
+            return value
+        if not PASSWORD_PATTERN.match(value):
+            raise ValueError(
+                "Le mot de passe doit contenir au moins 8 caractères, "
+                "une majuscule et un chiffre."
+            )
+        return value
+
 
 class UserSummaryResponse(BaseModel):
     id: str
@@ -81,6 +94,7 @@ class UserSummaryResponse(BaseModel):
     role: RoleSummary
     is_active: bool
     created_at: datetime
+    password: str | None = None
 
 
 class UserDetailResponse(UserSummaryResponse):

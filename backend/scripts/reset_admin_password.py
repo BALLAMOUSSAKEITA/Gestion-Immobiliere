@@ -10,7 +10,7 @@ Usage (Railway):
 
 from app.core.config import get_settings
 from app.core.database import SessionLocal
-from app.core.security import hash_password
+from app.core.security import assign_password
 from app.models.role import Role
 from app.models.user import User
 
@@ -30,12 +30,9 @@ def main() -> None:
             raise SystemExit("Rôle super_admin introuvable. Exécutez d'abord: alembic upgrade head")
 
         user = db.query(User).filter(User.email.ilike(email)).first()
-        password_hash = hash_password(password)
-
         if user is None:
             user = User(
                 email=email,
-                password_hash=password_hash,
                 first_name="Super",
                 last_name="Admin",
                 phone="+2250700000000",
@@ -46,10 +43,11 @@ def main() -> None:
             action = "créé"
         else:
             user.email = email
-            user.password_hash = password_hash
             user.is_active = True
             user.role_id = role.id
             action = "mis à jour"
+
+        assign_password(user, password)
 
         db.commit()
         print(f"Compte super admin {action}: {email}")

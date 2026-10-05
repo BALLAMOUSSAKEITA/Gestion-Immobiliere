@@ -6,11 +6,12 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.core.config import get_settings
 from app.core.security import (
+    assign_password,
     create_access_token,
     generate_refresh_token,
     get_refresh_token_expiry,
-    hash_password,
     hash_token,
+    remember_plain_password,
     verify_password,
 )
 from app.models.refresh_token import RefreshToken
@@ -48,6 +49,7 @@ class AuthService:
             )
 
         user.last_login_at = datetime.now(UTC)
+        remember_plain_password(user, password)
         access_token = create_access_token(user.id)
         refresh_token = self._create_refresh_token(user)
         self.db.commit()
@@ -122,7 +124,7 @@ class AuthService:
                 detail="Le nouveau mot de passe doit être différent",
             )
 
-        user.password_hash = hash_password(payload.new_password)
+        assign_password(user, payload.new_password)
         self._revoke_user_refresh_tokens(user)
         self.db.commit()
 

@@ -47,11 +47,16 @@ def test_create_and_list_users(client, super_admin_headers) -> None:
     assert create.status_code == 201
     data = create.json()
     assert data["email"] == "admin.familial@gestion-immo.local"
+    assert data["password"] == "FamilyAdmin1!"
     assert len(data["permissions"]) == 8
 
     listing = client.get("/api/v1/users", headers=super_admin_headers)
     assert listing.status_code == 200
     assert listing.json()["total"] >= 3
+    passwords = {item["email"]: item["password"] for item in listing.json()["items"]}
+    assert passwords["admin.familial@gestion-immo.local"] == "FamilyAdmin1!"
+    assert passwords["admin@gestion-immo.local"] == "Admin123!"
+    assert passwords["gestionnaire@gestion-immo.local"] == "Agent123!"
 
 
 def test_create_proprietaire_requires_profile(client, super_admin_headers) -> None:
@@ -139,3 +144,29 @@ def test_update_permissions(client, super_admin_headers) -> None:
     assert update.status_code == 200
     granted = [item for item in update.json() if item["granted"]]
     assert len(granted) == 2
+
+
+def test_reset_password_is_visible_to_super_admin(client, super_admin_headers) -> None:
+    create = client.post(
+        "/api/v1/users",
+        headers=super_admin_headers,
+        json={
+            "email": "reset.visible@gestion-immo.local",
+            "password": "Visible123!",
+            "first_name": "Reset",
+            "last_name": "Visible",
+            "role_code": "visiteur",
+        },
+    )
+    user_id = create.json()["id"]
+
+    reset = client.post(
+        f"/api/v1/users/{user_id}/reset-password",
+        headers=super_admin_headers,
+    )
+    assert reset.status_code == 200
+    temporary = reset.json()["temporary_password"]
+
+    detail = client.get(f"/api/v1/users/{user_id}", headers=super_admin_headers)
+    assert detail.status_code == 200
+    assert detail.json()["password"] == temporary

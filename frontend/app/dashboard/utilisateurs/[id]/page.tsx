@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { SuperAdminRoute } from "@/components/auth/super-admin-route";
 import { RoleBadge } from "@/components/auth/role-badge";
+import { PasswordReveal } from "@/components/users/password-reveal";
 import { UserForm } from "@/components/users/user-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -75,6 +76,8 @@ export default function UserDetailPage() {
       return;
     }
     const result = await resetUserPassword(token, user.id);
+    const refreshed = await fetchUser(token, user.id);
+    setUser(refreshed);
     setMessage(`Mot de passe temporaire : ${result.temporary_password}`);
   };
 
@@ -110,6 +113,16 @@ export default function UserDetailPage() {
             {message}
           </div>
         )}
+
+        <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+          <p className="text-sm text-muted-foreground">Mot de passe actuel</p>
+          <div className="mt-2">
+            <PasswordReveal
+              password={user.password}
+              emptyLabel="Non disponible — l'utilisateur doit se connecter une fois, ou réinitialisez le mot de passe."
+            />
+          </div>
+        </div>
 
         <UserForm
           submitLabel="Enregistrer les modifications"

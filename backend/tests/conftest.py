@@ -15,7 +15,7 @@ from sqlalchemy.pool import StaticPool
 from app.core.document_types_seed import DOCUMENT_TYPE_SEED
 from app.core.expense_categories_seed import EXPENSE_CATEGORY_SEED
 from app.core.database import get_db
-from app.core.security import hash_password
+from app.core.security import assign_password
 from app.main import app
 from app.models.base import Base
 from app.models import (  # noqa: F401
@@ -117,31 +117,29 @@ def db_session() -> Generator[Session, None, None]:
     ]:
         db.add(role)
 
-    for user in [
-        User(
-            id=uuid.UUID("00000000-0000-4000-8000-000000000010"),
-            email="admin@gestion-immo.local",
-            password_hash=hash_password("Admin123!"),
-            first_name="Super",
-            last_name="Admin",
-            role_id=ROLE_IDS["super_admin"],
-            is_active=True,
-            created_at=now,
-            updated_at=now,
-        ),
-        User(
-            id=uuid.UUID("00000000-0000-4000-8000-000000000011"),
-            email="gestionnaire@gestion-immo.local",
-            password_hash=hash_password("Agent123!"),
-            first_name="Jean",
-            last_name="Gestionnaire",
-            role_id=ROLE_IDS["gestionnaire"],
-            is_active=True,
-            created_at=now,
-            updated_at=now,
-        ),
-    ]:
-        db.add(user)
+    admin = User(
+        id=uuid.UUID("00000000-0000-4000-8000-000000000010"),
+        email="admin@gestion-immo.local",
+        first_name="Super",
+        last_name="Admin",
+        role_id=ROLE_IDS["super_admin"],
+        is_active=True,
+        created_at=now,
+        updated_at=now,
+    )
+    assign_password(admin, "Admin123!")
+    agent = User(
+        id=uuid.UUID("00000000-0000-4000-8000-000000000011"),
+        email="gestionnaire@gestion-immo.local",
+        first_name="Jean",
+        last_name="Gestionnaire",
+        role_id=ROLE_IDS["gestionnaire"],
+        is_active=True,
+        created_at=now,
+        updated_at=now,
+    )
+    assign_password(agent, "Agent123!")
+    db.add_all([admin, agent])
 
     for item in EXPENSE_CATEGORY_SEED:
         db.add(

@@ -170,6 +170,7 @@ export type UserSummary = {
   role: RoleSummary;
   is_active: boolean;
   created_at: string;
+  password?: string | null;
 };
 
 export type UserDetail = UserSummary & {

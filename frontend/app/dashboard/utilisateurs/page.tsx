@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { SuperAdminRoute } from "@/components/auth/super-admin-route";
 import { RoleBadge } from "@/components/auth/role-badge";
+import { PasswordReveal } from "@/components/users/password-reveal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -95,6 +96,7 @@ export default function UsersPage() {
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium">Nom</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Email</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Mot de passe</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Rôle</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Statut</th>
                 <th className="px-4 py-3 text-right text-sm font-medium">Actions</th>
@@ -103,13 +105,13 @@ export default function UsersPage() {
             <tbody className="divide-y divide-zinc-200">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                     Chargement...
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                     Aucun utilisateur trouvé
                   </td>
                 </tr>
@@ -120,6 +122,12 @@ export default function UsersPage() {
                       {user.first_name} {user.last_name}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
+                    <td className="px-4 py-3">
+                      <PasswordReveal
+                        password={user.password}
+                        emptyLabel="Se connecte ou réinitialise"
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <RoleBadge code={user.role.code} label={user.role.label} />
                     </td>

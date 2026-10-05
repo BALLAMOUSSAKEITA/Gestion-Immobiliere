@@ -9,7 +9,7 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.permission_codes import ADMIN_FAMILIAL_PERMISSION_CODES
-from app.core.security import hash_password
+from app.core.security import assign_password, decrypt_recoverable_password
 from app.models.audit import ApprovalRequest, AuditLog
 from app.models.building import Building
 from app.models.document import Document, DocumentShare
@@ -119,13 +119,13 @@ class UserService:
         password = payload.password or self._generate_password()
         user = User(
             email=email,
-            password_hash=hash_password(password),
             first_name=payload.first_name.strip(),
             last_name=payload.last_name.strip(),
             phone=payload.phone,
             role_id=role.id,
             is_active=payload.is_active,
         )
+        assign_password(user, password)
         self.db.add(user)
         self.db.flush()
 
@@ -157,6 +157,9 @@ class UserService:
             raise HTTPException(
                 status_code=400, detail="Impossible de modifier votre propre rôle",
             )
+
+        if payload.password:
+            assign_password(user, payload.password)
 
         if payload.email:
             email = payload.email.strip().lower()
@@ -325,7 +328,7 @@ class UserService:
     def reset_password(self, user_id: UUID) -> ResetPasswordResponse:
         user = self._get_user_or_404(user_id)
         password = self._generate_password()
-        user.password_hash = hash_password(password)
+        assign_password(user, password)
         self.db.commit()
         self._send_welcome_email(user.email, password)
         return ResetPasswordResponse(temporary_password=password)
@@ -460,6 +463,7 @@ class UserService:
             role={"code": user.role.code, "label": user.role.label},
             is_active=user.is_active,
             created_at=user.created_at,
+            password=decrypt_recoverable_password(user.password_secret),
         )
 
     def _to_detail(self, user: User) -> UserDetailResponse:
