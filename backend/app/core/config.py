@@ -47,9 +47,17 @@ class Settings(BaseSettings):
     @field_validator("database_url", mode="before")
     @classmethod
     def normalize_database_url(cls, value: str) -> str:
-        if isinstance(value, str) and value.startswith("postgres://"):
-            return value.replace("postgres://", "postgresql://", 1)
-        return value
+        if not isinstance(value, str):
+            return value
+        url = value.strip()
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        # Le projet utilise psycopg2-binary, pas psycopg (v3).
+        if url.startswith("postgresql+psycopg://"):
+            url = url.replace("postgresql+psycopg://", "postgresql+psycopg2://", 1)
+        elif url.startswith("postgresql://"):
+            url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+        return url
 
     @property
     def cors_origins_list(self) -> list[str]:
