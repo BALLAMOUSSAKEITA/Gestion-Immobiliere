@@ -20,7 +20,9 @@ export function PasswordReveal({
   const [copied, setCopied] = useState(false);
 
   if (!password) {
-    return <span className="text-sm text-muted-foreground">{emptyLabel}</span>;
+    return (
+      <span className="block text-sm leading-snug text-muted-foreground">{emptyLabel}</span>
+    );
   }
 
   const copyPassword = async () => {
@@ -34,8 +36,8 @@ export function PasswordReveal({
   };
 
   return (
-    <div className="inline-flex items-center gap-1">
-      <code className="max-w-[10rem] truncate rounded-md bg-muted px-2 py-1 font-mono text-xs sm:max-w-none">
+    <div className="flex max-w-full flex-wrap items-center gap-1">
+      <code className="max-w-full break-all rounded-md bg-muted px-2 py-1 font-mono text-xs">
         {visible ? password : "••••••••"}
       </code>
       <Button

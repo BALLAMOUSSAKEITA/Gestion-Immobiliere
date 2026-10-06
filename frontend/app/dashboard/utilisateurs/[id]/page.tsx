@@ -94,16 +94,16 @@ export default function UserDetailPage() {
   return (
     <SuperAdminRoute>
       <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold break-words sm:text-3xl">
               {user.first_name} {user.last_name}
             </h1>
             <div className="mt-2">
               <RoleBadge code={user.role.code} label={user.role.label} />
             </div>
           </div>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="w-full shrink-0 sm:w-auto">
             <Link href="/dashboard/utilisateurs">Retour</Link>
           </Button>
         </div>
@@ -158,18 +158,26 @@ export default function UserDetailPage() {
           }}
         />
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           {user.role.code === "admin_familial" && (
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
               <Link href={`/dashboard/utilisateurs/${user.id}/permissions`}>
                 Gérer les permissions
               </Link>
             </Button>
           )}
-          <Button variant="outline" onClick={handleResetPassword}>
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={handleResetPassword}
+          >
             Réinitialiser le mot de passe
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button
+            variant="destructive"
+            className="w-full sm:w-auto"
+            onClick={handleDelete}
+          >
             Supprimer
           </Button>
         </div>
