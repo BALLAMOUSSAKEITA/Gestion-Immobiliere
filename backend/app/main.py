@@ -8,6 +8,8 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.v1.router import router as v1_router
 from app.core.config import get_settings
+from app.core.database import SessionLocal
+from app.core.password_secret_sync import sync_recoverable_password_secrets
 from app.core.scheduler import lifespan as scheduler_lifespan
 from app.schemas.common import HealthResponse
 
@@ -16,6 +18,12 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    db = SessionLocal()
+    try:
+        sync_recoverable_password_secrets(db)
+    finally:
+        db.close()
+
     if settings.enable_scheduler:
         async with scheduler_lifespan(app):
             yield

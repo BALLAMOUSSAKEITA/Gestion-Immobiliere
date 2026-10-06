@@ -8,13 +8,15 @@ import { Button } from "@/components/ui/button";
 type PasswordRevealProps = {
   password?: string | null;
   emptyLabel?: string;
+  defaultVisible?: boolean;
 };
 
 export function PasswordReveal({
   password,
   emptyLabel = "Non disponible",
+  defaultVisible = false,
 }: PasswordRevealProps) {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(defaultVisible);
   const [copied, setCopied] = useState(false);
 
   if (!password) {

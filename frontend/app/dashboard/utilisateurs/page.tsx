@@ -125,7 +125,8 @@ export default function UsersPage() {
                     <td className="px-4 py-3">
                       <PasswordReveal
                         password={user.password}
-                        emptyLabel="Se connecte ou réinitialise"
+                        defaultVisible={Boolean(user.password)}
+                        emptyLabel="Réinitialiser ou définir un mot de passe"
                       />
                     </td>
                     <td className="px-4 py-3">

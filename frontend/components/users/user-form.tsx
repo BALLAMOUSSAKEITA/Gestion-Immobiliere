@@ -18,12 +18,18 @@ import {
 import { getAccessToken } from "@/lib/auth-storage";
 
 type UserFormProps = {
+  mode?: "create" | "edit";
   initialValues?: Partial<CreateUserPayload>;
   submitLabel: string;
   onSubmit: (payload: CreateUserPayload) => Promise<void>;
 };
 
-export function UserForm({ initialValues, submitLabel, onSubmit }: UserFormProps) {
+export function UserForm({
+  mode = "create",
+  initialValues,
+  submitLabel,
+  onSubmit,
+}: UserFormProps) {
   const [form, setForm] = useState<CreateUserPayload>({
     email: initialValues?.email ?? "",
     password: initialValues?.password ?? "",
@@ -74,9 +80,15 @@ export function UserForm({ initialValues, submitLabel, onSubmit }: UserFormProps
     setLoading(true);
     setError(null);
     try {
+      const trimmedPassword = form.password?.trim();
       const payload: CreateUserPayload = {
         ...form,
-        password: autoPassword ? undefined : form.password,
+        password:
+          mode === "create"
+            ? autoPassword
+              ? undefined
+              : trimmedPassword || undefined
+            : trimmedPassword || undefined,
       };
       await onSubmit(payload);
     } catch (err) {
@@ -159,7 +171,7 @@ export function UserForm({ initialValues, submitLabel, onSubmit }: UserFormProps
         </div>
       </div>
 
-      {!initialValues && (
+      {mode === "create" ? (
         <div className="space-y-3">
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -179,6 +191,21 @@ export function UserForm({ initialValues, submitLabel, onSubmit }: UserFormProps
               }
             />
           )}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Nouveau mot de passe</label>
+          <Input
+            type="password"
+            placeholder="Laisser vide pour ne pas changer"
+            value={form.password ?? ""}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, password: event.target.value }))
+            }
+          />
+          <p className="text-xs text-muted-foreground">
+            Après enregistrement, le mot de passe sera visible dans la liste des utilisateurs.
+          </p>
         </div>
       )}
 

@@ -119,12 +119,14 @@ export default function UserDetailPage() {
           <div className="mt-2">
             <PasswordReveal
               password={user.password}
-              emptyLabel="Non disponible — l'utilisateur doit se connecter une fois, ou réinitialisez le mot de passe."
+              defaultVisible={Boolean(user.password)}
+              emptyLabel="Réinitialisez le mot de passe ou définissez-en un nouveau ci-dessous."
             />
           </div>
         </div>
 
         <UserForm
+          mode="edit"
           submitLabel="Enregistrer les modifications"
           initialValues={{
             email: user.email,
@@ -148,7 +150,11 @@ export default function UserDetailPage() {
             }
             const updated = await updateUser(token, user.id, payload);
             setUser(updated);
-            setMessage("Utilisateur mis à jour");
+            setMessage(
+              payload.password
+                ? "Utilisateur mis à jour — le nouveau mot de passe est affiché ci-dessus."
+                : "Utilisateur mis à jour",
+            );
           }}
         />
 
