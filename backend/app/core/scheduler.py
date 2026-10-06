@@ -87,16 +87,19 @@ def send_due_date_notifications() -> None:
 def start_scheduler() -> None:
     if scheduler.running:
         return
-    scheduler.add_job(process_email_queue, "interval", seconds=30, id="email_queue")
-    scheduler.add_job(
-        send_due_date_notifications,
-        "cron",
-        hour=8,
-        minute=0,
-        id="due_date_notifications",
-    )
-    scheduler.start()
-    logger.info("Scheduler démarré")
+    try:
+        scheduler.add_job(process_email_queue, "interval", seconds=30, id="email_queue")
+        scheduler.add_job(
+            send_due_date_notifications,
+            "cron",
+            hour=8,
+            minute=0,
+            id="due_date_notifications",
+        )
+        scheduler.start()
+        logger.info("Scheduler démarré")
+    except Exception:  # noqa: BLE001
+        logger.exception("Impossible de démarrer le scheduler")
 
 
 def stop_scheduler() -> None:

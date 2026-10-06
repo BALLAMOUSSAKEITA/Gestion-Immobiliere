@@ -8,7 +8,6 @@ Create Date: 2026-10-05
 
 from typing import Sequence, Union
 
-import sqlalchemy as sa
 from alembic import op
 
 revision: str = "017_user_password_secret"
@@ -18,8 +17,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.add_column("users", sa.Column("password_secret", sa.Text(), nullable=True))
+    op.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_secret TEXT")
 
 
 def downgrade() -> None:
-    op.drop_column("users", "password_secret")
+    op.execute("ALTER TABLE users DROP COLUMN IF EXISTS password_secret")
